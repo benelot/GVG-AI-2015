@@ -3,7 +3,7 @@ Watch out other contestants! INI participates at this year's GVG-AI competition 
 
 To set up a GVG-AI Development environment on your machine, refer to the following article in our wiki:
 
-* https://github.com/underworldguardian/GVG-AI-2015/wiki/Setup-GVG-AI-Development-Environment
+* [Setup GVG-AI Development Environment](https://github.com/underworldguardian/GVG-AI-2015/wiki/Setup-GVG-AI-Development-Environment)
 
 You are always welcome to improve the article and add new ones (that is the idea of a wiki compared to a non-editable documentation). 
 
