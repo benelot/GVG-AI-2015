@@ -10,10 +10,15 @@ public class RunConfig {
 		gameLevels = new ArrayList<GameLevelPair<String, String[]>>();
 	}
 
-	// Available games:
+	/**
+	 * The path of the games.
+	 */
 	private final static String gamesPath = "examples/gridphysics/";
 
-	// CIG 2014 Training Set Games
+	/**
+	 * CIG 2014 Training Set Games
+	 *
+	 */
 	public interface GamesTraining2014 {
 		String ALIENS = "aliens";
 		String BOULDERDASH = "boulderdash";
@@ -27,7 +32,10 @@ public class RunConfig {
 		String ZELDA = "zelda";
 	};
 
-	// CIG 2014 Validation Set Games
+	/**
+	 * CIG 2014 Validation Set Games
+	 *
+	 */
 	public interface GamesValidation2014 {
 		String CAMELRACE = "camelRace";
 		String DIGDUG = "digdug";
@@ -41,7 +49,10 @@ public class RunConfig {
 		String EGGOMANIA = "eggomania";
 	};
 
-	// CIG 2015 New Training Set Games
+	/**
+	 * CIG 2015 New Training Set Games
+	 *
+	 */
 	public interface GamesTraining2015 {
 		String BAIT = "bait";
 		String BOLOADVENTURES = "boloadventures";
@@ -55,12 +66,25 @@ public class RunConfig {
 		String ZENPUZZLE = "zenpuzzle";
 	};
 
-	// EXTRA GAMES:
+	/**
+	 * EXTRA GAMES
+	 *
+	 */
 	public interface GamesExtra {
 		String SOLARFOX = "solarfox";
 		String BOMBUZAL = "bombuzal";
 	};
 
+	/**
+	 * Choose a new game and level to evaluate the controller against.
+	 * 
+	 * @param game
+	 *            A game name from RunConfig.Games*
+	 * @param level
+	 *            A level number between 0 and 4.
+	 * @throws Exception
+	 *             If the level is not between 0 and 4.
+	 */
 	public void addGameLevel(String game, int level) throws Exception {
 		ArrayList<String> validLevels = new ArrayList<String>();
 		if (level > 4) {
@@ -74,6 +98,16 @@ public class RunConfig {
 
 	}
 
+	/**
+	 * Choose a new game and multiple levels to evaluate the controller against.
+	 * 
+	 * @param game
+	 *            A game name from RunConfig.Games*
+	 * @param level
+	 *            Level numbers between 0 and 4 (e.g. new int[]{2,3})
+	 * @throws Exception
+	 *             If the level is not between 0 and 4.
+	 */
 	public void addGameLevel(String game, int[] levels) throws Exception {
 		for (int level : levels) {
 			addGameLevel(game, level);
@@ -81,10 +115,22 @@ public class RunConfig {
 
 	}
 
+	/**
+	 * Get all the stored game level pairs.
+	 * 
+	 * @return
+	 */
 	public ArrayList<GameLevelPair<String, String[]>> getGameLevels() {
 		return gameLevels;
 	}
 
+	/**
+	 * Create the game path out of a game name.
+	 * 
+	 * @param game
+	 *            The name of the game.
+	 * @return The path of the game.
+	 */
 	public static String getGamePath(String game) {
 		String gamePath;
 		gamePath = gamesPath + game + ".txt";
@@ -92,6 +138,15 @@ public class RunConfig {
 		return gamePath;
 	}
 
+	/**
+	 * Create the level paths out of the game name and the level numbers.
+	 * 
+	 * @param game
+	 *            The name of the game.
+	 * @param levels
+	 *            The selected levels.
+	 * @return The paths of the levels.
+	 */
 	public static String[] getGameLevelPaths(String game, String[] levels) {
 		String[] levelPaths = new String[levels.length];
 		for (int i = 0; i < levels.length; i++) {
@@ -100,25 +155,50 @@ public class RunConfig {
 		return levelPaths;
 	}
 
+	/**
+	 * Create a level path out of the game name and a level number.
+	 * 
+	 * @param game
+	 *            The name of the game.
+	 * @param levels
+	 *            The selected levels.
+	 * @return The paths of the levels.
+	 */
 	public static String getGameLevelPath(String game, String level) {
 		return gamesPath + game + "_lvl" + level + ".txt";
 	}
 
-	public String[] getRecordingsForGame(String game, String[] levels) {
+	/**
+	 * Create paths for action recordings for a certain game, levels and number
+	 * of repetitions. Creates a unique path for a recorded game using the game
+	 * name, the level number, the repetition number and a time stamp.
+	 * 
+	 * @param game
+	 *            The name of the game.
+	 * @param levels
+	 *            The levels.
+	 * @return The paths for the action recordings.
+	 */
+	public String[] getRecordingPathsForGame(String game, String[] levels) {
 		String[] actionFiles = new String[levels.length * repetitions];
 		if (saveActions) {
 			int actionIdx = 0;
 			for (String level : levels) {
 				for (int repetition = 0; repetition < repetitions; repetition++) {
-					actionFiles[actionIdx++] = "actions_game_"
-							+ game + "_lvl_" + level + "_r"
-							+ repetition + "_" + getTimestampNow() + ".txt";
+					actionFiles[actionIdx++] = "actions_game_" + game + "_lvl_"
+							+ level + "_r" + repetition + "_"
+							+ getTimestampNow() + ".txt";
 				}
 			}
 		}
 		return actionFiles;
 	}
 
+	/**
+	 * Get the timestamp string of the current time and date.
+	 * 
+	 * @return
+	 */
 	public static String getTimestampNow() {
 		Date date = new Date();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHmmss");
@@ -127,9 +207,19 @@ public class RunConfig {
 
 	private ArrayList<GameLevelPair<String, String[]>> gameLevels;
 
+	/**
+	 * The number of repetitions we run for each game.
+	 */
 	private int repetitions;
+
+	/**
+	 * The controller to test.
+	 */
 	private String controller;
 
+	/**
+	 * Whether we save the actions of the controller to file or not.
+	 */
 	private boolean saveActions;
 
 	public boolean isSaveActions() {
@@ -155,37 +245,4 @@ public class RunConfig {
 	public void setRepetitions(int repetitions) {
 		this.repetitions = repetitions;
 	}
-
-	// 1. This starts a game, in a level, played by a human.
-	// ArcadeMachine.playOneGame(game, level1, recordActionsFile, seed);
-
-	// 2. This plays a game in a level by the controller.
-	// ArcadeMachine.runOneGame(game, level1, visuals, sampleMCTSController,
-	// recordActionsFile, seed);
-	// ArcadeMachine.runOneGame(game, level1, visuals, tester,
-	// recordActionsFile, seed);
-
-	// 3. This replays a game from an action file previously recorded
-	// String readActionsFile = "actionsFile_aliens_lvl0.txt"; //This example is
-	// for
-	// ArcadeMachine.replayGame(game, level1, visuals, readActionsFile);
-
-	// 4. This plays a single game, in N levels, M times :
-	// String level2 = gamesPath + games[gameIdx] + "_lvl" + 1 +".txt";
-	// int M = 3;
-	// ArcadeMachine.runGames(game, new String[]{level1, level2}, M,
-	// sampleMCTSController, null);
-
-	// 5. This plays N games, in the first L levels, M times each. Actions to
-	// file optional (set saveActions to true).
-	/*
-	 * int N = 10, L = 5, M = 2; boolean saveActions = false; String[] levels =
-	 * new String[L]; String[] actionFiles = new String[L*M]; for(int i = 0; i <
-	 * N; ++i) { int actionIdx = 0; game = gamesPath + games[i] + ".txt";
-	 * for(int j = 0; j < L; ++j){ levels[j] = gamesPath + games[i] + "_lvl" + j
-	 * +".txt"; if(saveActions) for(int k = 0; k < M; ++k)
-	 * actionFiles[actionIdx++] = "actions_game_" + i + "_level_" + j + "_" + k
-	 * + ".txt"; } ArcadeMachine.runGames(game, levels, M, sampleMCTSController,
-	 * saveActions? actionFiles:null); }
-	 */
 }

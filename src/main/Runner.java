@@ -1,4 +1,5 @@
 package main;
+
 import java.util.Random;
 
 import samples.Agent;
@@ -10,14 +11,14 @@ public class Runner {
 
 	public static void main(String[] args) throws Exception {
 
-		// Available controllers:
+		// Available controllers from the :
 		String sampleRandomController = "controllers.sampleRandom.Agent";
 		String sampleOneStepController = "controllers.sampleonesteplookahead.Agent";
 		String sampleMCTSController = "controllers.sampleMCTS.Agent";
 		String sampleOLMCTSController = "controllers.sampleOLMCTS.Agent";
 		String sampleGAController = "controllers.sampleGA.Agent";
 
-		String customSampleController = Agent.class.getCanonicalName();
+		String customSampleController = "samples.Agent";
 
 		RunConfig config = new RunConfig();
 		config.addGameLevel(RunConfig.GamesTraining2014.PORTALS, 1);
@@ -30,38 +31,19 @@ public class Runner {
 		config.setSaveActions(true);
 
 		runGamesVisually(config);
-		
-		//runGames(config);
-		
-		//replayGame("actions_game_portals_lvl_1_r0_20150306191441.txt");
+
+		// runGames(config);
+
+		// replayGame("actions_game_portals_lvl_1_r0_20150306191441.txt");
 	}
 
-	public static void replayGame(String readActionsFile) {
-		String[] split = readActionsFile.split("_");
-		ArcadeMachine.replayGame(RunConfig.getGamePath(split[2]),
-				RunConfig.getGameLevelPath(split[2], split[4]), true,
-				readActionsFile);
-	}
-
-	public static void playGamesYourself(RunConfig config) {
-		for (GameLevelPair<String, String[]> gameLevelPair : config
-				.getGameLevels()) {
-			for (String level : gameLevelPair.level) {
-				for (int repetition = 0; repetition < config.getRepetitions(); repetition++) {
-					String actionsFile = "actions_game_" + gameLevelPair.game
-							+ "_lvl_" + level + "_r" + repetition + "_"
-							+ RunConfig.getTimestampNow() + ".txt";
-					ArcadeMachine.playOneGame(RunConfig
-							.getGamePath(gameLevelPair.game), RunConfig
-							.getGameLevelPath(gameLevelPair.game, level),
-							(config.isSaveActions()) ? actionsFile : null,
-							new Random().nextInt());
-				}
-			}
-
-		}
-	}
-
+	/**
+	 * Run the configured games with the configured controller and show the game
+	 * visually.
+	 * 
+	 * @param config
+	 *            The run configuration containing the game details.
+	 */
 	public static void runGamesVisually(RunConfig config) {
 		for (GameLevelPair<String, String[]> gameLevelPair : config
 				.getGameLevels()) {
@@ -83,15 +65,60 @@ public class Runner {
 
 	}
 
+	/**
+	 * Run the configured games with the configured controller without visual
+	 * feedback.
+	 * 
+	 * @param config
+	 *            The run configuration containing the game details.
+	 */
 	public static void runGames(RunConfig config) {
 		for (GameLevelPair<String, String[]> gameLevelPair : config
 				.getGameLevels()) {
 			ArcadeMachine.runGames(RunConfig.getGamePath(gameLevelPair.game),
 					RunConfig.getGameLevelPaths(gameLevelPair.game,
 							gameLevelPair.level), config.getRepetitions(),
-					config.getController(), config.getRecordingsForGame(
+					config.getController(), config.getRecordingPathsForGame(
 							gameLevelPair.game, gameLevelPair.level));
 		}
+	}
+
+	/**
+	 * Run the configured games and play them yourself
+	 * 
+	 * @param config
+	 *            The run configuration containing the game details.
+	 */
+	public static void playGamesYourself(RunConfig config) {
+		for (GameLevelPair<String, String[]> gameLevelPair : config
+				.getGameLevels()) {
+			for (String level : gameLevelPair.level) {
+				for (int repetition = 0; repetition < config.getRepetitions(); repetition++) {
+					String actionsFile = "actions_game_" + gameLevelPair.game
+							+ "_lvl_" + level + "_r" + repetition + "_"
+							+ RunConfig.getTimestampNow() + ".txt";
+					ArcadeMachine.playOneGame(RunConfig
+							.getGamePath(gameLevelPair.game), RunConfig
+							.getGameLevelPath(gameLevelPair.game, level),
+							(config.isSaveActions()) ? actionsFile : null,
+							new Random().nextInt());
+				}
+			}
+
+		}
+	}
+
+	/**
+	 * Replay a recorded game
+	 * 
+	 * @param readActionsFile
+	 *            The file name of the recorded game.
+	 */
+	public static void replayGame(String readActionsFile) {
+		String[] split = readActionsFile.split("_");
+		ArcadeMachine.replayGame(RunConfig.getGamePath(split[2]),
+				RunConfig.getGameLevelPath(split[2], split[4]), true,
+				readActionsFile);
 	}
 
 }
