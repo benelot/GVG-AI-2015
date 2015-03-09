@@ -1,8 +1,7 @@
-package main;
+package projects.project1;
 
 import java.util.Random;
 
-import samples.Agent;
 import misc.RunConfig;
 import misc.GameLevelPair;
 import core.ArcadeMachine;
@@ -18,13 +17,13 @@ public class Runner {
 		String sampleOLMCTSController = "controllers.sampleOLMCTS.Agent";
 		String sampleGAController = "controllers.sampleGA.Agent";
 
-		String customSampleController = "samples.Agent";
+		String customSampleController = projects.project1.Agent.class.getCanonicalName();
 
 		RunConfig config = new RunConfig();
 		config.addGameLevel(RunConfig.GamesTraining2014.PORTALS, 1);
-		// config.addGameLevel(RunConfig.GamesTraining2014.PORTALS, 2);
-		// config.addGameLevel(RunConfig.GamesTraining2014.FROGS,
-		//		new int[] { 2, 3 });
+		config.addGameLevel(RunConfig.GamesTraining2014.PORTALS, 2);
+		config.addGameLevel(RunConfig.GamesTraining2014.FROGS,
+				new int[] { 2, 3 });
 
 		config.setRepetitions(2);
 		config.setController(customSampleController);

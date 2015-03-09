@@ -1,4 +1,4 @@
-package samples;
+package tutorials.tutorial1;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -8,7 +8,7 @@ import tools.ElapsedCpuTimer;
 import core.game.StateObservation;
 import core.player.AbstractPlayer;
 
-public class Agent extends AbstractPlayer {
+public class TutorialAgent extends AbstractPlayer {
 
 	/**
 	 * A random number generator.
@@ -24,7 +24,7 @@ public class Agent extends AbstractPlayer {
 	 * @param elapsedTimer
 	 *            The time that has elapsed already.
 	 */
-	public Agent(StateObservation gameState, ElapsedCpuTimer elapsedTimer) {
+	public TutorialAgent(StateObservation gameState, ElapsedCpuTimer elapsedTimer) {
 		randomGenerator = new Random();
 	}
 
