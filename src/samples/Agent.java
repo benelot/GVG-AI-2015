@@ -35,11 +35,21 @@ public class Agent extends AbstractPlayer {
 	public ACTIONS act(StateObservation gameState, ElapsedCpuTimer elapsedTimer) {
 
 		// Get the available actions in this game.
-		ArrayList<ACTIONS> actions = gameState.getAvailableActions();
+		ArrayList<ACTIONS> available_actions = gameState.getAvailableActions();
 
-		// Determine an index randomly and get the action to return.
-		int index = randomGenerator.nextInt(actions.size());
-		ACTIONS action = actions.get(index);
+		// CHANGE THESE LINES.
+		//   It should choose one of any of the actions available in "available_actions," not just left or right.
+		//   The best solution would be to:
+		//     -Find out how many available_actions there are
+		//     -Generate a random number up to that size
+		//     -Choose the action that corresponds to that number
+		// ---------------------------
+		ACTIONS action = ACTIONS.ACTION_RIGHT;
+		int rand_num = randomGenerator.nextInt(2);
+		if (rand_num == 0){
+			action = ACTIONS.ACTION_LEFT;
+		}
+		// ---------------------------
 
 		// Return the action.
 		return action;

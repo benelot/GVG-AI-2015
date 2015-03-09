@@ -22,9 +22,9 @@ public class Runner {
 
 		RunConfig config = new RunConfig();
 		config.addGameLevel(RunConfig.GamesTraining2014.PORTALS, 1);
-		config.addGameLevel(RunConfig.GamesTraining2014.PORTALS, 2);
-		config.addGameLevel(RunConfig.GamesTraining2014.FROGS,
-				new int[] { 2, 3 });
+		// config.addGameLevel(RunConfig.GamesTraining2014.PORTALS, 2);
+		// config.addGameLevel(RunConfig.GamesTraining2014.FROGS,
+		//		new int[] { 2, 3 });
 
 		config.setRepetitions(2);
 		config.setController(customSampleController);
