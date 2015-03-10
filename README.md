@@ -8,15 +8,8 @@ To set up a GVG-AI Development environment on your machine, refer to the followi
 You are always welcome to improve the article and add new ones (that is the idea of a wiki compared to a non-editable documentation). 
 
 
-## Overview of the project:
+## Tutorials:
 
-We have three teams working on the following controllers: (just add your name to the list)
-
-* Deep neural network controller (Deepmind)
-  * Some team member
-
-* Another controller (Topic to be defined)
-  * Another team member 
-
-* Yet another controller (Topic to be defined)
-  * Yet another team member
+Let's get started.  Head over to the wiki and install:
+* [Setup GVG-AI Development Environment](https://github.com/underworldguardian/GVG-AI-2015/wiki/Setup-GVG-AI-Development-Environment)
+* [Tutorial 1 - Choosing a Movement](https://github.com/benelot/GVG-AI-2015/wiki/Tutorial-1%3A-Choosing-a-Movement)

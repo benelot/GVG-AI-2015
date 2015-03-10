@@ -25,7 +25,7 @@ public class TutorialRunner {
 		// config.addGameLevel(RunConfig.GamesTraining2014.FROGS,
 		//		new int[] { 2, 3 });
 
-		config.setRepetitions(2);
+		config.setRepetitions(1);
 		config.setController(customSampleController);
 		config.setSaveActions(true);
 
