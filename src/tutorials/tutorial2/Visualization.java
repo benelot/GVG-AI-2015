@@ -44,11 +44,11 @@ public class Visualization extends JPanel {
 
 						valStr = df.format(values[i][j][2]);
 						strLen = (int) g.getFontMetrics().getStringBounds(valStr, g).getWidth();
-						g.drawString(valStr, cx - strLen/2, cy - blockSize/4);
+						g.drawString(valStr, cx - strLen/2, cy + blockSize/4);
 
 						valStr = df.format(values[i][j][3]);
 						strLen = (int) g.getFontMetrics().getStringBounds(valStr, g).getWidth();
-						g.drawString(valStr, cx - strLen/2, cy + blockSize/4);
+						g.drawString(valStr, cx - strLen/2, cy - blockSize/4);
 				}
 			}
 	   }
