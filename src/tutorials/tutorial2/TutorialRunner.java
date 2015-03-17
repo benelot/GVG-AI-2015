@@ -1,4 +1,4 @@
-package tutorials.tutorial1;
+package tutorials.tutorial2;
 
 import java.util.Random;
 
@@ -16,29 +16,33 @@ public class TutorialRunner {
 
 	public static void main(String[] args) throws Exception {
 
-		// Available controllers from the :
-		String sampleRandomController = "controllers.sampleRandom.Agent";
-		String sampleOneStepController = "controllers.sampleonesteplookahead.Agent";
-		String sampleMCTSController = "controllers.sampleMCTS.Agent";
-		String sampleOLMCTSController = "controllers.sampleOLMCTS.Agent";
-		String sampleGAController = "controllers.sampleGA.Agent";
-
-		String customSampleController = tutorials.tutorial1.TutorialAgent.class.getCanonicalName();
-
 		RunConfig config = new RunConfig();
-		config.addGameLevel(RunConfig.GamesTraining2014.PORTALS, 1);
-		// config.addGameLevel(RunConfig.GamesTraining2014.PORTALS, 2);
-		// config.addGameLevel(RunConfig.GamesTraining2014.FROGS, new int[] { 2, 3 });
-		
-		config.setRepetitions(1);
-		config.setController(customSampleController);
+		config.addGameLevel("qlearnMaze", 0);
+
+		config.setController(tutorials.tutorial2.QLearningAgent.class.getCanonicalName());
 		config.setSaveActions(true);
-
+		
+		// train 100 times
+		config.setRepetitions(100);
+		trainOneLevel(config);
+		// play game visually once
+		config.setRepetitions(1);
 		runGamesVisually(config);
-
-		// runGames(config);
-
-		// replayGame("actions_game_portals_lvl_1_r0_20150306191441.txt");
+	}
+	
+	public static void trainOneLevel(RunConfig config) {
+		for (GameLevelPair<String, String[]> gameLevelPair : config
+				.getGameLevels()) {
+			for (String level : gameLevelPair.level) {
+					String[] levels = new String[1];
+					levels[0] = RunConfig.getGameLevelPath(gameLevelPair.game, level);
+					ArcadeMachine.runGames(RunConfig.getGamePath(gameLevelPair.game), 
+							levels, 
+							config.getRepetitions(),
+							config.getController(),
+							null);
+			}
+		}
 	}
 
 	/**
@@ -64,9 +68,7 @@ public class TutorialRunner {
 							new Random().nextInt());
 				}
 			}
-
 		}
-
 	}
 
 	/**

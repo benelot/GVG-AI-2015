@@ -1,0 +1,20 @@
+BasicGame
+  SpriteSet         
+    goal  > Door color=GREEN img=goal
+    honey  > Resource color=GOLD limit=10 img=honey
+    movable >
+      avatar  > MovingAvatar
+
+  LevelMapping
+    G > goal
+    . > honey
+
+  InteractionSet
+    honey avatar    > collectResource scoreChange=30
+    honey avatar    > killSprite
+    movable wall  > stepBack
+    goal avatar  > killSprite
+                 
+  TerminationSet
+    SpriteCounter stype=goal   win=True
+    SpriteCounter stype=avatar win=False
