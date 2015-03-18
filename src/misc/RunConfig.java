@@ -112,7 +112,23 @@ public class RunConfig {
 		for (int level : levels) {
 			addGameLevel(game, level);
 		}
+	}
 
+	/**
+	 * Remove the last configured added game level.
+	 */
+	public void removeLastGameLevel() {
+		if (gameLevels.size() > 0) {
+			gameLevels.remove(gameLevels.size() - 1);
+		}
+	}
+	
+	/**
+	 * Clear all configured game levels to add new ones.
+	 */
+	public void clearGameLevels()
+	{
+		gameLevels.clear();
 	}
 
 	/**

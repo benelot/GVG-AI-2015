@@ -31,8 +31,8 @@ public class Visualization extends JPanel {
 				    	g.setColor(Color.black);  
 						g.drawRect(i*(blockSize-1), j*(blockSize-1), blockSize, blockSize);  
 						DecimalFormat df = new DecimalFormat("#.##");
-						int cx = i*blockSize - blockSize/2;
-						int cy = j*blockSize - blockSize/2;
+						int cx = (int) (i*blockSize*0.99 - blockSize/2);
+						int cy = (int) (j*blockSize*0.99 - blockSize/2);
 						
 						String valStr = df.format(values[i][j][0]);
 						int strLen = (int) g.getFontMetrics().getStringBounds(valStr, g).getWidth();
