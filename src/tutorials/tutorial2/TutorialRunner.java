@@ -24,25 +24,10 @@ public class TutorialRunner {
 		
 		// train 100 times
 		config.setRepetitions(100);
-		trainOneLevel(config);
+		runGames(config);
 		// play game visually once
 		config.setRepetitions(1);
 		runGamesVisually(config);
-	}
-	
-	public static void trainOneLevel(RunConfig config) {
-		for (GameLevelPair<String, String[]> gameLevelPair : config
-				.getGameLevels()) {
-			for (String level : gameLevelPair.level) {
-					String[] levels = new String[1];
-					levels[0] = RunConfig.getGameLevelPath(gameLevelPair.game, level);
-					ArcadeMachine.runGames(RunConfig.getGamePath(gameLevelPair.game), 
-							levels, 
-							config.getRepetitions(),
-							config.getController(),
-							null);
-			}
-		}
 	}
 
 	/**

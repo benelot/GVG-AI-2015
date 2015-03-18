@@ -16,13 +16,13 @@ public class QLearningAgent extends AbstractPlayer {
 
 	protected Random randomGenerator;
 	public static ACTIONS[] actions;
-	public static double egreedyEpsilon = 0.05; // epsilon for epsilon-greedy
+	public static double egreedyEpsilon = 0.95; // epsilon for epsilon-greedy
 												// action-selection
-	public static double gamma = 0.8; // discount factor for future rewards
-	public static double alpha = 0.4; // learning rate
-	private static final double HUGE_POSITIVE = 10.0; // reward for reaching the
+	public static double gamma = 0.1; // discount factor for future rewards
+	public static double alpha = 0.01; // learning rate
+	private static final double HUGE_POSITIVE = 50.0; // reward for reaching the
 														// goal
-	private static final double DEFAULT_REWARD = -0.1; // reward for taking one
+	private static final double DEFAULT_REWARD = -1; // reward for taking one
 														// step in the maze
 
 	public static int blockSize;
@@ -54,7 +54,7 @@ public class QLearningAgent extends AbstractPlayer {
 				actions[i] = act.get(i);
 			}
 
-			// get game dimensions and avatar starting position.
+			// get game dimensions and Avatar starting position.
 			blockSize = gameState.getBlockSize();
 			nBlocksX = gameState.getWorldDimension().width / blockSize;
 			nBlocksY = gameState.getWorldDimension().height / blockSize;
@@ -143,9 +143,9 @@ public class QLearningAgent extends AbstractPlayer {
 		int nextX = stateX;
 		int nextY = stateY;
 		if (actIdx == 0) { // left
-			nextX = nextX - 1;
-		} else if (actIdx == 1) { // right
 			nextX = nextX + 1;
+		} else if (actIdx == 1) { // right
+			nextX = nextX - 1;
 		} else if (actIdx == 2) { // down
 			nextY = nextY + 1;
 		} else { // up
