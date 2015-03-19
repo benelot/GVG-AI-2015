@@ -12,7 +12,7 @@ import core.ArcadeMachine;
  * PORTALS, SOKOBAN, SURVIVEZOMBIES, ZELDA
  */
 
-public class TutorialRunner {
+public class Tutorial2Runner {
 
 	public static void main(String[] args) throws Exception {
 
