@@ -1,10 +1,16 @@
-package tutorials.tutorial1;
+package tutorials.tutorial1solution;
 
 import java.util.Random;
 
 import misc.RunConfig;
 import misc.GameLevelPair;
 import core.ArcadeMachine;
+
+/*
+ * Possible Games:
+ * ALIENS, BOULDERDASH, BUTTERFLIES, CHASE, FROGS, MISSILECOMMAND,
+ * PORTALS, SOKOBAN, SURVIVEZOMBIES, ZELDA
+ */
 
 public class TutorialRunner {
 
@@ -22,10 +28,9 @@ public class TutorialRunner {
 		RunConfig config = new RunConfig();
 		config.addGameLevel(RunConfig.GamesTraining2014.PORTALS, 1);
 		// config.addGameLevel(RunConfig.GamesTraining2014.PORTALS, 2);
-		// config.addGameLevel(RunConfig.GamesTraining2014.FROGS,
-		//		new int[] { 2, 3 });
-
-		config.setRepetitions(2);
+		// config.addGameLevel(RunConfig.GamesTraining2014.FROGS, new int[] { 2, 3 });
+		
+		config.setRepetitions(1);
 		config.setController(customSampleController);
 		config.setSaveActions(true);
 

@@ -1,4 +1,4 @@
-package tutorials.tutorial1;
+package tutorials.tutorial1solution;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -33,25 +33,8 @@ public class TutorialAgent extends AbstractPlayer {
 	 * maximum.
 	 */
 	public ACTIONS act(StateObservation gameState, ElapsedCpuTimer elapsedTimer) {
-
-		// Get the available actions in this game.
 		ArrayList<ACTIONS> available_actions = gameState.getAvailableActions();
-
-		// CHANGE THESE LINES.
-		//   It should choose one of any of the actions available in "available_actions," not just left or right.
-		//   The best solution would be to:
-		//     -Find out how many available_actions there are
-		//     -Generate a random number up to that size
-		//     -Choose the action that corresponds to that number
-		// ---------------------------
-		ACTIONS action = ACTIONS.ACTION_RIGHT;
-		int rand_num = randomGenerator.nextInt(2);
-		if (rand_num == 0){
-			action = ACTIONS.ACTION_LEFT;
-		}
-		// ---------------------------
-
-		// Return the action.
+		ACTIONS action = available_actions.get(randomGenerator.nextInt(available_actions.size()));
 		return action;
 	}
 }
