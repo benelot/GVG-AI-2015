@@ -1,4 +1,4 @@
-package projects.project1;
+package projects.inputlayer;
 
 import java.util.Random;
 
@@ -17,7 +17,7 @@ public class Runner {
 		String sampleOLMCTSController = "controllers.sampleOLMCTS.Agent";
 		String sampleGAController = "controllers.sampleGA.Agent";
 
-		String customSampleController = projects.project1.Agent.class.getCanonicalName();
+		String customSampleController = projects.inputlayer.Agent.class.getCanonicalName();
 
 		RunConfig config = new RunConfig();
 		config.addGameLevel(RunConfig.GamesTraining2014.PORTALS, 1);
