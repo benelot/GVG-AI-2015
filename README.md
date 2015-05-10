@@ -50,8 +50,8 @@ Daniel Neil | Diana Ponce | Diana Ponce |
 Thanuja Ambegoda | Benjamin Ellenberger | Benjamin Ellenberger |
 Alpha Renner | Jakob Buhmann | Phillip Kainz |
 | | Benjamin Ehret | Gagan Narula |
-| | Nikola Nikolov | Sepp Kollmorgen |
-| | Daniel Renz | Daniel Renz |
+| | Nikola Nikolov | Daniel Renz |
+| | Daniel Renz |
 | | Sepp Kollmorgen |
 | |Joachim Ott |
 | |Peter Diehl |
