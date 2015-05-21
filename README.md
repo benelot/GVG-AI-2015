@@ -24,7 +24,34 @@ Once you have everything installed and working according to the setup above, let
 You are always welcome to improve the article and add new ones (that is the idea of a wiki compared to a non-editable documentation). 
 
 
-<!---
+
 ## Projects
 
--->
+#### Project 1: Implementing Deepmind
+We implement the controller written by Deepmind in Java for the GVG-AI Task. Checkout the awesome presentation by Daniel Neil about the paper ["Human-level control through deep reinforcement learning"](https://github.com/benelot/GVG-AI-2015/wiki/Past-Meetings-and-Future-Schedule#20150416-deepminds-human-level-control-through-deep-reinforcement-learning).
+
+
+* Input and Preprocessing
+    * Interface to the game simulator
+    * Represent game state as simplified image
+* DQN Network without the deep part
+    * Setup epsilon-greedy framework, replay memory, and Q-
+target copying
+    * Build generalized DQN without the q-estimator part
+* ConvNet Function Approximation
+    * Set up a simple interface to use the convnet to estimate the
+rewards
+
+We work in teams of the following members:
+
+| Team 1 Input:  | Team 2 DQN:  | Team 3 DCN:  |
+|---|---|---|
+Daniel Neil | Diana Ponce | Diana Ponce |
+Thanuja Ambegoda | Benjamin Ellenberger | Benjamin Ellenberger |
+Alpha Renner | Jakob Buhmann | Phillip Kainz |
+| | Benjamin Ehret | Gagan Narula |
+| | Nikola Nikolov | Daniel Renz |
+| | Daniel Renz |
+| | Sepp Kollmorgen |
+| |Joachim Ott |
+| |Peter Diehl |
