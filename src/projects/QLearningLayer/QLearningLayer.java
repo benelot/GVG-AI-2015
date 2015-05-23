@@ -1,6 +1,6 @@
-package projects.DQNLayer;
+package projects.QLearningLayer;
 
-public class DeepQNetworkLayer {
+public class QLearningLayer {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
