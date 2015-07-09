@@ -18,14 +18,14 @@ public class Runner {
 		String sampleGAController = "controllers.sampleGA.Agent";
 
 		String customSampleController = projects.inputlayer.Agent.class.getCanonicalName();
+		//String customSampleController = "controllers.human.Agent";
 
 		RunConfig config = new RunConfig();
-		config.addGameLevel(RunConfig.GamesTraining2014.PORTALS, 1);
-		config.addGameLevel(RunConfig.GamesTraining2014.PORTALS, 2);
-		config.addGameLevel(RunConfig.GamesTraining2014.FROGS,
-				new int[] { 2, 3 });
+		config.addGameLevel(RunConfig.GamesTraining2014.SURVIVEZOMBIES, 1);
+		//config.addGameLevel(RunConfig.GamesTraining2015.BOLOADVENTURES, 1);
+		// config.addGameLevel(RunConfig.GamesTraining2014.FROGS, new int[] { 2, 3 });
 
-		config.setRepetitions(2);
+		config.setRepetitions(1);
 		config.setController(customSampleController);
 		config.setSaveActions(true);
 
