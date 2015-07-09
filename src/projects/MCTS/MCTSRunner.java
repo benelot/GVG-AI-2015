@@ -154,7 +154,7 @@ public class MCTSRunner {
 							config.getController(),
 							(config.isSaveActions()) ? actionsFile : null,
 							new Random().nextInt());
-					duration = System.nanoTime() - startTime;
+					duration = (long) ((System.nanoTime() - startTime)/1e6);
 					averageScore = (averageScore*(repetition+1)+score)/(repetition+2);
 					averageTime = (averageTime*(repetition+1)+duration)/(repetition+2);
 					
