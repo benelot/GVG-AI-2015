@@ -59,6 +59,8 @@ public class SingleMCTSPlayer
         //Do the search within the available time.
         m_root.mctsSearch(elapsedTimer);
         
+        System.out.println("Number of nodes: "+m_root.countNodes());
+        
         //Determine the best action to take and return it.
         int action = m_root.mostVisitedAction();
         //int action = m_root.bestAction();
