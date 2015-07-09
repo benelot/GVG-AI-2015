@@ -3,8 +3,6 @@ package projects.MCTS;
 import java.util.ArrayList;
 import java.util.Random;
 
-import org.classpath.icedtea.Config;
-
 import misc.RunConfig;
 import misc.GameLevelPair;
 import core.ArcadeMachine;
