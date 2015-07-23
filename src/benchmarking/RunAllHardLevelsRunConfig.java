@@ -1,7 +1,9 @@
-package misc;
+package benchmarking;
 
-public class PlayAllGamesRunConfig extends RunConfig {
-	public PlayAllGamesRunConfig() {
+import misc.RunConfig;
+
+public class RunAllHardLevelsRunConfig extends RunConfig {
+	public RunAllHardLevelsRunConfig() {
 		
 		String[] games = {
 		/**
@@ -63,7 +65,7 @@ public class PlayAllGamesRunConfig extends RunConfig {
 		
 		for (int i = 0; i < games.length; i++) {
 			try {
-				addGameLevel(games[i], new int[]{0,1,2,3,4});
+				addGameLevel(games[i], new int[]{4});
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -72,8 +74,9 @@ public class PlayAllGamesRunConfig extends RunConfig {
 		
 		//play every game only once. Can be changed from outside.
 		setRepetitions(1);
-		setCalculateStatistics(true);
 		
+		//get statistics for the benchmark
+		setCalculateStatistics(true);
 
 	}
 

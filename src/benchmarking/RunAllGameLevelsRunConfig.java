@@ -1,7 +1,9 @@
-package misc;
+package benchmarking;
 
-public class PlayAllGamesRunConfig extends RunConfig {
-	public PlayAllGamesRunConfig() {
+import misc.RunConfig;
+
+public class RunAllGameLevelsRunConfig extends RunConfig {
+	public RunAllGameLevelsRunConfig() {
 		
 		String[] games = {
 		/**
@@ -72,6 +74,8 @@ public class PlayAllGamesRunConfig extends RunConfig {
 		
 		//play every game only once. Can be changed from outside.
 		setRepetitions(1);
+		
+		//get statistics for the benchmark
 		setCalculateStatistics(true);
 		
 

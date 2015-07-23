@@ -4,6 +4,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import benchmarking.RunAllEasyLevelsRunConfig;
+import benchmarking.RunAllGameLevelsRunConfig;
+import benchmarking.RunAllHardLevelsRunConfig;
+
 public class RunConfig {
 
 	public RunConfig() {
@@ -275,7 +279,20 @@ public class RunConfig {
 		this.repetitions = repetitions;
 	}
 	
-	public static PlayAllGamesRunConfig getPlayAllGamesConfig(){
+	//benchmarks
+	public static PlayAllGamesRunConfig getPlayAllGamesRunConfig(){
 		return new PlayAllGamesRunConfig();
+	}
+	
+	public static RunAllEasyLevelsRunConfig getRunAllEasyLevelsRunConfig(){
+		return new RunAllEasyLevelsRunConfig();
+	}
+	
+	public static RunAllGameLevelsRunConfig getRunAllGameLevelsRunConfig(){
+		return new RunAllGameLevelsRunConfig();
+	}
+	
+	public static RunAllHardLevelsRunConfig getRunAllHardLevelsRunConfig(){
+		return new RunAllHardLevelsRunConfig();
 	}
 }

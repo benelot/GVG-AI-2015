@@ -40,7 +40,7 @@ public class PlayAllGamesYourself {
 		// PlayAllGamesConfig is just a preconfigured RunConfig that contains
 		// all games and is set to be played by a human
 		// Controls: (Up,Down,Left,Right,Space)
-		 GameRunner.playGamesYourself(RunConfig.getPlayAllGamesConfig());
+		 GameRunner.playGamesYourself(RunConfig.getPlayAllGamesRunConfig());
 
 	}
 
