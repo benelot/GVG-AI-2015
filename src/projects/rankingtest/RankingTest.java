@@ -1,4 +1,4 @@
-package projects.RankingTest;
+package projects.rankingtest;
 
 import misc.PlayRunConfig;
 import misc.GameRunner;
