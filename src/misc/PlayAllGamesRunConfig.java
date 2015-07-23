@@ -1,7 +1,7 @@
 package misc;
 
-public class PlayRunConfig extends RunConfig {
-	public PlayRunConfig() {
+public class PlayAllGamesRunConfig extends RunConfig {
+	public PlayAllGamesRunConfig() {
 		
 		String[] games = {
 		/**

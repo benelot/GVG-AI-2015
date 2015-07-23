@@ -1,6 +1,6 @@
 package projects.rankingtest;
 
-import misc.PlayRunConfig;
+import misc.PlayAllGamesRunConfig;
 import misc.GameRunner;
 import misc.RunConfig;
 

@@ -1,7 +1,7 @@
 package projects.MCTS;
 
 import misc.GameRunner;
-import misc.PlayRunConfig;
+import misc.PlayAllGamesRunConfig;
 import misc.RunConfig;
 
 public class MCTSRunner {
@@ -35,7 +35,8 @@ public class MCTSRunner {
 		// int[] {1,2,3,4} );
 		// config.addGameLevel(RunConfig.GamesTraining2014.ZELDA, new int[]
 		// {1,2,3,4} );
-		// config.addGameLevel(RunConfig.GamesTraining2014.PORTALS,1 );
+		// config.addGameLevel(RunConfig.GamesTraining2014.PORTALS,new
+		// int[]{0,1,2,3,4} );
 		// config.addGameLevel(RunConfig.GamesTraining2014.SOKOBAN ,1 );
 		// config.addGameLevel(RunConfig.GamesTraining2014.SURVIVEZOMBIES , new
 		// int[] {1,2,3,4} );
@@ -73,11 +74,11 @@ public class MCTSRunner {
 
 		// #############
 		// == Run the agent without visual feedback (faster for evaluation)
-//		GameRunner.runGames(config);
+		// GameRunner.runGames(config);
 
 		// #############
 		// == Run the agent visually
-		 GameRunner.runGamesVisually(config);
+		GameRunner.runGamesVisually(config);
 
 		// #############
 		// == Replay a game

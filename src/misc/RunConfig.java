@@ -262,7 +262,7 @@ public class RunConfig {
 		this.repetitions = repetitions;
 	}
 	
-	public static PlayRunConfig getPlayAllGamesConfig(){
-		return new PlayRunConfig();
+	public static PlayAllGamesRunConfig getPlayAllGamesConfig(){
+		return new PlayAllGamesRunConfig();
 	}
 }
