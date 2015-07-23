@@ -1,11 +1,8 @@
 package projects.MCTS;
 
-import tools.Vector2d;
-import core.game.Observation;
 import core.game.StateObservation;
 import tools.ElapsedCpuTimer;
 
-import java.util.ArrayList;
 import java.util.Random;
 
 /**
