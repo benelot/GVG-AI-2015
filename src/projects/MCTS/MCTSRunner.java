@@ -19,8 +19,8 @@ public class MCTSRunner {
 		// 1, 2, 3, 4 });
 		// config.addGameLevel(RunConfig.GamesValidation2014.PACMAN, new int[] {
 		// 1, 2, 3, 4 });
-		// //config.addGameLevel(RunConfig.GamesTraining2014.CHASE ,new int[]
-		// {1,2,3,4} );
+		config.addGameLevel(RunConfig.GamesTraining2014.CHASE, new int[] { 1,
+				2, 3, 4 });
 		// //config.addGameLevel(RunConfig.GamesTraining2014.CHASE ,new int[]
 		// {1,2,3,4} );
 		// config.addGameLevel(RunConfig.GamesTraining2014.CHASE ,new int[]
@@ -68,6 +68,7 @@ public class MCTSRunner {
 		config.setRepetitions(1);
 		config.setController(customSampleController);
 		config.setSaveActions(false);
+		config.setCalculateStatistics(true);
 
 		// #############
 		// UNCOMMENT THE APPROPRIATE PARTS TO...

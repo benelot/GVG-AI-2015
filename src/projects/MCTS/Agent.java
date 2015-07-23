@@ -94,6 +94,12 @@ public class Agent extends AbstractPlayer {
 	 */
 	public Types.ACTIONS act(StateObservation stateObs,
 			ElapsedCpuTimer elapsedTimer) {
+		
+//		this line writes the game stats to the GameRunner if the game is over
+		GameRunner.setLastStateObservation(stateObs);
+//		if(stateObs.isGameOver()){
+//			GameRunner.setGameStatistics((stateObs.getGameWinner() == Types.WINNER.PLAYER_WINS), stateObs.getGameScore(), stateObs.getGameTick());
+//		}
 
 		// ArrayList<Observation> obs[] =
 		// stateObs.getFromAvatarSpritesPositions();

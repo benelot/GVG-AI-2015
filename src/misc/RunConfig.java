@@ -237,6 +237,19 @@ public class RunConfig {
 	 * Whether we save the actions of the controller to file or not.
 	 */
 	private boolean saveActions;
+	
+	/**
+	 * Whether we calculate statistics of the controller or not.
+	 */
+	private boolean calculateStatistics;
+
+	public boolean isCalculateStatistics() {
+		return calculateStatistics;
+	}
+
+	public void setCalculateStatistics(boolean calculateStatistics) {
+		this.calculateStatistics = calculateStatistics;
+	}
 
 	public boolean isSaveActions() {
 		return saveActions;
