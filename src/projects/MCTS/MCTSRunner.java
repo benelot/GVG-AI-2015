@@ -22,17 +22,55 @@ public class MCTSRunner {
 				.getCanonicalName();
 
 		RunConfig config = new RunConfig();
-		config.addGameLevel(RunConfig.GamesTraining2014.MISSILECOMMAND, 1);
-		config.addGameLevel(RunConfig.GamesTraining2014.BOULDERDASH, 2);
-//		config.addGameLevel(RunConfig.GamesValidation2014.PACMAN,new int[] { 1 });
+
+
+//		config.addGameLevel(RunConfig.GamesValidation2014.PACMAN, new int[] {1,2,3,4});
+//		config.addGameLevel(RunConfig.GamesValidation2014.PACMAN, new int[] {1,2,3,4});
+//		config.addGameLevel(RunConfig.GamesValidation2014.PACMAN, new int[] {1,2,3,4});
+//		//config.addGameLevel(RunConfig.GamesTraining2014.CHASE ,new int[] {1,2,3,4} );
+//		//config.addGameLevel(RunConfig.GamesTraining2014.CHASE ,new int[] {1,2,3,4} );
+		//config.addGameLevel(RunConfig.GamesTraining2014.CHASE ,new int[] {1,2,3,4} );
+		//config.addGameLevel(RunConfig.GamesTraining2014.CHASE,new int[] {1,2,3, 4} );
+		//config.addGameLevel(RunConfig.GamesTraining2014.BOULDERDASH,new int[] {1,2,3,4} );
+		//config.addGameLevel(RunConfig.GamesTraining2014.FROGS,new int[] {1,2,3,4} );
+		//config.addGameLevel(RunConfig.GamesTraining2014.MISSILECOMMAND, new int[] {1,2,3,4}  );
+//		config.addGameLevel(RunConfig.GamesTraining2014.ZELDA, new int[] {1,2,3,4}  );
+		//config.addGameLevel(RunConfig.GamesTraining2014.PORTALS,1 );
+		//config.addGameLevel(RunConfig.GamesTraining2014.SOKOBAN ,1 );
+//		config.addGameLevel(RunConfig.GamesTraining2014.SURVIVEZOMBIES , new int[] {1,2,3,4} );
+//		config.addGameLevel(RunConfig.GamesTraining2014.ZELDA ,1 );
+		
+		
+		//config.addGameLevel(RunConfig.GamesValidation2014.PACMAN, 1);
+		//config.addGameLevel(RunConfig.GamesValidation2014.PACMAN, 2);
+//		config.addGameLevel(RunConfig.GamesValidation2014.PACMAN, 3);
+//		config.addGameLevel(RunConfig.GamesValidation2014.PACMAN, 4);
+//		config.addGameLevel(RunConfig.GamesTraining2014.SURVIVEZOMBIES, 1);
+//		config.addGameLevel(RunConfig.GamesTraining2014.SURVIVEZOMBIES, 2);
+//		config.addGameLevel(RunConfig.GamesTraining2014.SURVIVEZOMBIES, 3);
+//		config.addGameLevel(RunConfig.GamesTraining2014.SURVIVEZOMBIES, 4);
+		//config.addGameLevel(RunConfig.GamesTraining2014.ZELDA, 1);
+		//config.addGameLevel(RunConfig.GamesTraining2014.CHASE, 1);
+
+		//config.addGameLevel(RunConfig.GamesTraining2015.REALPORTALS ,1 );
+		//config.addGameLevel(RunConfig.GamesTraining2015.ZENPUZZLE ,1 );
+//		config.addGameLevel(RunConfig.GamesTraining2015.BOLOADVENTURES ,1 );
+//		config.addGameLevel(RunConfig.GamesTraining2015.BRAINMAN ,1 );
+//		config.addGameLevel(RunConfig.GamesTraining2015.CHIPSCHALLENGE ,1 );
+		config.addGameLevel(RunConfig.GamesTraining2015.BAIT ,1 );
+		config.addGameLevel(RunConfig.GamesTraining2015.PAINTER ,1 );
+		//config.addGameLevel(RunConfig.GamesTraining2014.SOKOBAN, 1);
+		//config.addGameLevel(RunConfig.GamesTraining2014.BOULDERDASH, 2);
+		//config.addGameLevel(RunConfig.GamesValidation2014.PACMAN,new int[] { 1 });
 
 		config.setRepetitions(1);
 		config.setController(customSampleController);
 		config.setSaveActions(true);
 
-		runGamesVisually(config);
+		 runGamesVisually(config);
 
 		// runGames(config);
+		//playGamesYourself(config);
 
 		// replayGame("actions_game_portals_lvl_1_r0_20150306191441.txt");
 	}
