@@ -37,9 +37,10 @@ public class RankingTest {
 
 		// ########################
 		// == Play the games yourself
-		// PlayAllGamesConfig is just a preconfigured RunConfig that contains all
-		// games and is set to be played by a human (Up,Down,Left,Right,Space)
-//		 GameRunner.playGamesYourself(RunConfig.getPlayAllGamesConfig());
+		// PlayAllGamesConfig is just a preconfigured RunConfig that contains
+		// all games and is set to be played by a human
+		// Controls: (Up,Down,Left,Right,Space)
+		// GameRunner.playGamesYourself(RunConfig.getPlayAllGamesConfig());
 
 	}
 
