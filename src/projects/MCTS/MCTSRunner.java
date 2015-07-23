@@ -13,8 +13,8 @@ public class MCTSRunner {
 
 		RunConfig config = new RunConfig();
 
-		config.addGameLevel(RunConfig.GamesValidation2014.PACMAN, new int[] {
-				0, 1, 2, 3, 4 });
+//		config.addGameLevel(RunConfig.GamesValidation2014.PACMAN, new int[] {
+//				0, 1, 2, 3, 4 });
 		// config.addGameLevel(RunConfig.GamesValidation2014.PACMAN, new int[] {
 		// 1, 2, 3, 4 });
 		// config.addGameLevel(RunConfig.GamesValidation2014.PACMAN, new int[] {
@@ -29,8 +29,8 @@ public class MCTSRunner {
 		// {1,2,3, 4} );
 		// config.addGameLevel(RunConfig.GamesTraining2014.BOULDERDASH,new int[]
 		// {1,2,3,4} );
-		// config.addGameLevel(RunConfig.GamesTraining2014.FROGS,new int[]
-		// {1,2,3,4} );
+		 config.addGameLevel(RunConfig.GamesTraining2014.FROGS,new int[]
+		 {1,2,3,4} );
 		// config.addGameLevel(RunConfig.GamesTraining2014.MISSILECOMMAND, new
 		// int[] {1,2,3,4} );
 		// config.addGameLevel(RunConfig.GamesTraining2014.ZELDA, new int[]
