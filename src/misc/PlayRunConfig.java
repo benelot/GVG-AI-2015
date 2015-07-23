@@ -70,6 +70,9 @@ public class PlayRunConfig extends RunConfig {
 			}
 		}
 		
+		//play every game only once. Can be changed from outside.
+		setRepetitions(1);
+		
 
 	}
 

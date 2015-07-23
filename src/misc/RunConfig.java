@@ -261,4 +261,8 @@ public class RunConfig {
 	public void setRepetitions(int repetitions) {
 		this.repetitions = repetitions;
 	}
+	
+	public static PlayRunConfig getPlayAllGamesConfig(){
+		return new PlayRunConfig();
+	}
 }
