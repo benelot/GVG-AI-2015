@@ -12,20 +12,20 @@ public class RankingTest {
 				.getCanonicalName();
 
 		RunConfig config = new RunConfig();
-		config.addGameLevel(RunConfig.GamesTraining2014.PORTALS, 1);
+		config.addGameLevel(RunConfig.GamesTraining2014.PORTALS, new int[]{0,1,2,3,4});
 		config.addGameLevel(RunConfig.GamesTraining2014.PORTALS, 2);
 		config.addGameLevel(RunConfig.GamesTraining2014.FROGS,
 				new int[] { 2, 3 });
 		config.setRepetitions(2);
 		config.setController(customSampleController);
-		config.setSaveActions(true);
+		config.setSaveActions(false);
 
 		// #############
 		// UNCOMMENT THE APPROPRIATE PARTS TO...
 
 		// #############
 		// == Run the agent without visual feedback (faster for evaluation)
-		// GameRunner.runGames(config);
+		 GameRunner.runGames(config);
 
 		// #############
 		// == Run the agent visually
