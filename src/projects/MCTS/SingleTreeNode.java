@@ -328,6 +328,10 @@ public class SingleTreeNode{
 			n.nVisits++;
 			n.totValue += result;
 			n = n.parent;
+			
+			// a little hack to compare deaths which are close by and those that are far away 
+			if( result < 0)
+				result /=2;
 		}
 	}
 
@@ -390,7 +394,8 @@ public class SingleTreeNode{
 			// previous implementation lead to the tendency to choose the later actions thats why the avatar
 			// ended up in the top right corner in most cases.
 			if (children[i] != null){
-				double disturbedChildRew  = children[i].totValue + (m_rnd.nextDouble()-0.5)* epsilon;
+				// we divide the reward by the number of times that we actually tried that child ( the sqrt is there just for fun ;) )
+				double disturbedChildRew  = (children[i].totValue + (m_rnd.nextDouble()-0.5)* epsilon) / Math.sqrt(children[i].nVisits);
 				if(  disturbedChildRew > bestValue) {
 					bestValue = disturbedChildRew;
 					//bestValue = children[i].totValue;

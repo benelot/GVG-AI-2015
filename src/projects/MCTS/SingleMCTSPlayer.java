@@ -107,13 +107,13 @@ public class SingleMCTSPlayer {
 
 		int action = m_root.bestAction();
 
-				for (int i = 1; i<= m_root.children.length ; i++ ){
-					if(m_root.children[i-1] != null){
-						System.out.print("  val"+i+": "+ m_root.children[i-1].totValue);}
-				}
-				System.out.println();
-				System.out.println(" RewOfSys :" + m_root.value(m_root.state));
-				System.out.println(" action :" + action);
+//				for (int i = 1; i<= m_root.children.length ; i++ ){
+//					if(m_root.children[i-1] != null){
+//						System.out.print("  val"+i+": "+ m_root.children[i-1].totValue);}
+//				}
+//				System.out.println();
+//				System.out.println(" RewOfSys :" + m_root.value(m_root.state));
+//				System.out.println(" action :" + action);
 		//		System.out.println(" mroot :" + m_root.nVisits + " visits of child  "+ m_root.children[action].nVisits);
 		return action;
 	}

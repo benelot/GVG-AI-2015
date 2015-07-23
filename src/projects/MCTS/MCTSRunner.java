@@ -24,9 +24,9 @@ public class MCTSRunner {
 		RunConfig config = new RunConfig();
 
 
-//		config.addGameLevel(RunConfig.GamesValidation2014.PACMAN, new int[] {1,2,3,4});
-//		config.addGameLevel(RunConfig.GamesValidation2014.PACMAN, new int[] {1,2,3,4});
-//		config.addGameLevel(RunConfig.GamesValidation2014.PACMAN, new int[] {1,2,3,4});
+		config.addGameLevel(RunConfig.GamesValidation2014.PACMAN, new int[] {1,2,3,4});
+		config.addGameLevel(RunConfig.GamesValidation2014.PACMAN, new int[] {1,2,3,4});
+		config.addGameLevel(RunConfig.GamesValidation2014.PACMAN, new int[] {1,2,3,4});
 //		//config.addGameLevel(RunConfig.GamesTraining2014.CHASE ,new int[] {1,2,3,4} );
 //		//config.addGameLevel(RunConfig.GamesTraining2014.CHASE ,new int[] {1,2,3,4} );
 		//config.addGameLevel(RunConfig.GamesTraining2014.CHASE ,new int[] {1,2,3,4} );
@@ -57,8 +57,8 @@ public class MCTSRunner {
 //		config.addGameLevel(RunConfig.GamesTraining2015.BOLOADVENTURES ,1 );
 //		config.addGameLevel(RunConfig.GamesTraining2015.BRAINMAN ,1 );
 //		config.addGameLevel(RunConfig.GamesTraining2015.CHIPSCHALLENGE ,1 );
-		config.addGameLevel(RunConfig.GamesTraining2015.BAIT ,1 );
-		config.addGameLevel(RunConfig.GamesTraining2015.PAINTER ,1 );
+	//	config.addGameLevel(RunConfig.GamesTraining2015.BAIT ,1 );
+//		config.addGameLevel(RunConfig.GamesTraining2015.REALSOKOBAN ,1 );
 		//config.addGameLevel(RunConfig.GamesTraining2014.SOKOBAN, 1);
 		//config.addGameLevel(RunConfig.GamesTraining2014.BOULDERDASH, 2);
 		//config.addGameLevel(RunConfig.GamesValidation2014.PACMAN,new int[] { 1 });
@@ -67,9 +67,9 @@ public class MCTSRunner {
 		config.setController(customSampleController);
 		config.setSaveActions(true);
 
-		 runGamesVisually(config);
+		 //runGamesVisually(config);
 
-		// runGames(config);
+		runGames(config);
 		//playGamesYourself(config);
 
 		// replayGame("actions_game_portals_lvl_1_r0_20150306191441.txt");
