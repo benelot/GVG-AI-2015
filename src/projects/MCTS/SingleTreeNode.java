@@ -10,6 +10,10 @@ import java.awt.Dimension;
 import java.util.Random;
 
 public class SingleTreeNode {
+	public enum StateType{
+	    UNCACHED, LOSE, NORMAL, WIN
+	}
+	
 	private static final double HUGE_NEGATIVE = -10000000.0;
 	private static final double HUGE_POSITIVE = 10000000.0;
 	public static double epsilon = 1e-6;
@@ -23,6 +27,7 @@ public class SingleTreeNode {
 	public int m_depth;
 	private static double[] lastBounds = new double[] { 0, 1 };
 	private static double[] curBounds = new double[] { 0, 1 };
+	public StateType state_type = StateType.UNCACHED;
 
 	// keeps track of the reward at the start of the MCTS search
 	// public double startingRew;
@@ -64,7 +69,7 @@ public class SingleTreeNode {
 		long remaining = elapsedTimer.remainingTimeMillis();
 
 		while (remaining > 10) {
-
+		
 			// form tree with MCTS
 			SingleTreeNode selected = treePolicy();
 
@@ -170,12 +175,15 @@ public class SingleTreeNode {
 					* SingleTreeNode.epsilon;
 
 			// small sampleRandom numbers: break ties in unexpanded nodes
-			if (uctValue > bestValue) {
+			if (uctValue > bestValue && !this.children[i].isLoseState()){
 				selected = i;
 				bestValue = uctValue;
 			}
 		}
-
+		if(selected == -1 || this.children[selected].isLoseState()){
+			System.out.println("##### Oh crap.  Death awaits with choice " + selected + ".");
+			selected = 0;
+		} 
 		if (selected != -1) {
 			// if we do the uct step it might be worthwhile also to update the
 			// state believe,
@@ -186,7 +194,6 @@ public class SingleTreeNode {
 			nextState.advance(Agent.actions[selected]);
 			selectedNode.state = nextState;
 		}
-
 		if (selectedNode == null) {
 			throw new RuntimeException("Warning! returning null: " + bestValue
 					+ " : " + this.children.length);
@@ -373,13 +380,13 @@ public class SingleTreeNode {
 			selected = 0;
 		} else if (allEqual) {
 			// If all are equal, we opt to choose for the one with the best Q.
-			selected = bestAction();
+			selected = bestAction(false);
 		}
-		selected = bestAction();
+		selected = bestAction(false);
 		return selected;
 	}
 
-	public int bestAction() {
+	public int bestAction(boolean fear_unknown) {
 		int selected = -1;
 		double bestValue = -Double.MAX_VALUE;
 
@@ -394,7 +401,7 @@ public class SingleTreeNode {
 				double disturbedChildRew = (children[i].totValue + (m_rnd
 						.nextDouble() - 0.5) * epsilon)
 						/ Math.sqrt(children[i].nVisits);
-				if (disturbedChildRew > bestValue) {
+				if (disturbedChildRew > bestValue && !children[i].isDeadEnd(2, fear_unknown)) {
 					bestValue = disturbedChildRew;
 					// bestValue = children[i].totValue;
 					selected = i;
@@ -402,11 +409,58 @@ public class SingleTreeNode {
 			}
 		}
 
-		if (selected == -1) {
+		if (selected == -1 ) {
 			System.out.println("Unexpected selection!");
-			selected = 0;
 		}
 		return selected;
+	}
+
+	public boolean isDeadEnd(int max_depth, boolean fear_unknown){
+		SingleTreeNode cur = this;
+		boolean allDeaths = true;
+		
+		// Base case
+		if (max_depth == 0 || this.isLoseState() || this.state_type == StateType.WIN){
+			return this.isLoseState();
+		}		
+		else {
+			for (int i=0; allDeaths && i< cur.children.length; i++){
+				if( cur.children[i] != null ){
+					allDeaths = allDeaths && cur.children[i].isDeadEnd(max_depth - 1, fear_unknown);
+				}
+				else{
+					if(!fear_unknown){
+						// Well, there's an unknown path, and we're not worried - so let's guess it isn't a dead end!
+						return false;
+					}
+				}
+			}
+			// Let the callers know if there is only death this way
+			return allDeaths;			
+		}
+	}
+	
+	public boolean isLoseState(){
+		if (this.state_type == StateType.UNCACHED){
+			boolean gameOver = this.state.isGameOver();
+			Types.WINNER win = this.state.getGameWinner();		
+			if (gameOver && win == Types.WINNER.PLAYER_LOSES){
+				this.state_type = StateType.LOSE;
+				return true;
+			}
+			else {
+				if(win == Types.WINNER.PLAYER_WINS){
+					this.state_type = StateType.WIN;
+				}
+				else{
+					this.state_type = StateType.NORMAL;
+				}				
+				return false;
+			}
+		}
+		else {
+			return this.state_type == StateType.LOSE;
+		}
 	}
 
 	public boolean notFullyExpanded() {

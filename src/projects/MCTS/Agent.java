@@ -30,6 +30,7 @@ public class Agent extends AbstractPlayer {
 	// of the depth of the cut trees. The later stays fixed
 	public static int MCTS_DEPTH_RUN;
 	public static int MCTS_DEPTH_FIX = 3;
+	public static int MCTS_AVOID_DEATH_DEPTH = 2;	
 	public static double K = Math.sqrt(2);
 	public static Types.ACTIONS[] actions;
 
@@ -178,8 +179,8 @@ public class Agent extends AbstractPlayer {
 
 		oldAction = action;
 
-		// ... and return it.
-		if (action == -2) {
+		//... and return it.
+		if(action == -2 || action ==-1){
 			return Types.ACTIONS.ACTION_NIL;
 		} else {
 			return actions[action];

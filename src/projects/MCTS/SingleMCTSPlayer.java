@@ -102,7 +102,7 @@ public class SingleMCTSPlayer {
 		// Determine the best action to take and return it.
 		//int action = m_root.mostVisitedAction();
 
-		int action = m_root.bestAction();
+		int action = m_root.bestAction(true);
 
 //				for (int i = 1; i<= m_root.children.length ; i++ ){
 //					if(m_root.children[i-1] != null){
@@ -111,6 +111,10 @@ public class SingleMCTSPlayer {
 //				System.out.println();
 //				System.out.println(" RewOfSys :" + m_root.value(m_root.state));
 //				System.out.println(" action :" + action);
+//				if (action > 0){
+//					System.out.println(" isdeath? :" + m_root.children[action].isLoseState());
+//					System.out.println(" isdeadend? :" + m_root.children[action].isDeadEnd(2, true));
+//				}
 		//		System.out.println(" mroot :" + m_root.nVisits + " visits of child  "+ m_root.children[action].nVisits);
 		return action;
 	}
