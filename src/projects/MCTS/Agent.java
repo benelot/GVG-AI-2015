@@ -141,6 +141,9 @@ public class Agent extends AbstractPlayer {
 				if (npcs.size() > 0) {
 					Vector2d npcPos = npcs.get(0).position;
 
+					//TODO: I received an ArrayIndexOutOfBoundsException: -2 in seaquest_lvl1 game
+					//Do you see why or do we have to simply cap it? Either intposEnemyX or intposEnemyY was
+					//-2 and that was not in the bounds of the addRewMap.
 					int intposEnemyX = (int) Math.round(npcPos.x
 							/ dim.getWidth() * (rewMapResolution - 1));
 					int intposEnemyY = (int) Math.round(npcPos.y
