@@ -1,12 +1,10 @@
 package projects.MCTS;
 
-import tools.Vector2d;
 import core.game.StateObservation;
 import ontology.Types;
 import tools.ElapsedCpuTimer;
 import tools.Utils;
 
-import java.awt.Dimension;
 import java.util.Random;
 
 public class SingleTreeNode {
@@ -241,29 +239,20 @@ public class SingleTreeNode {
 		// int thisDepth = this.m_depth;
 		int thisDepth = 0; // here we guarantee "ROLLOUT_DEPTH" more rollout
 							// after MCTS/expand is finished
-
+		double previousScore;
 		// rollout with random actions for "ROLLOUT_DEPTH" times
 		while (!finishRollout(rollerState, thisDepth)) {
+			previousScore=rollerState.getGameScore();		
 			int action = m_rnd.nextInt(Agent.NUM_ACTIONS);
 			rollerState.advance(Agent.actions[action]);
+			Agent.iTypeAttractivity.updateAttraction(rollerState, previousScore);
 			thisDepth++;
-
 		}
 
-		// get dimensions of the world for retrieving exploration reward from
-		// "addRewMap"
-		Dimension dim = rollerState.getWorldDimension();
-		double explRew = 0;
-		Vector2d endstate = rollerState.getAvatarPosition();
-		// get current position and saved exploration reward at that position
-		int intposX = (int) Math.round(endstate.x / dim.getWidth()
-				* (Agent.rewMapResolution - 1));
-		int intposY = (int) Math.round(endstate.y / dim.getHeight()
-				* (Agent.rewMapResolution - 1));
-		if (intposX >= 0 && intposY >= 0 && intposX < Agent.rewMapResolution
-				&& intposY < Agent.rewMapResolution) {
-			explRew = Agent.addRewMap[intposX][intposY];
-		}
+		
+		// get current position and  reward at that position
+		double explRew = Agent.rewMap.getRewardAtWorldPosition(rollerState.getAvatarPosition());
+	
 
 		// use a fraction of "explRew" as an additional reward (Not given by the
 		// Gamestats)
