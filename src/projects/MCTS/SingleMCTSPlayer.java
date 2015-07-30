@@ -111,11 +111,13 @@ public class SingleMCTSPlayer {
 //				System.out.println();
 //				System.out.println(" RewOfSys :" + m_root.value(m_root.state));
 //				System.out.println(" action :" + action);
-//				if (action > 0){
+//				if (action >= 0){
 //					System.out.println(" isdeath? :" + m_root.children[action].isLoseState());
 //					System.out.println(" isdeadend? :" + m_root.children[action].isDeadEnd(2, true));
 //				}
-		//		System.out.println(" mroot :" + m_root.nVisits + " visits of child  "+ m_root.children[action].nVisits);
+//		if (action >= 0)
+//			System.out.println(" mroot :" + m_root.nVisits + " visits and the choosen child has "+ m_root.children[action].nVisits);
+		
 		return action;
 	}
 

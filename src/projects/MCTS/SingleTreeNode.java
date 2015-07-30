@@ -1,17 +1,21 @@
 package projects.MCTS;
 
+import tools.Vector2d;
+import core.game.Observation;
 import core.game.StateObservation;
 import ontology.Types;
 import tools.ElapsedCpuTimer;
 import tools.Utils;
 
+import java.awt.Dimension;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class SingleTreeNode {
 	public enum StateType{
-	    UNCACHED, LOSE, NORMAL, WIN
+		UNCACHED, LOSE, NORMAL, WIN
 	}
-	
+
 	private static final double HUGE_NEGATIVE = -10000000.0;
 	private static final double HUGE_POSITIVE = 10000000.0;
 	public static double epsilon = 1e-6;
@@ -26,9 +30,6 @@ public class SingleTreeNode {
 	private static double[] lastBounds = new double[] { 0, 1 };
 	private static double[] curBounds = new double[] { 0, 1 };
 	public StateType state_type = StateType.UNCACHED;
-
-	// keeps track of the reward at the start of the MCTS search
-	// public double startingRew;
 
 	public SingleTreeNode(Random rnd) {
 		this(null, null, rnd);
@@ -67,7 +68,7 @@ public class SingleTreeNode {
 		long remaining = elapsedTimer.remainingTimeMillis();
 
 		while (remaining > 10) {
-		
+
 			// form tree with MCTS
 			SingleTreeNode selected = treePolicy();
 
@@ -77,7 +78,7 @@ public class SingleTreeNode {
 			// feedback the reward form rollout along the "selected" branch of
 			// the tree
 			backUp(selected, delta);
-			// backUpBest(selected, delta);
+//			backUpBest(selected, delta);
 
 			remaining = elapsedTimer.remainingTimeMillis();
 			// numIters++;
@@ -169,8 +170,8 @@ public class SingleTreeNode {
 					+ Agent.K
 					* Math.sqrt(Math.log(this.nVisits + 1)
 							/ (this.children[i].nVisits + SingleTreeNode.epsilon))
-					+ SingleTreeNode.m_rnd.nextDouble()
-					* SingleTreeNode.epsilon;
+							+ SingleTreeNode.m_rnd.nextDouble()
+							* SingleTreeNode.epsilon;
 
 			// small sampleRandom numbers: break ties in unexpanded nodes
 			if (uctValue > bestValue && !this.children[i].isLoseState()){
@@ -187,10 +188,25 @@ public class SingleTreeNode {
 			// state believe,
 			// this way we create a real rollout from a newly sampled
 			// state-pathway and not just from the very first one.
+
 			selectedNode = this.children[selected];
-			StateObservation nextState = state.copy();
-			nextState.advance(Agent.actions[selected]);
-			selectedNode.state = nextState;
+			if(Agent.isStochastic > 0){
+				StateObservation nextState = state.copy();
+				nextState.advance(Agent.actions[selected]);
+				if(Agent.isStochastic > 1 && !selectedNode.state.equiv(nextState) ){
+					Agent.isStochastic = 1;
+					selectedNode.state = nextState;
+				}
+				else{
+					if(Agent.isStochastic == 1){
+						selectedNode.state = nextState;
+					}
+				}
+
+
+
+			}
+
 		}
 		if (selectedNode == null) {
 			throw new RuntimeException("Warning! returning null: " + bestValue
@@ -238,21 +254,30 @@ public class SingleTreeNode {
 
 		// int thisDepth = this.m_depth;
 		int thisDepth = 0; // here we guarantee "ROLLOUT_DEPTH" more rollout
-							// after MCTS/expand is finished
-		double previousScore;
+		// after MCTS/expand is finished
+
 		// rollout with random actions for "ROLLOUT_DEPTH" times
 		while (!finishRollout(rollerState, thisDepth)) {
-			previousScore=rollerState.getGameScore();		
 			int action = m_rnd.nextInt(Agent.NUM_ACTIONS);
 			rollerState.advance(Agent.actions[action]);
-			Agent.iTypeAttractivity.updateAttraction(rollerState, previousScore);
 			thisDepth++;
+
 		}
 
-		
-		// get current position and  reward at that position
-		double explRew = Agent.rewMap.getRewardAtWorldPosition(rollerState.getAvatarPosition());
-	
+		// get dimensions of the world for retrieving exploration reward from
+		// "addRewMap"
+		Dimension dim = rollerState.getWorldDimension();
+		double explRew = 0;
+		Vector2d endstate = rollerState.getAvatarPosition();
+		// get current position and saved exploration reward at that position
+		int intposX = (int) Math.round(endstate.x / dim.getWidth()
+				* (Agent.rewMapResolution - 1));
+		int intposY = (int) Math.round(endstate.y / dim.getHeight()
+				* (Agent.rewMapResolution - 1));
+		if (intposX >= 0 && intposY >= 0 && intposX < Agent.rewMapResolution
+				&& intposY < Agent.rewMapResolution) {
+			explRew = Agent.addRewMap[intposX][intposY];
+		}
 
 		// use a fraction of "explRew" as an additional reward (Not given by the
 		// Gamestats)
@@ -281,6 +306,10 @@ public class SingleTreeNode {
 			normDelta = (value(rollerState) - Agent.startingReward)
 					+ additionalRew;
 		}
+		int useTrappedHeuristics =1;
+		if( useTrappedHeuristics == 1){
+			normDelta += 0.1*(Agent.numberOfBlockedMovables - trapHeur(rollerState));
+		}
 
 		return normDelta;
 	}
@@ -305,8 +334,8 @@ public class SingleTreeNode {
 
 	public boolean finishRollout(StateObservation rollerState, int depth) {
 		if (depth >= Agent.ROLLOUT_DEPTH) // rollout end condition occurs
-											// "ROLLOUT_DEPTH" after the
-											// MCTS/expand is finished
+			// "ROLLOUT_DEPTH" after the
+			// MCTS/expand is finished
 			return true;
 
 		if (rollerState.isGameOver()) // end of game
@@ -322,7 +351,6 @@ public class SingleTreeNode {
 			n.nVisits++;
 			n.totValue += result;
 			n = n.parent;
-
 			// a little hack to compare deaths which are close by and those that
 			// are far away
 			if (result < 0)
@@ -407,7 +435,7 @@ public class SingleTreeNode {
 	public boolean isDeadEnd(int max_depth, boolean fear_unknown){
 		SingleTreeNode cur = this;
 		boolean allDeaths = true;
-		
+
 		// Base case
 		if (max_depth == 0 || this.isLoseState() || this.state_type == StateType.WIN){
 			return this.isLoseState();
@@ -428,7 +456,7 @@ public class SingleTreeNode {
 			return allDeaths;			
 		}
 	}
-	
+
 	public boolean isLoseState(){
 		if (this.state_type == StateType.UNCACHED){
 			boolean gameOver = this.state.isGameOver();
@@ -460,6 +488,72 @@ public class SingleTreeNode {
 		}
 		return false;
 	}
+
+
+
+	public double trapHeur(StateObservation a_gameState){
+
+		// return the number of movable objects that are apparently blocked, at least for 1 move 
+		ArrayList<Observation>[] movePos = null;
+		movePos = a_gameState.getMovablePositions();
+		int isTrapped = 0;
+		int isCompletlyFree = 0;
+		double blockSquare = a_gameState.getBlockSize() *a_gameState.getBlockSize();
+		if (movePos != null) {
+			for (int j = 0; j < movePos.length ; j++ ){
+				for (int i = 0 ; i < movePos[j].size(); i++){
+					Vector2d mPPos = movePos[j].get(i).position;
+
+					ArrayList<Observation>[]  trapPos = a_gameState.getImmovablePositions(mPPos) ;
+
+					//	if surrounded by 3 objects, its trapped			
+					if(trapPos[0].size() >=3){
+						if( (trapPos[0].get(0).sqDist - blockSquare ) < 1 && (trapPos[0].get(1).sqDist - blockSquare ) < 1 && (trapPos[0].get(2).sqDist - blockSquare ) < 1  ){
+							isTrapped++;
+						}
+					}
+					// if surrounded by a corner its trapped
+					if(trapPos[0].size() >=2){
+						if((trapPos[0].get(0).sqDist - blockSquare ) < 1 && (trapPos[0].get(1).sqDist - blockSquare ) < 1 &&  Math.abs((trapPos[0].get(1).position.x -trapPos[0].get(0).position.x )*(trapPos[0].get(1).position.y -trapPos[0].get(0).position.y )) > 1){
+							isTrapped++;
+						}
+						else{
+							// if surrounded by two immovable objects and a movable object its trapped
+							ArrayList<Observation>[]  trapPos2 = a_gameState.getMovablePositions(mPPos) ;
+							if(trapPos2[0].size() > 1){
+								if((trapPos[0].get(0).sqDist - blockSquare ) < 1 && (trapPos[0].get(1).sqDist - blockSquare ) < 1 && (trapPos2[0].get(1).sqDist - blockSquare ) < 1 ){				
+									isTrapped++;
+								}
+							}
+
+
+
+
+						}
+					}
+					// reward movable objects that are not surrounded by anything
+					ArrayList<Observation>[]  trapPos2 = a_gameState.getMovablePositions(mPPos) ;
+					if(trapPos[0].size() > 0){
+						if(trapPos2[0].size() > 1){
+							if( (trapPos[0].get(0).sqDist - blockSquare ) > 1 && (trapPos2[0].get(1).sqDist - blockSquare)  > 1){
+								isCompletlyFree++;
+							}
+						}
+						else{
+							if(trapPos[0].get(0).sqDist - blockSquare  > 1){
+								isCompletlyFree++;
+							}
+
+						}
+					}
+				}
+			}
+		}
+		// reward the completely free objects not as much as the trapped ones. 
+		return isTrapped-isCompletlyFree/2;
+	}
+
+
 
 	public void correctDepth() {
 		// should correct (subtract 1 of) the depth of the whole tree. Needed

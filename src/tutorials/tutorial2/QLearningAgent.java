@@ -16,15 +16,19 @@ public class QLearningAgent extends AbstractPlayer {
 
 	protected Random randomGenerator;
 	public static ACTIONS[] actions;
-	public static double egreedyEpsilon = 0.95; // epsilon for epsilon-greedy
+	public static double egreedyEpsilon = 0.05; // epsilon for epsilon-greedy
 												// action-selection
-	public static double gamma = 0.1; // discount factor for future rewards
-	public static double alpha = 0.01; // learning rate
+	public static double gamma = 1; // discount factor for future rewards
+	public static double alpha = 0.5; // learning rate
 	private static final double HUGE_POSITIVE = 50.0; // reward for reaching the
 														// goal
 	private static final double DEFAULT_REWARD = -1; // reward for taking one
 														// step in the maze
-
+	public int lastStateX;
+	public int lastStateY;
+	public double lastReward;
+	public int lastAct;
+	
 	public static int blockSize;
 	public static int nBlocksX;
 	public static int nBlocksY;
@@ -63,6 +67,14 @@ public class QLearningAgent extends AbstractPlayer {
 			// initialize qValues to zero
 			qValues = new double[nBlocksX][nBlocksY][nActions];
 
+			for (int i = 0; i <nBlocksX; i++){
+				for (int j = 0; j <nBlocksY; j++){
+					for (int k = 0;k <nActions; k++){
+						qValues[i][j][k] = -1.2;
+					}
+				}
+			}
+					
 			// initialize visualization frame
 			visPlot = new JFrame();
 			visPlot.setSize(nBlocksX * visBlockSize, nBlocksY * visBlockSize);
@@ -70,6 +82,10 @@ public class QLearningAgent extends AbstractPlayer {
 			visPlotPane = visPlot.getContentPane();
 			visPlotVis = new Visualization(qValues, visBlockSize);
 			visPlotPane.add(visPlotVis);
+
+			lastStateX = 0;
+			lastStateY = 0;
+			lastReward = 0;
 		}
 
 		visPlotVis.values = qValues;
@@ -112,10 +128,12 @@ public class QLearningAgent extends AbstractPlayer {
 		return reward;
 	}
 
+	
+	
 	private int getBestActionIdx(int stateX, int stateY) {
 		// pick the best action according to Q-value.
 		int maxIdx = 0;
-		for (int i = 1; i < nActions; i++) {
+		for (int i = 0; i < nActions; i++) {
 			if (qValues[stateX][stateY][i] > qValues[stateX][stateY][maxIdx]) {
 				maxIdx = i;
 			} else if (qValues[stateX][stateY][i] == qValues[stateX][stateY][maxIdx]
@@ -128,10 +146,12 @@ public class QLearningAgent extends AbstractPlayer {
 		return maxIdx;
 	}
 
+	
+	
 	private double getBestQValue(int stateX, int stateY) {
 		// get best Q value for state.
 		double maxVal = Double.NEGATIVE_INFINITY;
-		for (int i = 1; i < nActions; i++) {
+		for (int i = 0; i < nActions; i++) {
 			if (qValues[stateX][stateY][i] > maxVal) {
 				maxVal = qValues[stateX][stateY][i];
 			}
@@ -143,9 +163,9 @@ public class QLearningAgent extends AbstractPlayer {
 		int nextX = stateX;
 		int nextY = stateY;
 		if (actIdx == 0) { // left
-			nextX = nextX + 1;
-		} else if (actIdx == 1) { // right
 			nextX = nextX - 1;
+		} else if (actIdx == 1) { // right
+			nextX = nextX + 1;
 		} else if (actIdx == 2) { // down
 			nextY = nextY + 1;
 		} else { // up
@@ -173,15 +193,38 @@ public class QLearningAgent extends AbstractPlayer {
 			actIdx = getBestActionIdx(stateX, stateY);
 		}
 
+		
+		
 		// update Q value
-		double reward = getReward(gameState, actIdx);
-		double oldVal = qValues[stateX][stateY][actIdx];
-		double nextQVal = getQPrediction(stateX, stateY, actIdx);
-		qValues[stateX][stateY][actIdx] = (1 - alpha) * oldVal + alpha
-				* (reward + nextQVal);
+		//double reward = getReward(gameState, actIdx);
+		//double oldVal = qValues[stateX][stateY][actIdx];
+		//double nextQVal = getQPrediction(stateX, stateY, actIdx);
+		//qValues[stateX][stateY][actIdx] = (1 - alpha) * oldVal + alpha
+		//		* (reward + nextQVal);
 
+		// update Q value with SARSA
+		if( lastStateX != 0 &lastStateY != 0  ){
+			double reward = getReward(gameState, actIdx);
+			int oldStateX = lastStateX;
+			int oldStateY = lastStateY;
+			double oldVal = qValues[oldStateX][oldStateY][lastAct];
+
+
+			double nextQVal =  qValues[stateX][stateY][actIdx];
+			qValues[oldStateX][oldStateY][lastAct] = (1 - alpha) * oldVal + alpha
+			* (lastReward + nextQVal);
+			
+			lastReward = reward;
+			lastAct = actIdx;
+		}
+		lastStateX = stateX;
+		lastStateY = stateY;
+		
+		
 		// System.out.println("ACTION: (" + stateY + "," + stateX + ") to (" +
 		// nextY + "," + nextX + "), update: " + oldVal + "->" + newVal);
+		
+		
 		return actions[actIdx];
 	}
 
