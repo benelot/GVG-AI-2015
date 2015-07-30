@@ -75,7 +75,7 @@ public class MCTSRunner {
 
 		// #############
 		// == Run the agent without visual feedback (faster for evaluation)
-		GameRunner.runGames(config);
+//		GameRunner.runGames(config);
 
 		// #############
 		// == Run the agent visually
@@ -86,9 +86,10 @@ public class MCTSRunner {
 		// three lines and the lowest two.)
 		// RunConfig runconfig = RunConfig.getRunAllEasyLevelsRunConfig();
 		// RunConfig runconfig = RunConfig.getRunAllHardLevelsRunConfig();
-		// RunConfig runconfig = RunConfig.getRunAllGameLevelsRunConfig();
-		// runconfig.setController(customSampleController);
-		// GameRunner.runGames(runconfig);
+		 RunConfig runconfig = RunConfig.getRunAllGameLevelsRunConfig();
+		 runconfig.setController(customSampleController);
+		 runconfig.setRepetitions(10);
+		 GameRunner.runGames(runconfig);
 
 		// #############
 		// == Replay a game
