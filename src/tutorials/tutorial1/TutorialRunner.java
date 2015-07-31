@@ -11,7 +11,7 @@ public class TutorialRunner {
 	public static void main(String[] args) throws Exception {
 
 		// Available controllers from the :
-		String sampleRandomController = "controllers.sampleRandom.Agent";
+		String sampleRandomController = "controllers.sampleRandom.Agent"; //String sampleRandomController = "tutorials.tutorial1.TutorialAgent";
 		String sampleOneStepController = "controllers.sampleonesteplookahead.Agent";
 		String sampleMCTSController = "controllers.sampleMCTS.Agent";
 		String sampleOLMCTSController = "controllers.sampleOLMCTS.Agent";
@@ -20,7 +20,7 @@ public class TutorialRunner {
 		String customSampleController = tutorials.tutorial1.TutorialAgent.class.getCanonicalName();
 
 		RunConfig config = new RunConfig();
-		config.addGameLevel(RunConfig.GamesTraining2014.PORTALS, 1);
+		config.addGameLevel(RunConfig.GamesTraining2014.SOKOBAN, 1);
 		// config.addGameLevel(RunConfig.GamesTraining2014.PORTALS, 2);
 		// config.addGameLevel(RunConfig.GamesTraining2014.FROGS,
 		//		new int[] { 2, 3 });

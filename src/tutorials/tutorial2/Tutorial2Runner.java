@@ -6,6 +6,7 @@ import misc.RunConfig;
 import misc.GameLevelPair;
 import core.ArcadeMachine;
 
+
 /*
  * Possible Games:
  * ALIENS, BOULDERDASH, BUTTERFLIES, CHASE, FROGS, MISSILECOMMAND,
@@ -19,13 +20,14 @@ public class Tutorial2Runner {
 		RunConfig config = new RunConfig();
 		config.addGameLevel("qlearnMaze", 0);
 
+		
 		config.setController(tutorials.tutorial2.QLearningAgent.class.getCanonicalName());
 		config.setSaveActions(true);
 		
 		// train 100 times
-		config.setRepetitions(100);
+		config.setRepetitions(300);
 		runGames(config);
-		// play game visually once
+		// play game visually one
 		config.setRepetitions(1);
 		runGamesVisually(config);
 	}
