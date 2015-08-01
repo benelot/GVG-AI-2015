@@ -47,12 +47,13 @@ public class ITypeAttractivity extends HashMap<Integer,Double> {
 		for (ArrayList<Observation>[] Obsarray : grid) {
 			for (ArrayList<Observation> Obslist : Obsarray) {
 				for (Observation Obs : Obslist) {						        
-					this.putIfAbsent(Obs.itype, this.SpriteCategoryValue.get(Obs.category));
+					this.put(Obs.itype, this.SpriteCategoryValue.get(Obs.category));
 				}
 			}
 		}
 		this.put(0,-1.0); //Set Wall to -1
 	}
+	
 	
 	/**
 	 * creates a HashMap with all current unique iTypes in the game and its corresponding attraction values
@@ -74,7 +75,7 @@ public class ITypeAttractivity extends HashMap<Integer,Double> {
 		for (ArrayList<Observation>[] Obsarray : grid) {
 			for (ArrayList<Observation> Obslist : Obsarray) {
 				for (Observation Obs : Obslist) {						        
-					this.putIfAbsent(Obs.itype, this.SpriteCategoryValue.get(Obs.category));
+					this.put(Obs.itype, this.SpriteCategoryValue.get(Obs.category));
 				}
 			}
 		}
@@ -108,7 +109,7 @@ public class ITypeAttractivity extends HashMap<Integer,Double> {
 		for (ArrayList<Observation>[] Obsarray : grid) {
 			for (ArrayList<Observation> Obslist : Obsarray) {
 				for (Observation Obs : Obslist) {						        
-					this.putIfAbsent(Obs.itype, this.SpriteCategoryValue.get(Obs.category));
+					this.put(Obs.itype, this.SpriteCategoryValue.get(Obs.category));
 				}
 			}
 		}
@@ -123,7 +124,8 @@ public class ITypeAttractivity extends HashMap<Integer,Double> {
 	
 	
 	public void putNewUniqueItype (Observation Obs) {	
-	   	this.putIfAbsent(Obs.itype,this.SpriteCategoryValue.get(Obs.category));
+	   	this.put(Obs.itype,this.SpriteCategoryValue.get(Obs.category));
+	   	System.out.println("added iType"+ Obs.itype + " with value " +this.SpriteCategoryValue.get(Obs.category));
 		}
 		
 	
