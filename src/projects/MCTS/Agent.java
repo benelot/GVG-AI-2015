@@ -10,6 +10,7 @@ import tools.ElapsedCpuTimer;
 import java.util.ArrayList;
 import java.util.Random;
 
+import projects.HBFS.HBFSAgent;
 import tools.Vector2d;
 
 
@@ -32,7 +33,9 @@ public class Agent extends AbstractPlayer {
 	public static int MCTS_AVOID_DEATH_DEPTH = 2;	
 	public static double K = Math.sqrt(2);
 	public static Types.ACTIONS[] actions;
-
+	
+	public String useAgent = "mixed" ; // "mixed"; "MCTS"; "BFS"
+	
 	// an exploration reward map that is laid over the game-world to reward
 	// places that haven't been visited lately
 	public static RewardMap rewMap;
@@ -52,7 +55,8 @@ public class Agent extends AbstractPlayer {
 	 * Random generator for the agent.
 	 */
 	private SingleMCTSPlayer mctsPlayer;
-
+	private HBFSAgent bfAgent;
+	
 	/**
 	 * Public constructor with state observation and time due.
 	 * 
@@ -104,9 +108,14 @@ public class Agent extends AbstractPlayer {
 			System.out.println("Game seems to be stochastic");
 		}
 		
-		// use time that is left to build a tree
-		mctsPlayer.init(so);		
-		mctsPlayer.run(elapsedTimer);
+		// use time that is left to build a tree or do BFS
+		if((isStochastic || useAgent=="MCTS")&& !(useAgent=="BFS")){
+			mctsPlayer.init(so);		
+			mctsPlayer.run(elapsedTimer);
+		}else{
+			bfAgent= new HBFSAgent(so, elapsedTimer);
+		}
+
 	}
 
 	/**
@@ -121,13 +130,22 @@ public class Agent extends AbstractPlayer {
 	 */
 	public Types.ACTIONS act(StateObservation stateObs,
 			ElapsedCpuTimer elapsedTimer) {
-				
+		
+		
 //		this line writes the game stats to the GameRunner if the game is over
 		GameRunner.setLastStateObservation(stateObs);
 //		if(stateObs.isGameOver()){
 //			GameRunner.setGameStatistics((stateObs.getGameWinner() == Types.WINNER.PLAYER_WINS), stateObs.getGameScore(), stateObs.getGameTick());
 //		}
 
+		
+		if((isStochastic || useAgent=="BFS")&& !(useAgent=="MCTS")){
+			Types.ACTIONS bfaction = this.bfAgent.act(stateObs, elapsedTimer);
+			return bfaction;
+		}else{
+		
+			
+		int action;
 		// ArrayList<Observation> obs[] =
 		// stateObs.getFromAvatarSpritesPositions();
 		// ArrayList<Observation> grid[][] = stateObs.getObservationGrid();
@@ -217,7 +235,7 @@ public class Agent extends AbstractPlayer {
 		numberOfBlockedMovables = mctsPlayer.m_root.trapHeur(stateObs);
 		
 		// Determine the action using MCTS...
-		int action = mctsPlayer.run(elapsedTimer);
+		action = mctsPlayer.run(elapsedTimer);
 		//if (stateObs.getGameTick() % 2 == 0) {
 			// action = -2;
 		//}
@@ -233,7 +251,6 @@ public class Agent extends AbstractPlayer {
 		if ( action == -1)
 			action =-2;
 		
-		
 		oldAction = action;
 
 		//... and return it.
@@ -242,6 +259,9 @@ public class Agent extends AbstractPlayer {
 		} else {
 			return actions[action];
 		}
+		
+		} //end if isstochastic
+		
 	}
 
 }
