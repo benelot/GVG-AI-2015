@@ -11,7 +11,8 @@ public class HBFSRunner {
 		RunConfig config = new RunConfig();
 
 		
-		// Puzzle Style Games: * work with HBFS, heuristic parameters wT = -3; wL = -2;
+		// Puzzle Style Games: * work with HBFS, heuristic parameters wT = -3; wL = -2; 
+		// - Check out modality, level 3, for some gripping game play!
 		
 		// - When running two different games in a row, errors can occur. The controller gets reset, so it is currently unclear why this happens. 
 		//   As a workaround Run only blocks of the same game only.
@@ -22,7 +23,7 @@ public class HBFSRunner {
 		// // config.addGameLevel(RunConfig.GamesTraining2015.ZENPUZZLE ,1 ); // failure. using the load score might be a bad idea in this game.
 		// // config.addGameLevel(RunConfig.GamesTraining2015.BOLOADVENTURES ,1 ); //? potential bug: forward model doesn't update avatar position
 		
-		config.addGameLevel(RunConfig.GamesTraining2015.BRAINMAN, 1); //*
+		// config.addGameLevel(RunConfig.GamesTraining2015.BRAINMAN, 1); //*
 		// // config.addGameLevel(RunConfig.GamesTraining2015.BRAINMAN, 2); // failure
 		// // config.addGameLevel(RunConfig.GamesTraining2015.BRAINMAN, 3); // failure
 		// config.addGameLevel(RunConfig.GamesTraining2015.BRAINMAN, 4); //*
@@ -45,7 +46,7 @@ public class HBFSRunner {
 
 		// config.addGameLevel(RunConfig.GamesTraining2015.MODALITY, 1); //? potential bug: forward model doesn't update avatar position
 		// config.addGameLevel(RunConfig.GamesTraining2015.MODALITY, 2); //* potential bug: winning state is not recognized
-		// config.addGameLevel(RunConfig.GamesTraining2015.MODALITY, 3); //*
+		config.addGameLevel(RunConfig.GamesTraining2015.MODALITY, 3); //*
 		// config.addGameLevel(RunConfig.GamesTraining2015.MODALITY, 4); //? potential bug: forward model doesn't update avatar position
 
 		// config.addGameLevel(RunConfig.GamesTraining2015.PAINTER, 1); // failure. using the load score seems to be a bad idea in this game.
