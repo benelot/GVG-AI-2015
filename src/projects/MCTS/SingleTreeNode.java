@@ -1,23 +1,22 @@
 package projects.MCTS;
 
-import tools.Vector2d;
 import core.game.Observation;
 import core.game.StateObservation;
 import ontology.Types;
 import tools.ElapsedCpuTimer;
 import tools.Utils;
+import tools.Vector2d;
 
-import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Random;
 
 public class SingleTreeNode {
 	public enum StateType{
-		UNCACHED, LOSE, NORMAL, WIN
+	    UNCACHED, LOSE, NORMAL, WIN
 	}
-
-	private static final double HUGE_NEGATIVE = -10000000.0;
-	private static final double HUGE_POSITIVE = 10000000.0;
+	
+	private static final double HUGE_NEGATIVE = -100000.0;
+	private static final double HUGE_POSITIVE = 1000000.0;
 	public static double epsilon = 1e-6;
 	public static double egreedyEpsilon = 0.05;
 	public StateObservation state;
@@ -30,6 +29,9 @@ public class SingleTreeNode {
 	private static double[] lastBounds = new double[] { 0, 1 };
 	private static double[] curBounds = new double[] { 0, 1 };
 	public StateType state_type = StateType.UNCACHED;
+
+	// keeps track of the reward at the start of the MCTS search
+	// public double startingRew;
 
 	public SingleTreeNode(Random rnd) {
 		this(null, null, rnd);
@@ -68,7 +70,7 @@ public class SingleTreeNode {
 		long remaining = elapsedTimer.remainingTimeMillis();
 
 		while (remaining > 10) {
-
+		
 			// form tree with MCTS
 			SingleTreeNode selected = treePolicy();
 
@@ -78,7 +80,7 @@ public class SingleTreeNode {
 			// feedback the reward form rollout along the "selected" branch of
 			// the tree
 			backUp(selected, delta);
-//			backUpBest(selected, delta);
+			// backUpBest(selected, delta);
 
 			remaining = elapsedTimer.remainingTimeMillis();
 			// numIters++;
@@ -188,7 +190,7 @@ public class SingleTreeNode {
 			// state believe,
 			// this way we create a real rollout from a newly sampled
 			// state-pathway and not just from the very first one.
-
+			
 			selectedNode = this.children[selected];
 			if(Agent.isStochastic > 0){
 				StateObservation nextState = state.copy();
@@ -254,30 +256,21 @@ public class SingleTreeNode {
 
 		// int thisDepth = this.m_depth;
 		int thisDepth = 0; // here we guarantee "ROLLOUT_DEPTH" more rollout
-		// after MCTS/expand is finished
-
+							// after MCTS/expand is finished
+		double previousScore;
 		// rollout with random actions for "ROLLOUT_DEPTH" times
 		while (!finishRollout(rollerState, thisDepth)) {
+			previousScore=rollerState.getGameScore();		
 			int action = m_rnd.nextInt(Agent.NUM_ACTIONS);
 			rollerState.advance(Agent.actions[action]);
+			Agent.iTypeAttractivity.updateAttraction(rollerState, previousScore);
 			thisDepth++;
-
 		}
 
-		// get dimensions of the world for retrieving exploration reward from
-		// "addRewMap"
-		Dimension dim = rollerState.getWorldDimension();
-		double explRew = 0;
-		Vector2d endstate = rollerState.getAvatarPosition();
-		// get current position and saved exploration reward at that position
-		int intposX = (int) Math.round(endstate.x / dim.getWidth()
-				* (Agent.rewMapResolution - 1));
-		int intposY = (int) Math.round(endstate.y / dim.getHeight()
-				* (Agent.rewMapResolution - 1));
-		if (intposX >= 0 && intposY >= 0 && intposX < Agent.rewMapResolution
-				&& intposY < Agent.rewMapResolution) {
-			explRew = Agent.addRewMap[intposX][intposY];
-		}
+		
+		// get current position and  reward at that position
+		double explRew = Agent.rewMap.getRewardAtWorldPosition(rollerState.getAvatarPosition());
+	
 
 		// use a fraction of "explRew" as an additional reward (Not given by the
 		// Gamestats)
@@ -310,7 +303,6 @@ public class SingleTreeNode {
 		if( useTrappedHeuristics == 1){
 			normDelta += 0.1*(Agent.numberOfBlockedMovables - trapHeur(rollerState));
 		}
-
 		return normDelta;
 	}
 
@@ -334,8 +326,8 @@ public class SingleTreeNode {
 
 	public boolean finishRollout(StateObservation rollerState, int depth) {
 		if (depth >= Agent.ROLLOUT_DEPTH) // rollout end condition occurs
-			// "ROLLOUT_DEPTH" after the
-			// MCTS/expand is finished
+											// "ROLLOUT_DEPTH" after the
+											// MCTS/expand is finished
 			return true;
 
 		if (rollerState.isGameOver()) // end of game
@@ -435,7 +427,7 @@ public class SingleTreeNode {
 	public boolean isDeadEnd(int max_depth, boolean fear_unknown){
 		SingleTreeNode cur = this;
 		boolean allDeaths = true;
-
+		
 		// Base case
 		if (max_depth == 0 || this.isLoseState() || this.state_type == StateType.WIN){
 			return this.isLoseState();
@@ -456,7 +448,7 @@ public class SingleTreeNode {
 			return allDeaths;			
 		}
 	}
-
+	
 	public boolean isLoseState(){
 		if (this.state_type == StateType.UNCACHED){
 			boolean gameOver = this.state.isGameOver();
@@ -488,9 +480,7 @@ public class SingleTreeNode {
 		}
 		return false;
 	}
-
-
-
+	
 	public double trapHeur(StateObservation a_gameState){
 
 		// return the number of movable objects that are apparently blocked, at least for 1 move 
@@ -552,8 +542,6 @@ public class SingleTreeNode {
 		// reward the completely free objects not as much as the trapped ones. 
 		return isTrapped-isCompletlyFree/2;
 	}
-
-
 
 	public void correctDepth() {
 		// should correct (subtract 1 of) the depth of the whole tree. Needed
