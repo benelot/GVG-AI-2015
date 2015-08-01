@@ -23,7 +23,7 @@ public class HBFSRunner {
 		// // config.addGameLevel(RunConfig.GamesTraining2015.ZENPUZZLE ,1 ); // failure. using the load score might be a bad idea in this game.
 		// // config.addGameLevel(RunConfig.GamesTraining2015.BOLOADVENTURES ,1 ); //? potential bug: forward model doesn't update avatar position
 		
-		// config.addGameLevel(RunConfig.GamesTraining2015.BRAINMAN, 1); //*
+		config.addGameLevel(RunConfig.GamesTraining2015.BRAINMAN, 1); //*
 		// // config.addGameLevel(RunConfig.GamesTraining2015.BRAINMAN, 2); // failure
 		// // config.addGameLevel(RunConfig.GamesTraining2015.BRAINMAN, 3); // failure
 		// config.addGameLevel(RunConfig.GamesTraining2015.BRAINMAN, 4); //*

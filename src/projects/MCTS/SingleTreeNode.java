@@ -468,7 +468,7 @@ public class SingleTreeNode {
 		return false;
 	}
 	
-	public double trapHeur(StateObservation a_gameState){
+	public static double trapHeur(StateObservation a_gameState){
 
 		// return the number of movable objects that are apparently blocked, at least for 1 move 
 		ArrayList<Observation>[] movePos = null;
