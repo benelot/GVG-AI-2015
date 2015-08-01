@@ -32,7 +32,7 @@ public class GameRunner {
 		GameRunner.lastStateObservation = lastStateObservation;
 	}
 
-	public static Map<String, GameStats> gameStatistics = new TreeMap<>();
+	public static Map<String, GameStats> gameStatistics = new TreeMap<String, GameStats>();
 	public static int win;
 	public static double score;
 	public static double time;
@@ -70,6 +70,7 @@ public class GameRunner {
 						processGameStatistics(RunConfig
 								.getGamePath(gameLevelPair.game));
 					}
+					System.gc(); // free memory where possible
 				}
 			}
 		}
