@@ -44,7 +44,7 @@ public class Agent extends AbstractPlayer {
 	// keeps track of the reward at the start of the MCTS search
 	public static double startingReward;
 	public static double numberOfBlockedMovables;
-	public static int isStochastic;
+	public static boolean isStochastic;
 	
 	public int oldAction;
 
@@ -82,12 +82,31 @@ public class Agent extends AbstractPlayer {
 
 		// fix the MCTS_DEPTH to the starting DEPTH
 		MCTS_DEPTH_RUN = MCTS_DEPTH_FIX;
-		oldAction = -1;
+		oldAction = -2;
 		startingReward = 0;
 		
 		numberOfBlockedMovables = 0;
 		
-		isStochastic = 2;
+		
+		// Advance a bit to check if stochastic
+		StateObservation testState1 = so.copy();
+		StateObservation testState2 = so.copy();
+		for(int ii=1; ii<4; ii++){
+			testState1.advance(Types.ACTIONS.ACTION_NIL);
+			testState2.advance(Types.ACTIONS.ACTION_NIL); 
+        }
+		if(testState1.equiv(testState2) ){
+			isStochastic = false;
+			MCTS_DEPTH_RUN  += 20;
+			System.out.println("Game seems to be deterministic");
+		}else{
+			isStochastic = true;
+			System.out.println("Game seems to be stochastic");
+		}
+		
+		// use time that is left to build a tree
+		mctsPlayer.init(so);		
+		mctsPlayer.run(elapsedTimer);
 	}
 
 	/**
@@ -102,7 +121,7 @@ public class Agent extends AbstractPlayer {
 	 */
 	public Types.ACTIONS act(StateObservation stateObs,
 			ElapsedCpuTimer elapsedTimer) {
-		
+				
 //		this line writes the game stats to the GameRunner if the game is over
 		GameRunner.setLastStateObservation(stateObs);
 //		if(stateObs.isGameOver()){
@@ -120,7 +139,7 @@ public class Agent extends AbstractPlayer {
 		// increment reward at all unvisited positions and decrement at current
 		// position
 		rewMap.incrementAll(0.001);
-		rewMap.setRewardAtWorldPosition(avatarPos, 0);
+		rewMap.setRewardAtWorldPosition(avatarPos, -0.3);
 		
 		//rewMap.print();
 
@@ -133,47 +152,55 @@ public class Agent extends AbstractPlayer {
 		// a resource. -> some sort of diffusion model with the resources as positive
 		// sources and the enemies as negative sources to create a reward
 		// gradient.
-		ArrayList<Observation>[] npcPositions = null;
-		npcPositions = stateObs.getNPCPositions();
-		double npcAttractionValue = 0;
-		if (npcPositions != null) {
-			for (ArrayList<Observation> npcs : npcPositions) {
-				if (npcs.size() > 0) {
-					Vector2d npcPos = npcs.get(0).position;
-					try{
-						npcAttractionValue =  iTypeAttractivity.get(npcs.get(0).itype);
-					} catch( java.lang.NullPointerException e)
-					{	
-						iTypeAttractivity.putNewUniqueItype(npcs.get(0));
-						npcAttractionValue =  iTypeAttractivity.get(npcs.get(0).itype);
-					}
-					if (Math.abs(rewMap.getRewardAtWorldPosition(npcPos)) < 1) {
-						rewMap.incrementRewardAtWorldPosition(npcPos, npcAttractionValue*0.02);
+		
+		boolean rewardNPCs=true;
+		if (rewardNPCs){
+			ArrayList<Observation>[] npcPositions = null;
+			npcPositions = stateObs.getNPCPositions();
+			double npcAttractionValue = 0;
+			if (npcPositions != null) {
+				for (ArrayList<Observation> npcs : npcPositions) {
+					if (npcs.size() > 0) {
+						Vector2d npcPos = npcs.get(0).position;
+						try{
+							npcAttractionValue =  iTypeAttractivity.get(npcs.get(0).itype);
+						} catch( java.lang.NullPointerException e)
+						{	
+							iTypeAttractivity.putNewUniqueItype(npcs.get(0));
+							npcAttractionValue =  iTypeAttractivity.get(npcs.get(0).itype);
+						}
+						if (Math.abs(rewMap.getRewardAtWorldPosition(npcPos)) < 1) {
+							rewMap.incrementRewardAtWorldPosition(npcPos, npcAttractionValue*0.02);
+						}
 					}
 				}
 			}
 		}
 
-		ArrayList<Observation>[] resPositions = null;
-		resPositions = stateObs.getNPCPositions();
-		double resAttractionValue = 0;
-		if (resPositions != null) {
-			for (ArrayList<Observation> ress : resPositions) {
-				if (ress.size() > 0) {
-					Vector2d resPos = ress.get(0).position;
-					try{
-						resAttractionValue =  iTypeAttractivity.get(ress.get(0).itype);
-					} catch( java.lang.NullPointerException e)
-					{	
-						iTypeAttractivity.putNewUniqueItype(ress.get(0));
-						resAttractionValue =  iTypeAttractivity.get(ress.get(0).itype);
-					}
-					if (Math.abs(rewMap.getRewardAtWorldPosition(resPos)) < 1) {
-						rewMap.incrementRewardAtWorldPosition(resPos, resAttractionValue*0.02);
+		boolean rewardRecources=true;
+		if (rewardRecources){
+			ArrayList<Observation>[] resPositions = null;
+			resPositions = stateObs.getNPCPositions();
+			double resAttractionValue = 0;
+			if (resPositions != null) {
+				for (ArrayList<Observation> ress : resPositions) {
+					if (ress.size() > 0) {
+						Vector2d resPos = ress.get(0).position;
+						try{
+							resAttractionValue =  iTypeAttractivity.get(ress.get(0).itype);
+						} catch( java.lang.NullPointerException e)
+						{	
+							iTypeAttractivity.putNewUniqueItype(ress.get(0));
+							resAttractionValue =  iTypeAttractivity.get(ress.get(0).itype);
+						}
+						if (Math.abs(rewMap.getRewardAtWorldPosition(resPos)) < 1) {
+							rewMap.incrementRewardAtWorldPosition(resPos, resAttractionValue*0.02);
+						}
 					}
 				}
 			}
 		}
+
 
 		int useOldTree = 1;
 		if (useOldTree == 1) {
@@ -185,11 +212,6 @@ public class Agent extends AbstractPlayer {
 			mctsPlayer.init(stateObs);
 		}
 		
-		if(stateObs.getGameTick() == 20 && isStochastic == 2){
-			isStochastic = 0;
-			MCTS_DEPTH_RUN  += 20;
-		}
-
 		startingReward = stateObs.getGameScore();
 		
 		numberOfBlockedMovables = mctsPlayer.m_root.trapHeur(stateObs);

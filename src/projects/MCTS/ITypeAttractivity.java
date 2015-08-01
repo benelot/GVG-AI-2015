@@ -36,12 +36,12 @@ public class ITypeAttractivity extends HashMap<Integer,Double> {
 		//Set prior Attraction values of categories
 		SpriteCategoryValue = new HashMap<Integer,Double>();
 		SpriteCategoryValue.put(Types.TYPE_AVATAR, -1.0);
-		SpriteCategoryValue.put(Types.TYPE_RESOURCE, 0.15);
+		SpriteCategoryValue.put(Types.TYPE_RESOURCE, 0.2);
 		SpriteCategoryValue.put(Types.TYPE_PORTAL, 0.1);
-		SpriteCategoryValue.put(Types.TYPE_NPC, 0.05);
+		SpriteCategoryValue.put(Types.TYPE_NPC, 0.2);
 		SpriteCategoryValue.put(Types.TYPE_STATIC, 0.05);
 		SpriteCategoryValue.put(Types.TYPE_FROMAVATAR, 0.0);
-		SpriteCategoryValue.put(Types.TYPE_MOVABLE, 0.05);
+		SpriteCategoryValue.put(Types.TYPE_MOVABLE, 0.1);
 		
 		// go through observation grid and put all iTypes into the map
 		for (ArrayList<Observation>[] Obsarray : grid) {

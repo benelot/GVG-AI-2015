@@ -117,6 +117,8 @@ public class SingleMCTSPlayer {
 //				}
 //		if (action >= 0)
 //			System.out.println(" mroot :" + m_root.nVisits + " visits and the choosen child has "+ m_root.children[action].nVisits);
+			
+			//System.out.println("Number of nodes: " + m_root.countNodes());
 		
 		return action;
 	}

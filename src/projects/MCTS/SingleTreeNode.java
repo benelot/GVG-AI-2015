@@ -192,22 +192,9 @@ public class SingleTreeNode {
 			// state-pathway and not just from the very first one.
 			
 			selectedNode = this.children[selected];
-			if(Agent.isStochastic > 0){
-				StateObservation nextState = state.copy();
-				nextState.advance(Agent.actions[selected]);
-				if(Agent.isStochastic > 1 && !selectedNode.state.equiv(nextState) ){
-					Agent.isStochastic = 1;
-					selectedNode.state = nextState;
-				}
-				else{
-					if(Agent.isStochastic == 1){
-						selectedNode.state = nextState;
-					}
-				}
-
-
-
-			}
+			StateObservation nextState = state.copy();
+			nextState.advance(Agent.actions[selected]);
+			selectedNode.state = nextState;
 
 		}
 		if (selectedNode == null) {
