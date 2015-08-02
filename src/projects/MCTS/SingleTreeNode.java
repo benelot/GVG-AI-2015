@@ -11,12 +11,12 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class SingleTreeNode {
-	public enum StateType{
-	    UNCACHED, LOSE, NORMAL, WIN
+	public enum StateType {
+		UNCACHED, LOSE, NORMAL, WIN
 	}
-	
-	private static final double HUGE_NEGATIVE = -100000.0;
-	private static final double HUGE_POSITIVE = 1000000.0;
+
+	private static final double HUGE_NEGATIVE = -Double.MAX_VALUE;
+	private static final double HUGE_POSITIVE = Double.MAX_VALUE;
 	public static double epsilon = 1e-6;
 	public static double egreedyEpsilon = 0.05;
 	public StateObservation state;
@@ -70,7 +70,7 @@ public class SingleTreeNode {
 		long remaining = elapsedTimer.remainingTimeMillis();
 
 		while (remaining > 10) {
-		
+
 			// form tree with MCTS
 			SingleTreeNode selected = treePolicy();
 
@@ -172,25 +172,25 @@ public class SingleTreeNode {
 					+ Agent.K
 					* Math.sqrt(Math.log(this.nVisits + 1)
 							/ (this.children[i].nVisits + SingleTreeNode.epsilon))
-							+ SingleTreeNode.m_rnd.nextDouble()
-							* SingleTreeNode.epsilon;
+					+ SingleTreeNode.m_rnd.nextDouble()
+					* SingleTreeNode.epsilon;
 
 			// small sampleRandom numbers: break ties in unexpanded nodes
-			if (uctValue > bestValue && !this.children[i].isLoseState()){
+			if (uctValue > bestValue && !this.children[i].isLoseState()) {
 				selected = i;
 				bestValue = uctValue;
 			}
 		}
-		if(selected == -1 || this.children[selected].isLoseState()){
-			System.out.println("##### Oh crap.  Death awaits with choice " + selected + ".");
+		if (selected == -1 || this.children[selected].isLoseState()) {
+			System.out.println("##### Oh crap.  Death awaits with choice "
+					+ selected + ".");
 			selected = 0;
-		} 
+		}
 		if (selected != -1) {
 			// if we do the uct step it might be worthwhile also to update the
-			// state believe,
-			// this way we create a real rollout from a newly sampled
-			// state-pathway and not just from the very first one.
-			
+			// state believe, this way we create a real rollout from a newly
+			// sampled state-pathway and not just from the very first one.
+
 			selectedNode = this.children[selected];
 			StateObservation nextState = state.copy();
 			nextState.advance(Agent.actions[selected]);
@@ -247,17 +247,17 @@ public class SingleTreeNode {
 		double previousScore;
 		// rollout with random actions for "ROLLOUT_DEPTH" times
 		while (!finishRollout(rollerState, thisDepth)) {
-			previousScore=rollerState.getGameScore();		
+			previousScore = rollerState.getGameScore();
 			int action = m_rnd.nextInt(Agent.NUM_ACTIONS);
 			rollerState.advance(Agent.actions[action]);
-			Agent.iTypeAttractivity.updateAttraction(rollerState, previousScore);
+			Agent.iTypeAttractivity
+					.updateAttraction(rollerState, previousScore);
 			thisDepth++;
 		}
 
-		
-		// get current position and  reward at that position
-		double explRew = Agent.rewMap.getRewardAtWorldPosition(rollerState.getAvatarPosition());
-	
+		// get current position and reward at that position
+		double explRew = Agent.rewMap.getRewardAtWorldPosition(rollerState
+				.getAvatarPosition());
 
 		// use a fraction of "explRew" as an additional reward (Not given by the
 		// Gamestats)
@@ -286,9 +286,9 @@ public class SingleTreeNode {
 			normDelta = (value(rollerState) - Agent.startingReward)
 					+ additionalRew;
 		}
-		int useTrappedHeuristics =1;
-		if( useTrappedHeuristics == 1){
-			normDelta += 0.1*(Agent.numberOfBlockedMovables - trapHeur(rollerState));
+		int useTrappedHeuristics = 1;
+		if (useTrappedHeuristics == 1) {
+			normDelta += 0.1 * (Agent.numberOfBlockedMovables - trapHeur(rollerState));
 		}
 		return normDelta;
 	}
@@ -397,7 +397,8 @@ public class SingleTreeNode {
 				double disturbedChildRew = (children[i].totValue + (m_rnd
 						.nextDouble() - 0.5) * epsilon)
 						/ Math.sqrt(children[i].nVisits);
-				if (disturbedChildRew > bestValue && !children[i].isDeadEnd(2, fear_unknown)) {
+				if (disturbedChildRew > bestValue
+						&& !children[i].isDeadEnd(2, fear_unknown)) {
 					bestValue = disturbedChildRew;
 					// bestValue = children[i].totValue;
 					selected = i;
@@ -405,56 +406,55 @@ public class SingleTreeNode {
 			}
 		}
 
-		if (selected == -1 ) {
+		if (selected == -1) {
 			System.out.println("Unexpected selection!");
 		}
 		return selected;
 	}
 
-	public boolean isDeadEnd(int max_depth, boolean fear_unknown){
+	public boolean isDeadEnd(int max_depth, boolean fear_unknown) {
 		SingleTreeNode cur = this;
 		boolean allDeaths = true;
-		
+
 		// Base case
-		if (max_depth == 0 || this.isLoseState() || this.state_type == StateType.WIN){
+		if (max_depth == 0 || this.isLoseState()
+				|| this.state_type == StateType.WIN) {
 			return this.isLoseState();
-		}		
-		else {
-			for (int i=0; allDeaths && i< cur.children.length; i++){
-				if( cur.children[i] != null ){
-					allDeaths = allDeaths && cur.children[i].isDeadEnd(max_depth - 1, fear_unknown);
-				}
-				else{
-					if(!fear_unknown){
-						// Well, there's an unknown path, and we're not worried - so let's guess it isn't a dead end!
+		} else {
+			for (int i = 0; allDeaths && i < cur.children.length; i++) {
+				if (cur.children[i] != null) {
+					allDeaths = allDeaths
+							&& cur.children[i].isDeadEnd(max_depth - 1,
+									fear_unknown);
+				} else {
+					if (!fear_unknown) {
+						// Well, there's an unknown path, and we're not worried
+						// - so let's guess it isn't a dead end!
 						return false;
 					}
 				}
 			}
 			// Let the callers know if there is only death this way
-			return allDeaths;			
+			return allDeaths;
 		}
 	}
-	
-	public boolean isLoseState(){
-		if (this.state_type == StateType.UNCACHED){
+
+	public boolean isLoseState() {
+		if (this.state_type == StateType.UNCACHED) {
 			boolean gameOver = this.state.isGameOver();
-			Types.WINNER win = this.state.getGameWinner();		
-			if (gameOver && win == Types.WINNER.PLAYER_LOSES){
+			Types.WINNER win = this.state.getGameWinner();
+			if (gameOver && win == Types.WINNER.PLAYER_LOSES) {
 				this.state_type = StateType.LOSE;
 				return true;
-			}
-			else {
-				if(win == Types.WINNER.PLAYER_WINS){
+			} else {
+				if (win == Types.WINNER.PLAYER_WINS) {
 					this.state_type = StateType.WIN;
-				}
-				else{
+				} else {
 					this.state_type = StateType.NORMAL;
-				}				
+				}
 				return false;
 			}
-		}
-		else {
+		} else {
 			return this.state_type == StateType.LOSE;
 		}
 	}
@@ -467,57 +467,69 @@ public class SingleTreeNode {
 		}
 		return false;
 	}
-	
-	public static double trapHeur(StateObservation a_gameState){
 
-		// return the number of movable objects that are apparently blocked, at least for 1 move 
+	public static double trapHeur(StateObservation a_gameState) {
+
+		// return the number of movable objects that are apparently blocked, at
+		// least for 1 move
 		ArrayList<Observation>[] movePos = null;
 		movePos = a_gameState.getMovablePositions();
 		int isTrapped = 0;
 		int isCompletlyFree = 0;
-		double blockSquare = a_gameState.getBlockSize() *a_gameState.getBlockSize();
+		double blockSquare = a_gameState.getBlockSize()
+				* a_gameState.getBlockSize();
 		if (movePos != null) {
-			for (int j = 0; j < movePos.length ; j++ ){
-				for (int i = 0 ; i < movePos[j].size(); i++){
+			for (int j = 0; j < movePos.length; j++) {
+				for (int i = 0; i < movePos[j].size(); i++) {
 					Vector2d mPPos = movePos[j].get(i).position;
 
-					ArrayList<Observation>[]  trapPos = a_gameState.getImmovablePositions(mPPos) ;
+					ArrayList<Observation>[] trapPos = a_gameState
+							.getImmovablePositions(mPPos);
 
-					//	if surrounded by 3 objects, its trapped			
-					if(trapPos[0].size() >=3){
-						if( (trapPos[0].get(0).sqDist - blockSquare ) < 1 && (trapPos[0].get(1).sqDist - blockSquare ) < 1 && (trapPos[0].get(2).sqDist - blockSquare ) < 1  ){
+					// if surrounded by 3 objects, its trapped
+					if (trapPos[0].size() >= 3) {
+						if ((trapPos[0].get(0).sqDist - blockSquare) < 1
+								&& (trapPos[0].get(1).sqDist - blockSquare) < 1
+								&& (trapPos[0].get(2).sqDist - blockSquare) < 1) {
 							isTrapped++;
 						}
 					}
 					// if surrounded by a corner its trapped
-					if(trapPos[0].size() >=2){
-						if((trapPos[0].get(0).sqDist - blockSquare ) < 1 && (trapPos[0].get(1).sqDist - blockSquare ) < 1 &&  Math.abs((trapPos[0].get(1).position.x -trapPos[0].get(0).position.x )*(trapPos[0].get(1).position.y -trapPos[0].get(0).position.y )) > 1){
+					if (trapPos[0].size() >= 2) {
+						if ((trapPos[0].get(0).sqDist - blockSquare) < 1
+								&& (trapPos[0].get(1).sqDist - blockSquare) < 1
+								&& Math.abs((trapPos[0].get(1).position.x - trapPos[0]
+										.get(0).position.x)
+										* (trapPos[0].get(1).position.y - trapPos[0]
+												.get(0).position.y)) > 1) {
 							isTrapped++;
-						}
-						else{
-							// if surrounded by two immovable objects and a movable object its trapped
-							ArrayList<Observation>[]  trapPos2 = a_gameState.getMovablePositions(mPPos) ;
-							if(trapPos2[0].size() > 1){
-								if((trapPos[0].get(0).sqDist - blockSquare ) < 1 && (trapPos[0].get(1).sqDist - blockSquare ) < 1 && (trapPos2[0].get(1).sqDist - blockSquare ) < 1 ){				
+						} else {
+							// if surrounded by two immovable objects and a
+							// movable object its trapped
+							ArrayList<Observation>[] trapPos2 = a_gameState
+									.getMovablePositions(mPPos);
+							if (trapPos2[0].size() > 1) {
+								if ((trapPos[0].get(0).sqDist - blockSquare) < 1
+										&& (trapPos[0].get(1).sqDist - blockSquare) < 1
+										&& (trapPos2[0].get(1).sqDist - blockSquare) < 1) {
 									isTrapped++;
 								}
 							}
 
-
-
-
 						}
 					}
-					// reward movable objects that are not surrounded by anything
-					ArrayList<Observation>[]  trapPos2 = a_gameState.getMovablePositions(mPPos) ;
-					if(trapPos[0].size() > 0){
-						if(trapPos2[0].size() > 1){
-							if( (trapPos[0].get(0).sqDist - blockSquare ) > 1 && (trapPos2[0].get(1).sqDist - blockSquare)  > 1){
+					// reward movable objects that are not surrounded by
+					// anything
+					ArrayList<Observation>[] trapPos2 = a_gameState
+							.getMovablePositions(mPPos);
+					if (trapPos[0].size() > 0) {
+						if (trapPos2[0].size() > 1) {
+							if ((trapPos[0].get(0).sqDist - blockSquare) > 1
+									&& (trapPos2[0].get(1).sqDist - blockSquare) > 1) {
 								isCompletlyFree++;
 							}
-						}
-						else{
-							if(trapPos[0].get(0).sqDist - blockSquare  > 1){
+						} else {
+							if (trapPos[0].get(0).sqDist - blockSquare > 1) {
 								isCompletlyFree++;
 							}
 
@@ -526,14 +538,14 @@ public class SingleTreeNode {
 				}
 			}
 		}
-		// reward the completely free objects not as much as the trapped ones. 
-		return isTrapped-isCompletlyFree/2;
+		// reward the completely free objects not as much as the trapped ones.
+		return isTrapped - isCompletlyFree / 2;
 	}
 
 	public void correctDepth() {
 		// should correct (subtract 1 of) the depth of the whole tree. Needed
 		// after cut, but seems to be to slow
-		//TODO: Is old_depth going to be used in the future?
+		// TODO: Is old_depth going to be used in the future?
 		// int old_depth = this.m_depth;
 		SingleTreeNode root = this;
 		root.m_depth -= 1;
