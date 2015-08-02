@@ -9,7 +9,7 @@ public class MCTSRunner {
 
 	public static void main(String[] args) throws Exception {
 
-		String customSampleController = projects.MCTS.Agent.class
+		String customSampleController = benelot.Agent.class
 				.getCanonicalName();
 
 		RunConfig config = new RunConfig();

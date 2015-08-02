@@ -1,76 +1,26 @@
-<project name="gvgai" default="cleandist" basedir=".">
+<project>
 
-	<property name="build.dir" value="." />
-	<property name="root.dir" value="." />
+    <target name="clean">
+        <delete dir="build"/>
+    </target>
 
-
-	<property name="src.dir" value="${root.dir}/src/" />
-	<property name="sprites.dir" value="${root.dir}/sprites" />
-
-	
-	<property name="classes.dir" value="${build.dir}/classes" />
-
-	<property name="dist.dir" value="${build.dir}/dist" />
-	
-	<property file="remote.server.properties" />
-
-	<tstamp>
-		<format property="timestamp" pattern="dd-MM-yy_HHmmss" locale="en,UK" />
-	</tstamp>
-
-
-
-	<path id="class.path">
+	<!-- Define the CLASSPATH -->
+	<path id="compile.classpath">
+	    <fileset dir=".">
+		<include name="*.jar" />
+	    </fileset>
 	</path>
 
+    <target name="compile" depends="clean">
+        <mkdir dir="build/classes"/>
+        <javac srcdir="src" destdir="build/classes">
+		<classpath refid="compile.classpath" />
+	</javac>
+    </target>
 
-	<!-- CLEAN -->
-	<target name="clean">
-		<echo message="Removing old directory strmctsure..." />
-		<delete dir="${classes.dir}">
-		</delete>
-
-		<delete dir="${dist.dir}">
-		</delete>
-
-	</target>
-
-
-	<target name="dist">
-		<jar destfile="${dist.dir}/gvgai.jar">
-			<fileset dir="${classes.dir}" />
-			<fileset dir="${root.dir}">
-    			<include name="${sprites.dir}/**"/>
-  			</fileset>
-		</jar>
-	</target>
-
-	<!-- MK DEPLOY DIR -->
-	<target name="makedirectories">
-		<mkdir dir="${classes.dir}" />
-		<mkdir dir="${dist.dir}" />
-	</target>
-
-
-	<target name="compile" depends="makedirectories">
-		<echo message="Compiling All sources ..." />
-		<javac includeantruntime="false" classpathref="class.path" debug="true" debuglevel="lines,vars,source" srcdir="${src.dir}" destdir="${classes.dir}" />
-	</target>
-
-	
-
-	<!-- RUN Test.java -->
-	<target name="cleandist" depends="clean, makedirectories, compile,dist">
-	</target>
-
-	<target name="run" depends="compile">
-		<echo message="Executing Test.java ..."/>
-		<java fork="true" classname="Test">
-		   <classpath>
-              		<path location="${classes.dir}"/>
-      		   </classpath>
-		</java>
-        </target>
-
-
+    <target name="zip" depends="compile">
+        <mkdir dir="build/zip"/>
+        <jar destfile="build/zip/Agent.zip" basedir="build/classes">
+        </jar>
+    </target>
 </project>

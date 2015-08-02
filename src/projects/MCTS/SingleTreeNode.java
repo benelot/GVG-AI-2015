@@ -1,5 +1,6 @@
 package projects.MCTS;
 
+import benelot.Agent;
 import core.game.Observation;
 import core.game.StateObservation;
 import ontology.Types;

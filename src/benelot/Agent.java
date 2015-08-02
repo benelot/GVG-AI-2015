@@ -1,4 +1,4 @@
-package projects.MCTS;
+package benelot;
 
 import core.game.Observation;
 import core.game.StateObservation;
@@ -9,7 +9,12 @@ import tools.ElapsedCpuTimer;
 
 import java.util.ArrayList;
 import java.util.Random;
+
 import projects.HBFS.HBFSAgent;
+import projects.MCTS.ITypeAttractivity;
+import projects.MCTS.RewardMap;
+import projects.MCTS.SingleMCTSPlayer;
+import projects.MCTS.SingleTreeNode;
 import tools.Vector2d;
 
 /**
