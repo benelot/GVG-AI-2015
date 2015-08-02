@@ -49,7 +49,15 @@ public class HBFSAgent extends AbstractPlayer {
 	public static final int STATE_ACTING = 2;
 	public static final int STATE_IDLE = 3;
 	public static final int STATE_OTHER = 4;
-		
+	
+	public static final int prime = 32353; //18097; //4583; 
+	public static final int callReportFrequency = 300;
+	public static final double wLoad = -2; // -4
+	public static final double wPosition = 0;
+	public static final double wTileDiversity = -3; // -2
+	public static final double wEvents = -0.1;
+	public static final double wDepth = 1;
+
 	public static int NUM_ACTIONS;
 	public static int INITIALIZATION_REMTIME = 25;
 	public static int ACTION_REMTIME = 10;
@@ -59,25 +67,16 @@ public class HBFSAgent extends AbstractPlayer {
 	public static int MAX_PIPE_LENGTH = 10000;
 	public static int MAX_REJECTION_SET_SIZE = 10000;
 	public static int CARRY_OVER_PIPE_LENGTH = 2000;
-	
 	public static boolean isVerbose = false;
 	public static int reportFrequency = 25;
-	
 	public static Types.ACTIONS[] ACTIONS;
-
-	public static int compareCalls = 0;
-	public static int equalCalls = 0;
 	public static int rootLoad = -1;
+	
 	public static double correspondingScore = Double.NEGATIVE_INFINITY;
 	public static double maxScoreDifference = Double.NEGATIVE_INFINITY;
-	public static final int prime = 32353; //18097; //4583; 
-	public static final int callReportFrequency = 300;
-	public static final double wLoad = -2; // -4
-	public static final double wPosition = 0;
-	public static final double wTileDiversity = -3; // -2
-	public static final double wEvents = -0.1;
-	public static final double wDepth = 1;
-	
+	public static int compareCalls = 0;
+	public static int equalCalls = 0;
+		
 	public int controllerState = STATE_PLANNING;
 	public Stack<Types.ACTIONS> actionSequence = null; 
 	
@@ -89,29 +88,25 @@ public class HBFSAgent extends AbstractPlayer {
 	public int stats_rejects = 0;
 	public int stats_nonUseful = 0;
 	public int turnAroundSpeed = -1;
+	public int pipeEmptyEvents = 0;
 	
 	private void initializeBfs(StateObservation so) {
-		System.out.println("##Initializing Controller...");
+		System.out.println("##Initializing HBFS...");
+		//testForwardModel(so);
 		controllerState = STATE_OTHER;
 		
 		pipe = new PriorityQueue<HBFSNode>(MAX_PIPE_LENGTH);
 		visited = new HashSet<HBFSNode>(HBFSAgent.prime);
-		stats_rejects = 0; stats_nonUseful = 0; turnAroundSpeed = -1; // reset protocol statistics
+		
+		// reset protocol statistics
+		stats_rejects = 0; stats_nonUseful = 0; turnAroundSpeed = -1; pipeEmptyEvents = 0; 
 		HBFSAgent.maxScoreDifference = Double.NEGATIVE_INFINITY; 
 		HBFSAgent.correspondingScore = Double.NEGATIVE_INFINITY;
 		HBFSAgent.rootLoad = -1; HBFSAgent.equalCalls = 0; HBFSAgent.compareCalls = 0;
 		
-		// For (e.g.) boloadventures the forward model behaves unexpectedly (actions sometimes have no effect, sometimes they do)
-//		so.advance(Types.ACTIONS.ACTION_NIL);
-//		BFSNode.displayStateObservation(so);
-//		so.advance(Types.ACTIONS.ACTION_LEFT); // no effect as first action
-//		BFSNode.displayStateObservation(so);
-//		so.advance(Types.ACTIONS.ACTION_LEFT);
-//		BFSNode.displayStateObservation(so);
-		
 		bfsRoot = new HBFSNode(so, null, null, 0);
 		HBFSNode.setRootLoad(bfsRoot.getLoad());
-		HBFSNode.displayStateObservation(so);
+		//HBFSNode.displayStateObservation(so);
 				
 		if (bfsRoot.so.isGameOver()) {
 			throw new IllegalStateException();
@@ -123,7 +118,42 @@ public class HBFSAgent extends AbstractPlayer {
 		controllerState = STATE_PLANNING;
 	}
 	
-	public void cleanBfs() {
+	public void testForwardModel(StateObservation so) {
+		System.out.println("##Testing Forward Model...");
+		StateObservation s0 = so;
+		int[] es = new int[ACTIONS.length];
+		int[] es2 = new int[ACTIONS.length];
+		int[] d = new int[ACTIONS.length];
+		Stack<StateObservation> s = new Stack<StateObservation>();
+		for (int k = 0; k < ACTIONS.length; k++) {
+			so = s0.copy();
+			so.advance(ACTIONS[k]);
+			if (s0.getAvatarPosition().equals(so.getAvatarPosition())) {
+				// no effect on position
+				es[k]++;
+				// repeat action
+				so = so.copy();
+				so.advance(ACTIONS[k]);
+				// so.advance(Types.ACTIONS.ACTION_NIL);
+				
+				if (s0.getAvatarPosition().equals(so.getAvatarPosition())) {
+					es2[k]++;
+				} else {
+					s.push(so);
+				}
+			} else {
+				s.push(so);
+			}
+			d[k] = es[k] - es2[k];
+			System.out.println(ACTIONS[k] + " | ineffective on repeat: " + es2[k] + " | ineffective on 1st: " + es[k]);
+		}
+		for (StateObservation so2 : s) {
+			testForwardModel(so2);
+		}
+			
+	}
+	
+	private void cleanBfs() {
 		pipe.clear(); visited.clear();
 		bfsRoot = null; hbfsSolution = null;
 		actionSequence = null;
@@ -131,6 +161,7 @@ public class HBFSAgent extends AbstractPlayer {
 	}
 	
 	private boolean performBfs() {
+		
 		if (pipe.isEmpty()) {
 			controllerState = STATE_OTHER;
 			System.out.println("performBfs was called on empty pipe. Changing to STATE_OTHER.");
@@ -141,7 +172,9 @@ public class HBFSAgent extends AbstractPlayer {
 		
 		for (Types.ACTIONS a : ACTIONS) {
 			StateObservation soCopy = current.so.copy();
+			
 			soCopy.advance(a);
+			
 			if (soCopy.isGameOver()) {
 				if (soCopy.getGameWinner() == Types.WINNER.PLAYER_WINS) {
 					hbfsSolution = new HBFSNode(soCopy, a, current, current.depth+1);
@@ -165,25 +198,35 @@ public class HBFSAgent extends AbstractPlayer {
 					backup = null;
 					//System.gc();
 				}
-				
+
 				HBFSNode m = new HBFSNode(soCopy, a, current, current.depth+1);
+
 				if (visited.add(m)) {
 					pipe.add(m);
 					//visited.add(m);
 				} else {
 					stats_rejects++;
 				}
-				
+
+
 				m = null;
 			}
 		}
 		
-//		if (pipe.isEmpty()) { 
-//			System.out.println("#Pipe Empty. Readding current node.");
-//			current.so.advance(Types.ACTIONS.ACTION_NIL);
-//			current.updateScore();
-//			pipe.add(current);
-//		}
+		if (pipe.isEmpty()) {
+			System.out.println("\n#Pipe unexpectedly empty. Reseeding and clearing rejection set.");
+			visited.clear();
+			for (Types.ACTIONS a : ACTIONS) {
+				StateObservation soCopy = current.so.copy();
+				soCopy.advance(a);
+				HBFSNode m = new HBFSNode(soCopy, a, current, current.depth+1);
+				visited.add(m); 
+				pipe.add(m);
+			}
+			visited.add(current); 
+			pipe.add(current);
+			pipeEmptyEvents+=1;
+		}
 		
 		if (isVerbose) {
 			current.displayActionSequence();
@@ -228,6 +271,7 @@ public class HBFSAgent extends AbstractPlayer {
 		if (node == null) node = pipe.peek();
 		if (node == null) {
 			System.out.println("#Pipe Empty");
+			return;
 		}
 		System.out.println();
 		System.out.format("Pipe:%5d|R.Set:%5d|Rejects:%6d|Depth:%3d|Events:%3d|E.Score:%3.2f|D.Score:%3.2f|L.Score:%3.2f|Score:%3.2f|B.Delta:%3.2f|C.Score:%3.2f|Speed:%3d", 
@@ -280,23 +324,36 @@ public class HBFSAgent extends AbstractPlayer {
 			}
 			
 			if (hasTerminated) {
-				System.out.println("Solution Found. ACTING Phase...");
+				System.out.println("\n#Solution Found. ACTING Phase...");
 				controllerState = STATE_ACTING;
 				actionSequence = hbfsSolution.getActionSequence();
 				System.out.println("Best Sequence Length: " + actionSequence.size());
 			}
 			if (so.getGameTick() > MAX_TICKS) {
-				System.out.println("Timeout! ACTING Phase...");
+				System.out.println("\n#Timeout! ACTING Phase...");
 				controllerState = STATE_ACTING;
 				hbfsSolution = pipe.peek();
 				actionSequence = hbfsSolution.getActionSequence();
 				System.out.println("Timeout Sequence Length: " + actionSequence.size());
 			}
+			if (pipeEmptyEvents > 1) {
+				System.out.println("\n#Pipe Constantly Empty! Performing some move. ACTING Phase...");
+				controllerState = STATE_ACTING;
+				actionSequence = new Stack<Types.ACTIONS>();
+				actionSequence.push(ACTIONS[(int) Math.floor(Math.random()*4)]);
+				System.out.println("Random Sequence Length: " + actionSequence.size());
+			}
 				
 			
 			return Types.ACTIONS.ACTION_NIL;
+		
 		case STATE_IDLE:
 		case STATE_OTHER:
+			if (!so.isGameOver()) {
+				System.out.println("\n#Controller IDLE but game continues. Restart PLANNING Phase...");
+				initializeBfs(so);
+				controllerState = STATE_PLANNING;
+			}
 			return Types.ACTIONS.ACTION_NIL;
 		default:
 			throw new IllegalStateException();

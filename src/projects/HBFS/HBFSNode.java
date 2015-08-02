@@ -23,6 +23,9 @@ public class HBFSNode implements Comparable<HBFSNode> {
 	public HBFSNode parent;
 	public int depth;
 
+	// opportunityScore - how many reachable places are there?
+	// trapped tile score - how many tiles are trapped?
+	// attention score - how close does this path get to attended tiles, where attention is a function of tile scarcity?
 	private double score = -1;
 	private double eventScore = -1;
 	private double tileDiversityScore = -1;
