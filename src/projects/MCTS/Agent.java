@@ -9,10 +9,8 @@ import tools.ElapsedCpuTimer;
 
 import java.util.ArrayList;
 import java.util.Random;
-
 import projects.HBFS.HBFSAgent;
 import tools.Vector2d;
-
 
 /**
  * @Created with IntelliJ IDEA.
@@ -24,31 +22,37 @@ import tools.Vector2d;
  */
 public class Agent extends AbstractPlayer {
 
-	public static int NUM_ACTIONS;
+	// ## Parameters
 	public static int ROLLOUT_DEPTH = 0;
+
 	// running and fixed MCTS_DEPTH, first increments to counter the increment
 	// of the depth of the cut trees. The later stays fixed
 	public static int MCTS_DEPTH_RUN;
 	public static int MCTS_DEPTH_FIX = 3;
-	public static int MCTS_AVOID_DEATH_DEPTH = 2;	
+	public static int MCTS_AVOID_DEATH_DEPTH = 2;
 	public static double K = Math.sqrt(2);
 	public static Types.ACTIONS[] actions;
-	
-	public String useAgent = "mixed" ; // "mixed"; "MCTS"; "BFS"
-	
+
+	public enum AgentType {
+		MCTS, BFS, MIXED
+	}
+
+	public AgentType agentType = AgentType.MIXED;
+
 	// an exploration reward map that is laid over the game-world to reward
 	// places that haven't been visited lately
 	public static RewardMap rewMap;
-	
-	//HashMap of iTypeAttractivity for start situation
-	// TODO: Maybe create List of AttractivityMaps for different game situations (e.g. avatar has found sword/has eaten mushroom/has a lot of honey)
+
+	// HashMap of iTypeAttractivity for start situation
+	// TODO: Maybe create List of AttractivityMaps for different game situations
+	// (e.g. avatar has found sword/has eaten mushroom/has a lot of honey)
 	public static ITypeAttractivity iTypeAttractivity;
 
 	// keeps track of the reward at the start of the MCTS search
 	public static double startingReward;
 	public static double numberOfBlockedMovables;
 	public static boolean isStochastic;
-	
+
 	public int oldAction;
 
 	/**
@@ -56,7 +60,9 @@ public class Agent extends AbstractPlayer {
 	 */
 	private SingleMCTSPlayer mctsPlayer;
 	private HBFSAgent bfAgent;
-	
+
+	public static int NUM_ACTIONS;
+
 	/**
 	 * Public constructor with state observation and time due.
 	 * 
@@ -72,48 +78,47 @@ public class Agent extends AbstractPlayer {
 		for (int i = 0; i < actions.length; ++i) {
 			actions[i] = act.get(i);
 		}
-		NUM_ACTIONS = actions.length;
+		// NUM_ACTIONS = actions.length;
 
 		// Create the player.
 		mctsPlayer = new SingleMCTSPlayer(new Random());
 
 		// init exploration reward map with 1
 		rewMap = new RewardMap(so, 1);
-		
+
 		// initialize ItypeAttracivity Array for starting Situation
-		 iTypeAttractivity = new ITypeAttractivity(so);
-		
+		iTypeAttractivity = new ITypeAttractivity(so);
 
 		// fix the MCTS_DEPTH to the starting DEPTH
 		MCTS_DEPTH_RUN = MCTS_DEPTH_FIX;
 		oldAction = -2;
 		startingReward = 0;
-		
+
 		numberOfBlockedMovables = 0;
-		
-		
+
 		// Advance a bit to check if stochastic
 		StateObservation testState1 = so.copy();
 		StateObservation testState2 = so.copy();
-		for(int ii=1; ii<4; ii++){
+		for (int ii = 1; ii < 4; ii++) {
 			testState1.advance(Types.ACTIONS.ACTION_NIL);
-			testState2.advance(Types.ACTIONS.ACTION_NIL); 
-        }
-		if(testState1.equiv(testState2) ){
+			testState2.advance(Types.ACTIONS.ACTION_NIL);
+		}
+		if (testState1.equiv(testState2)) {
 			isStochastic = false;
-			MCTS_DEPTH_RUN  += 20;
+			MCTS_DEPTH_RUN += 20;
 			System.out.println("Game seems to be deterministic");
-		}else{
+		} else {
 			isStochastic = true;
 			System.out.println("Game seems to be stochastic");
 		}
-		
+
 		// use time that is left to build a tree or do BFS
-		if((isStochastic || useAgent=="MCTS")&& !(useAgent=="BFS")){
-			mctsPlayer.init(so);		
+		if ((isStochastic || agentType == AgentType.MCTS)
+				&& agentType != AgentType.BFS) {
+			mctsPlayer.init(so);
 			mctsPlayer.run(elapsedTimer);
-		}else{
-			bfAgent= new HBFSAgent(so, elapsedTimer);
+		} else {
+			bfAgent = new HBFSAgent(so, elapsedTimer);
 		}
 
 	}
@@ -130,134 +135,149 @@ public class Agent extends AbstractPlayer {
 	 */
 	public Types.ACTIONS act(StateObservation stateObs,
 			ElapsedCpuTimer elapsedTimer) {
-		
-		// 
+
+		//
 		GameRunner.setLastStateObservation(stateObs);
 
-		
-		if ((useAgent=="BFS") || (useAgent=="mixed" && !isStochastic)) {
+		if (agentType == AgentType.BFS
+				|| (agentType == AgentType.MIXED && !isStochastic)) {
 			Types.ACTIONS bfaction = this.bfAgent.act(stateObs, elapsedTimer);
 			return bfaction;
 		} else {
-		
-			
-		int action;
-		// ArrayList<Observation> obs[] =
-		// stateObs.getFromAvatarSpritesPositions();
-		// ArrayList<Observation> grid[][] = stateObs.getObservationGrid();
 
-		// Heuristic: change the reward in the exploration reward map of the
-		// visited current position
-		Vector2d avatarPos = stateObs.getAvatarPosition();
+			int action;
+			// ArrayList<Observation> obs[] =
+			// stateObs.getFromAvatarSpritesPositions();
+			// ArrayList<Observation> grid[][] = stateObs.getObservationGrid();
 
-		// increment reward at all unvisited positions and decrement at current
-		// position
-		rewMap.incrementAll(0.001);
-		rewMap.setRewardAtWorldPosition(avatarPos, -0.3);
-		
-		//rewMap.print();
+			// Heuristic: change the reward in the exploration reward map of the
+			// visited current position
+			Vector2d avatarPos = stateObs.getAvatarPosition();
 
+			// increment reward at all unvisited positions and decrement at
+			// current
+			// position
+			rewMap.incrementAll(0.001);
+			rewMap.setRewardAtWorldPosition(avatarPos, -0.3);
 
-		// Heuristic: Punish the exploration area where enemies have been and reward it if the enemies are attractive
-		// TODO: This could also be done for resources and one could reward the surroundings (with a reward gradient, see IDEA below)
-		// TODO: Or maybe it would be better not to reward the positions where the npcs were, but always the position and surroundings, where they currently are
-		// which would require a lot of time (I tried it for all Sprites, but it was too inefficient)
-		// Heuristic (IDEA): Perhaps increase reward towards positions that have
-		// a resource. -> some sort of diffusion model with the resources as positive
-		// sources and the enemies as negative sources to create a reward
-		// gradient.
-		
-		boolean rewardNPCs=true;
-		if (rewardNPCs){
-			ArrayList<Observation>[] npcPositions = null;
-			npcPositions = stateObs.getNPCPositions();
-			double npcAttractionValue = 0;
-			if (npcPositions != null) {
-				for (ArrayList<Observation> npcs : npcPositions) {
-					if (npcs.size() > 0) {
-						Vector2d npcPos = npcs.get(0).position;
-						try{
-							npcAttractionValue =  iTypeAttractivity.get(npcs.get(0).itype);
-						} catch( java.lang.NullPointerException e)
-						{	
-							iTypeAttractivity.putNewUniqueItype(npcs.get(0));
-							npcAttractionValue =  iTypeAttractivity.get(npcs.get(0).itype);
-						}
-						if (Math.abs(rewMap.getRewardAtWorldPosition(npcPos)) < 1) {
-							rewMap.incrementRewardAtWorldPosition(npcPos, npcAttractionValue*0.02);
-						}
-					}
-				}
-			}
-		}
+			// rewMap.print();
 
-		boolean rewardRecources=true;
-		if (rewardRecources){
-			ArrayList<Observation>[] resPositions = null;
-			resPositions = stateObs.getNPCPositions();
-			double resAttractionValue = 0;
-			if (resPositions != null) {
-				for (ArrayList<Observation> ress : resPositions) {
-					if (ress.size() > 0) {
-						Vector2d resPos = ress.get(0).position;
-						try{
-							resAttractionValue =  iTypeAttractivity.get(ress.get(0).itype);
-						} catch( java.lang.NullPointerException e)
-						{	
-							iTypeAttractivity.putNewUniqueItype(ress.get(0));
-							resAttractionValue =  iTypeAttractivity.get(ress.get(0).itype);
-						}
-						if (Math.abs(rewMap.getRewardAtWorldPosition(resPos)) < 1) {
-							rewMap.incrementRewardAtWorldPosition(resPos, resAttractionValue*0.02);
+			// Heuristic: Punish the exploration area where enemies have been
+			// and reward it if the enemies are attractive
+			// TODO: This could also be done for resources and one could reward
+			// the surroundings (with a reward gradient, see IDEA below)
+			// TODO: Or maybe it would be better not to reward the positions
+			// where the npcs were, but always the position and surroundings,
+			// where they currently are
+			// which would require a lot of time (I tried it for all Sprites,
+			// but it was too inefficient)
+			// Heuristic (IDEA): Perhaps increase reward towards positions that
+			// have
+			// a resource. -> some sort of diffusion model with the resources as
+			// positive sources and the enemies as negative sources to create a
+			// reward
+			// gradient.
+
+			boolean rewardNPCs = true;
+			if (rewardNPCs) {
+				ArrayList<Observation>[] npcPositions = null;
+				npcPositions = stateObs.getNPCPositions();
+				double npcAttractionValue = 0;
+				if (npcPositions != null) {
+					for (ArrayList<Observation> npcs : npcPositions) {
+						if (npcs.size() > 0) {
+							Vector2d npcPos = npcs.get(0).position;
+							try {
+								npcAttractionValue = iTypeAttractivity.get(npcs
+										.get(0).itype);
+							} catch (java.lang.NullPointerException e) {
+								iTypeAttractivity
+										.putNewUniqueItype(npcs.get(0));
+								npcAttractionValue = iTypeAttractivity.get(npcs
+										.get(0).itype);
+							}
+							if (Math.abs(rewMap
+									.getRewardAtWorldPosition(npcPos)) < 1) {
+								rewMap.incrementRewardAtWorldPosition(npcPos,
+										npcAttractionValue * 0.02);
+							}
 						}
 					}
 				}
 			}
-		}
 
+			boolean rewardRecources = true;
+			if (rewardRecources) {
+				ArrayList<Observation>[] resPositions = null;
+				resPositions = stateObs.getNPCPositions();
+				double resAttractionValue = 0;
+				if (resPositions != null) {
+					for (ArrayList<Observation> ress : resPositions) {
+						if (ress.size() > 0) {
+							Vector2d resPos = ress.get(0).position;
+							try {
+								resAttractionValue = iTypeAttractivity.get(ress
+										.get(0).itype);
+							} catch (java.lang.NullPointerException e) {
+								iTypeAttractivity
+										.putNewUniqueItype(ress.get(0));
+								resAttractionValue = iTypeAttractivity.get(ress
+										.get(0).itype);
+							}
+							if (Math.abs(rewMap
+									.getRewardAtWorldPosition(resPos)) < 1) {
+								rewMap.incrementRewardAtWorldPosition(resPos,
+										resAttractionValue * 0.02);
+							}
+						}
+					}
+				}
+			}
 
-		int useOldTree = 1;
-		if (useOldTree == 1) {
-			// Sets a new tree with the children[oldAction] as the root
-			mctsPlayer.initWithOldTree(stateObs, oldAction);
-		} else {
-			// Set the state observation object as the new root of the tree.
-			// (Forgets the whole tree)
-			mctsPlayer.init(stateObs);
-		}
-		
-		startingReward = stateObs.getGameScore();
-		
-		numberOfBlockedMovables = mctsPlayer.m_root.trapHeur(stateObs);
-		
-		// Determine the action using MCTS...
-		action = mctsPlayer.run(elapsedTimer);
-		//if (stateObs.getGameTick() % 2 == 0) {
+			int useOldTree = 1;
+			if (useOldTree == 1) {
+				// Sets a new tree with the children[oldAction] as the root
+				mctsPlayer.initWithOldTree(stateObs, oldAction);
+			} else {
+				// Set the state observation object as the new root of the tree.
+				// (Forgets the whole tree)
+				mctsPlayer.init(stateObs);
+			}
+
+			startingReward = stateObs.getGameScore();
+
+			numberOfBlockedMovables = SingleTreeNode.trapHeur(stateObs);
+
+			// Determine the action using MCTS...
+			action = mctsPlayer.run(elapsedTimer);
+			// if (stateObs.getGameTick() % 2 == 0) {
 			// action = -2;
-		//}
-		if (action > -2) {
-			MCTS_DEPTH_RUN += useOldTree;
-		}
-		
-		// there is a problem when the tree is so small that the chosen children don't have any grandchildren,
-		// in this case Danny's isDeadEnd method will give back a true based on the "fear_unkonwn" input. Therefore,
-		// I treat this waiting as a thinking step, where we expand the old tree instead of creating a complete 
-		// new tree that also leads to the same problem -> the guy is stuck. 
-		
-		if ( action == -1)
-			action =-2;
-		
-		oldAction = action;
+			// }
+			if (action > -2) {
+				MCTS_DEPTH_RUN += useOldTree;
+			}
 
-		//... and return it.
-		if(action == -2 || action == -1){
-			return Types.ACTIONS.ACTION_NIL;
-		} else {
-			return actions[action];
-		}
-		
-		} //end if isstochastic
-		
+			// there is a problem when the tree is so small that the chosen
+			// children don't have any grandchildren,
+			// in this case Danny's isDeadEnd method will give back a true based
+			// on the "fear_unkonwn" input. Therefore,
+			// I treat this waiting as a thinking step, where we expand the old
+			// tree instead of creating a complete
+			// new tree that also leads to the same problem -> the guy is stuck.
+
+			if (action == -1)
+				action = -2;
+
+			oldAction = action;
+
+			// ... and return it.
+			if (action == -2 || action == -1) {
+				return Types.ACTIONS.ACTION_NIL;
+			} else {
+				return actions[action];
+			}
+
+		} // end if isstochastic
+
 	}
-
 }
