@@ -14,9 +14,14 @@ public class SingleTreeNode {
 	public enum StateType {
 		UNCACHED, LOSE, NORMAL, WIN
 	}
+	
+	public static Random m_rnd;
 
-	private static final double HUGE_NEGATIVE = -Double.MAX_VALUE;
-	private static final double HUGE_POSITIVE = Double.MAX_VALUE;
+	//strong rewards
+	private static final double HUGE_NEGATIVE_REWARD = -Double.MAX_VALUE;
+	private static final double HUGE_POSITIVE_REWARD = Double.MAX_VALUE;
+	
+	
 	public static double epsilon = 1e-6;
 	public static double egreedyEpsilon = 0.05;
 	public StateObservation state;
@@ -24,11 +29,13 @@ public class SingleTreeNode {
 	public SingleTreeNode[] children;
 	public double totValue;
 	public int nVisits;
-	public static Random m_rnd;
+	
+	
+	
 	public int m_depth;
 	private static double[] lastBounds = new double[] { 0, 1 };
 	private static double[] curBounds = new double[] { 0, 1 };
-	public StateType state_type = StateType.UNCACHED;
+	public StateType stateType = StateType.UNCACHED;
 
 	// keeps track of the reward at the start of the MCTS search
 	// public double startingRew;
@@ -36,12 +43,25 @@ public class SingleTreeNode {
 	public SingleTreeNode(Random rnd) {
 		this(null, null, rnd);
 	}
-
+	
 	public SingleTreeNode(StateObservation state, SingleTreeNode parent,
 			Random rnd) {
 		this.state = state;
 		this.parent = parent;
 		SingleTreeNode.m_rnd = rnd;
+		children = new SingleTreeNode[Agent.NUM_ACTIONS];
+		totValue = 0.0;
+		if (parent != null) {
+			m_depth = parent.m_depth + 1;
+		} else {
+			m_depth = 0;
+		}
+
+	}
+
+	public SingleTreeNode(StateObservation state, SingleTreeNode parent) {
+		this.state = state;
+		this.parent = parent;
 		children = new SingleTreeNode[Agent.NUM_ACTIONS];
 		totValue = 0.0;
 		if (parent != null) {
@@ -111,7 +131,7 @@ public class SingleTreeNode {
 		int bestAction = 0;
 		double bestValue = -1; // select a never used action
 		for (int i = 0; i < children.length; i++) {
-			double x = m_rnd.nextDouble();
+			double x = SingleTreeNode.m_rnd.nextDouble();
 			if (x > bestValue && children[i] == null) {
 				bestAction = i;
 				bestValue = x;
@@ -121,8 +141,7 @@ public class SingleTreeNode {
 		nextState.advance(Agent.actions[bestAction]);
 
 		// build children for the newly tried action
-		SingleTreeNode tn = new SingleTreeNode(nextState, this,
-				SingleTreeNode.m_rnd);
+		SingleTreeNode tn = new SingleTreeNode(nextState, this);
 		children[bestAction] = tn;
 		return tn;
 
@@ -167,7 +186,6 @@ public class SingleTreeNode {
 
 			// reward + UCT-exploration term. Not clear to me if this is useful
 			// for the size of the tree that we have within our time constraints
-			// .
 			double uctValue = childValue
 					+ Agent.K
 					* Math.sqrt(Math.log(this.nVisits + 1)
@@ -208,9 +226,9 @@ public class SingleTreeNode {
 
 		SingleTreeNode selected = null;
 
-		if (m_rnd.nextDouble() < egreedyEpsilon) {
+		if (SingleTreeNode.m_rnd.nextDouble() < egreedyEpsilon) {
 			// Choose randomly
-			int selectedIdx = m_rnd.nextInt(children.length);
+			int selectedIdx = SingleTreeNode.m_rnd.nextInt(children.length);
 			selected = this.children[selectedIdx];
 
 		} else {
@@ -248,7 +266,7 @@ public class SingleTreeNode {
 		// rollout with random actions for "ROLLOUT_DEPTH" times
 		while (!finishRollout(rollerState, thisDepth)) {
 			previousScore = rollerState.getGameScore();
-			int action = m_rnd.nextInt(Agent.NUM_ACTIONS);
+			int action = SingleTreeNode.m_rnd.nextInt(Agent.NUM_ACTIONS);
 			rollerState.advance(Agent.actions[action]);
 			Agent.iTypeAttractivity
 					.updateAttraction(rollerState, previousScore);
@@ -301,11 +319,11 @@ public class SingleTreeNode {
 
 		if (gameOver && win == Types.WINNER.PLAYER_LOSES) {
 			// return -2;
-			return HUGE_NEGATIVE;
+			return HUGE_NEGATIVE_REWARD;
 		}
 
 		if (gameOver && win == Types.WINNER.PLAYER_WINS) {
-			return HUGE_POSITIVE;
+			return HUGE_POSITIVE_REWARD;
 		}
 
 		return rawScore;
@@ -364,7 +382,7 @@ public class SingleTreeNode {
 					allEqual = false;
 				}
 
-				if (children[i].nVisits + m_rnd.nextDouble() * epsilon > bestValue) {
+				if (children[i].nVisits + SingleTreeNode.m_rnd.nextDouble() * epsilon > bestValue) {
 					bestValue = children[i].nVisits;
 					selected = i;
 				}
@@ -394,7 +412,7 @@ public class SingleTreeNode {
 			if (children[i] != null) {
 				// we divide the reward by the number of times that we actually
 				// tried that child ( the sqrt is there just for fun ;) )
-				double disturbedChildRew = (children[i].totValue + (m_rnd
+				double disturbedChildRew = (children[i].totValue + (SingleTreeNode.m_rnd
 						.nextDouble() - 0.5) * epsilon)
 						/ Math.sqrt(children[i].nVisits);
 				if (disturbedChildRew > bestValue
@@ -418,7 +436,7 @@ public class SingleTreeNode {
 
 		// Base case
 		if (max_depth == 0 || this.isLoseState()
-				|| this.state_type == StateType.WIN) {
+				|| this.stateType == StateType.WIN) {
 			return this.isLoseState();
 		} else {
 			for (int i = 0; allDeaths && i < cur.children.length; i++) {
@@ -440,22 +458,22 @@ public class SingleTreeNode {
 	}
 
 	public boolean isLoseState() {
-		if (this.state_type == StateType.UNCACHED) {
+		if (this.stateType == StateType.UNCACHED) {
 			boolean gameOver = this.state.isGameOver();
 			Types.WINNER win = this.state.getGameWinner();
 			if (gameOver && win == Types.WINNER.PLAYER_LOSES) {
-				this.state_type = StateType.LOSE;
+				this.stateType = StateType.LOSE;
 				return true;
 			} else {
 				if (win == Types.WINNER.PLAYER_WINS) {
-					this.state_type = StateType.WIN;
+					this.stateType = StateType.WIN;
 				} else {
-					this.state_type = StateType.NORMAL;
+					this.stateType = StateType.NORMAL;
 				}
 				return false;
 			}
 		} else {
-			return this.state_type == StateType.LOSE;
+			return this.stateType == StateType.LOSE;
 		}
 	}
 
@@ -545,8 +563,6 @@ public class SingleTreeNode {
 	public void correctDepth() {
 		// should correct (subtract 1 of) the depth of the whole tree. Needed
 		// after cut, but seems to be to slow
-		// TODO: Is old_depth going to be used in the future?
-		// int old_depth = this.m_depth;
 		SingleTreeNode root = this;
 		root.m_depth -= 1;
 		for (int i = 0; i < root.children.length; i++) {
