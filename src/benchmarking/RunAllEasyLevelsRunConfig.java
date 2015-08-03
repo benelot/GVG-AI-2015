@@ -1,6 +1,6 @@
 package benchmarking;
 
-import misc.RunConfig;
+import misc.runners.RunConfig;
 
 public class RunAllEasyLevelsRunConfig extends RunConfig {
 	public RunAllEasyLevelsRunConfig() {
