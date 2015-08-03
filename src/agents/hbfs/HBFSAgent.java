@@ -38,9 +38,9 @@ import tools.ElapsedCpuTimer;
 //   As a workaround Run only blocks of the same game only.
 // - In some games the forward model does not seem to work properly. E.g. in BOLOADVENTURES (level 1), 
 //   an initial move to the left is not reflected in the updated StateObservation (see comments in HBFSAgent.initializeBfs(StateObservation so))
-//
 // @author Sepp Kollmorgen
-
+//
+//
 
 public class HBFSAgent extends AbstractPlayer {
 	
@@ -49,8 +49,13 @@ public class HBFSAgent extends AbstractPlayer {
 	public static final int STATE_IDLE = 3;
 	public static final int STATE_OTHER = 4;
 	
-	public static final int prime = 4583; //7927; //13163; // 18097; //4583; -- the prime should be larger than 4/3 * MAX_REJECTION_SET_SIZE
+	public static final int prime = 4583; //4583; //7927; //13163; // 18097; //4583; -- the prime should be larger than 4/3 * MAX_REJECTION_SET_SIZE
+	public static int MAX_PIPE_LENGTH = 2000;
+	public static int MAX_REJECTION_SET_SIZE = 3000;
+	public static int CARRY_OVER_PIPE_LENGTH = 200;
+	
 	public static final int callReportFrequency = 10000;
+	
 	public static final double wLoad = -2; // -4
 	public static final double wPosition = 0;
 	public static final double wTileDiversity = -3; // -2
@@ -63,9 +68,7 @@ public class HBFSAgent extends AbstractPlayer {
 	public static int INITIALIZATION_ITEMS_PER_ROUND = 1;
 	public static int ACTION_ITEMS_PER_ROUND = 1;
 	public static int MAX_TICKS = 1800;
-	public static int MAX_PIPE_LENGTH = 2000;
-	public static int MAX_REJECTION_SET_SIZE = 2000;
-	public static int CARRY_OVER_PIPE_LENGTH = 200;
+	
 	public static boolean isVerbose = false;
 	public static int reportFrequency = 100;
 	public static Types.ACTIONS[] ACTIONS;
@@ -187,6 +190,7 @@ public class HBFSAgent extends AbstractPlayer {
 			
 				if (visited.size() > MAX_REJECTION_SET_SIZE) {
 					visited.clear();
+					System.out.print("RSc.");
 					//System.gc();
 				}
 				
@@ -198,6 +202,7 @@ public class HBFSAgent extends AbstractPlayer {
 					pipe.clear();
 					pipe.addAll(backup);
 					backup = null;
+					System.out.print("Pc.");
 					//System.gc();
 				}
 
@@ -294,16 +299,14 @@ public class HBFSAgent extends AbstractPlayer {
 	public Types.ACTIONS act(StateObservation so, ElapsedCpuTimer elapsedTimer) {
 		switch (controllerState) {
 		case STATE_ACTING:
+			
 			if (actionSequence.isEmpty()) {
 				if (isVerbose) HBFSNode.displayStateObservation(so);
 				System.out.println("--Action Stack Empty.");		
 				controllerState = STATE_IDLE;
-				
 				cleanBfs(); // free handles to allow the garbage collector to start cleaning.
-				
 				return Types.ACTIONS.ACTION_NIL;
 			}
-			
 			if (isVerbose) {
 				HBFSNode.displayStateObservation(so);
 			    System.out.println("--Performing Action: " + actionSequence.peek());
@@ -311,6 +314,7 @@ public class HBFSAgent extends AbstractPlayer {
 			return actionSequence.pop();
 			
 		case STATE_PLANNING:			
+			
 			if (so.getGameTick() % reportFrequency == 1) {
 				displayAgentState();
 			}
@@ -318,13 +322,8 @@ public class HBFSAgent extends AbstractPlayer {
 			turnAroundSpeed = 0;
 			while (!hasTerminated && elapsedTimer.remainingTimeMillis() > ACTION_REMTIME && controllerState == STATE_PLANNING) {
 				hasTerminated = performBfs();
-				turnAroundSpeed+= 1;
-//				if (pipe.size() < 5) {
-//					displayAgentState();
-//				}
-					
+				turnAroundSpeed+= 1;					
 			}
-			
 			if (hasTerminated) {
 				System.out.println("\n#Solution Found. ACTING Phase...");
 				controllerState = STATE_ACTING;
@@ -345,14 +344,12 @@ public class HBFSAgent extends AbstractPlayer {
 				actionSequence.push(ACTIONS[(int) Math.floor(Math.random()*4)]);
 				System.out.println("Random Sequence Length: " + actionSequence.size());
 			}
-				
-			
 			return Types.ACTIONS.ACTION_NIL;
 		
 		case STATE_IDLE:
 		case STATE_OTHER:
 			if (!so.isGameOver()) {
-				System.out.println("\n#Controller IDLE but game continues. Restart PLANNING Phase...");
+				System.out.println("\n#Controller IDLE but game continues. Restarting PLANNING Phase...");
 				initializeBfs(so);
 				controllerState = STATE_PLANNING;
 			}
