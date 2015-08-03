@@ -4,6 +4,7 @@ import core.game.Observation;
 import core.game.StateObservation;
 import core.player.AbstractPlayer;
 import ontology.Types;
+import ontology.Types.ACTIONS;
 import tools.ElapsedCpuTimer;
 
 import java.util.ArrayList;
@@ -31,11 +32,13 @@ public class Agent extends AbstractPlayer {
 
 	// running and fixed MCTS_DEPTH, first increments to counter the increment
 	// of the depth of the cut trees. The later stays fixed
-	public static int MCTS_DEPTH_RUN;
 	public static int MCTS_DEPTH_FIX = 3;
+	
+	// fix the MCTS_DEPTH to the starting DEPTH
+	public static int MCTS_DEPTH_RUN = MCTS_DEPTH_FIX;
 	public static int MCTS_AVOID_DEATH_DEPTH = 2;
 	public static double K = Math.sqrt(2);
-	public static Types.ACTIONS[] actions;
+	public static ACTIONS[] actions;
 
 	public enum AgentType {
 		MCTS, BFS, MIXED
@@ -53,12 +56,12 @@ public class Agent extends AbstractPlayer {
 	public static ITypeAttractivity iTypeAttractivity;
 
 	// keeps track of the reward at the start of the MCTS search
-	public static double startingReward;
-	public static double numberOfBlockedMovables;
+	public static double startingReward = 0;
+	public static double numberOfBlockedMovables = 0;
 	
 	public boolean isStochastic;
 	
-	public int oldAction;
+	public int oldAction = -2;
 
 	/**
 	 * Random generator for the agent.
@@ -85,18 +88,11 @@ public class Agent extends AbstractPlayer {
 		// Create the player.
 		mctsPlayer = new SingleMCTSPlayer(new Random());
 
-		// init exploration reward map with 1
+		// initialize exploration reward map with 1
 		rewMap = new RewardMap(so, 1);
 
-		// initialize ItypeAttracivity Array for starting Situation
+		// initialize ItypeAttracivity object for starting situation
 		iTypeAttractivity = new ITypeAttractivity(so);
-
-		// fix the MCTS_DEPTH to the starting DEPTH
-		MCTS_DEPTH_RUN = MCTS_DEPTH_FIX;
-		oldAction = -2;
-		startingReward = 0;
-
-		numberOfBlockedMovables = 0;
 
 		// Advance a bit to check if stochastic
 		StateObservation testState1 = so.copy();
@@ -104,15 +100,18 @@ public class Agent extends AbstractPlayer {
 		for (int ii = 1; ii < 4; ii++) {
 			testState1.advance(Types.ACTIONS.ACTION_NIL);
 			testState2.advance(Types.ACTIONS.ACTION_NIL);
+			
+			isStochastic = testState1.equiv(testState2);
 		}
-		if (testState1.equiv(testState2)) {
-			isStochastic = false;
-			MCTS_DEPTH_RUN += 20;
-			System.out.println("Game seems to be deterministic");
-		} else {
-			isStochastic = true;
+		
+		if (isStochastic) {
 			System.out.println("Game seems to be stochastic");
 		}
+		else{
+			MCTS_DEPTH_RUN += 20;
+			System.out.println("Game seems to be deterministic");
+		}
+
 
 		// use time that is left to build a tree or do BFS
 		if ((isStochastic || agentType == AgentType.MCTS)
@@ -138,25 +137,18 @@ public class Agent extends AbstractPlayer {
 	public Types.ACTIONS act(StateObservation stateObs,
 			ElapsedCpuTimer elapsedTimer) {
 
-
 		if (agentType == AgentType.BFS
 				|| (agentType == AgentType.MIXED && !isStochastic)) {
 			Types.ACTIONS bfaction = this.bfAgent.act(stateObs, elapsedTimer);
 			return bfaction;
 		} else {
 
-			int action;
-			// ArrayList<Observation> obs[] =
-			// stateObs.getFromAvatarSpritesPositions();
-			// ArrayList<Observation> grid[][] = stateObs.getObservationGrid();
-
 			// Heuristic: change the reward in the exploration reward map of the
 			// visited current position
 			Vector2d avatarPos = stateObs.getAvatarPosition();
 
 			// increment reward at all unvisited positions and decrement at
-			// current
-			// position
+			// current position
 			rewMap.incrementAll(0.001);
 			rewMap.setRewardAtWorldPosition(avatarPos, -0.3);
 
@@ -249,7 +241,7 @@ public class Agent extends AbstractPlayer {
 			numberOfBlockedMovables = SingleTreeNode.trapHeuristic(stateObs);
 
 			// Determine the action using MCTS...
-			action = mctsPlayer.run(elapsedTimer);
+			int action = mctsPlayer.run(elapsedTimer);
 			// if (stateObs.getGameTick() % 2 == 0) {
 			// action = -2;
 			// }
@@ -258,9 +250,9 @@ public class Agent extends AbstractPlayer {
 			}
 
 			// there is a problem when the tree is so small that the chosen
-			// children don't have any grandchildren,
+			// children don't have any grand children,
 			// in this case Danny's isDeadEnd method will give back a true based
-			// on the "fear_unkonwn" input. Therefore,
+			// on the "fear_unknown" input. Therefore,
 			// I treat this waiting as a thinking step, where we expand the old
 			// tree instead of creating a complete
 			// new tree that also leads to the same problem -> the guy is stuck.
