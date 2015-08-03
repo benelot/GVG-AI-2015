@@ -23,12 +23,13 @@ public class GameRunner {
 	public static String sampleGAController = "controllers.sampleGA.Agent";
 
 	public static StateObservation lastStateObservation;
-	
+
 	public static StateObservation getLastStateObservation() {
 		return lastStateObservation;
 	}
 
-	public static void setLastStateObservation(StateObservation lastStateObservation) {
+	public static void setLastStateObservation(
+			StateObservation lastStateObservation) {
 		GameRunner.lastStateObservation = lastStateObservation;
 	}
 
@@ -188,7 +189,8 @@ public class GameRunner {
 	}
 
 	public static void processGameStatistics(String gamePath) {
-		setGameStatistics(lastStateObservation.getGameWinner() == Types.WINNER.PLAYER_WINS, lastStateObservation.getGameScore(), lastStateObservation.getGameTick());
+		setGameStatistics(ArcadeMachine.lastWinner == Types.WINNER.PLAYER_WINS,
+				ArcadeMachine.lastScore, ArcadeMachine.lastTime);
 		GameStats gameStats = gameStatistics.get(gamePath);
 		if (gameStats != null) {
 			gameStats.winRatio = ((gameStats.winRatio * gameStats.sampleSize) + win)
@@ -202,9 +204,9 @@ public class GameRunner {
 			gameStatistics.put(gamePath, new GameStats(win, score, time));
 		}
 	}
-	
-	public static void writeGameStatistics(){
-		for(String gamePath:gameStatistics.keySet()){
+
+	public static void writeGameStatistics() {
+		for (String gamePath : gameStatistics.keySet()) {
 			GameStats gameStat = gameStatistics.get(gamePath);
 			System.out.println("Statistics for: " + gamePath);
 			System.out.println("---------------------------------");
