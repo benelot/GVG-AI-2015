@@ -49,7 +49,7 @@ public class HBFSAgent extends AbstractPlayer {
 	public static final int STATE_IDLE = 3;
 	public static final int STATE_OTHER = 4;
 	
-	public static final int prime = 32353; //18097; //4583; 
+	public static final int prime = 7927; //13163; // 18097; //4583; -- the prime should be larger than 4/3 * MAX_REJECTION_SET_SIZE
 	public static final int callReportFrequency = 300;
 	public static final double wLoad = -2; // -4
 	public static final double wPosition = 0;
@@ -63,8 +63,8 @@ public class HBFSAgent extends AbstractPlayer {
 	public static int INITIALIZATION_ITEMS_PER_ROUND = 1;
 	public static int ACTION_ITEMS_PER_ROUND = 1;
 	public static int MAX_TICKS = 1800;
-	public static int MAX_PIPE_LENGTH = 10000;
-	public static int MAX_REJECTION_SET_SIZE = 10000;
+	public static int MAX_PIPE_LENGTH = 5000;
+	public static int MAX_REJECTION_SET_SIZE = 5000;
 	public static int CARRY_OVER_PIPE_LENGTH = 2000;
 	public static boolean isVerbose = false;
 	public static int reportFrequency = 25;
@@ -91,6 +91,8 @@ public class HBFSAgent extends AbstractPlayer {
 	
 	private void initializeBfs(StateObservation so) {
 		System.out.println("##Initializing HBFS...");
+		System.gc();
+		
 		//testForwardModel(so);
 		controllerState = STATE_OTHER;
 		
@@ -155,7 +157,8 @@ public class HBFSAgent extends AbstractPlayer {
 	private void cleanBfs() {
 		pipe.clear(); visited.clear();
 		bfsRoot = null; hbfsSolution = null;
-		actionSequence = null;
+		actionSequence = null; pipe = null;
+		visited = null;
 		//System.gc(); // gc can cause the initialization to time out.
 	}
 	
