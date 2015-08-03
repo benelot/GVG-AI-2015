@@ -525,7 +525,7 @@ public class RunConfig {
 	/**
 	 * The number of repetitions we run for each game.
 	 */
-	private int repetitions;
+	private int repetitions = 1;
 
 	/**
 	 * The controller to test.
@@ -535,12 +535,12 @@ public class RunConfig {
 	/**
 	 * Whether we save the actions of the controller to file or not.
 	 */
-	private boolean saveActions;
+	private boolean saveActions = false;
 
 	/**
 	 * Whether we calculate statistics of the controller or not.
 	 */
-	private boolean calculateStatistics;
+	private boolean calculateStatistics = false;
 
 	public boolean isCalculateStatistics() {
 		return calculateStatistics;

@@ -13,7 +13,7 @@ Some notes from the GVG-AI Site:
 -Java-VGDL uses JDK 1.7. You should have this version of Java installed in your computer to be sure that your controller will execute correctly in the server. Please go to Oracle's site to download this version of the JDK. If you are uing Ubuntu, you might find this link useful to keep your version updated.
 -Submission of controllers must be made in a zip file and can include as many Java files as you need for the execution of the agent. You do not need to include the framework code in your submission, only the package with your controller. (from http://www.gvgai.net/specs.php)
 -Multi-threading is not allowed.
--(THIS SEEMS NOT TO BE TRUE ANYMORE, see below) Reading from files is allowed, although writing to them is only allowed if it is done in the controller's own directory.
+-Reading from files is allowed, although writing to them is only allowed if it is done in the controller's own directory.
 
 From the submission page:
 Please, take into account the following aspects before submitting your controller:
@@ -21,7 +21,7 @@ Please, take into account the following aspects before submitting your controlle
 -The server will execute your controller in the games of the GVG-AI submission server (10 games, 5 levels each). This process can take its time, specially if you are making use of much of the 40ms given per action. To quick the execution, please try to keep to a minimum not needed processing, as well as not printing out debug information to console.
 -You will be able to monitor the process of your submission in your profile page. Initially, your submission will be put into a queue until it is executed. The time in the queue will depend on how many controllers are being executed at the moment in the server.
 -The file you submit must be a ZIP file containing all code needed for its execution in any of the languages supported. You do not need to include the framework code in you submission. Your code will be compiled and executed on the server. Your agent class must be a subclass of AbstractAgent.java, and it must be in a file called Agent.java. Furthermore, its full package must be the same as your username. The controller must be submitted in a zip file (with any name). Here you can find an example of a valid controller that can be submitted for the sampleMCTS user.
--You ===CANNOT WRITE FILES=== from your controller's directory. To read files, you must use relative path to the desired files, that must be included with your submission.
+-Reading from files is allowed, although writing to them is only allowed if it is done in the controller's own directory. To read files, you must use relative path to the desired files, that must be included with your submission.
 -The server will execute your controller and it will report you back possible errors or exceptions. It is important that your controller does not print to the error console (stderr) at all, or the process that runs your controller will fail and not be valid.
 
 
@@ -33,11 +33,7 @@ Go to http://www.gvgai.net/submit_gvg.php.
 -Login with the username benelot and the password "INI-PASSWORD"
 -Then go to Submit in the topbar.
 -You will get to the "Submit your controller - GVG-AI Competition" page
-Add the following description of our technique (max 500 characters):
-
----------------------
-First we decide whether the game is stochastic or not (during the setup phase). Non-stochastic games are considered puzzles and need more in-depth search, so we apply a Breadth First Search using the Forward Model. For stochastic games, we use MCTS search in a depth first manner similar to the MCTS sample controller. 
----------------------
+-Update the description of our technique if necessary.
 
 Then select the the Agent.zip as a controller and select the Training Set you want to run it on and whether it should run in the validation set or not.
 

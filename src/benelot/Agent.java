@@ -102,6 +102,7 @@ public class Agent extends AbstractPlayer {
 			testState1.advance(Types.ACTIONS.ACTION_NIL);
 			testState2.advance(Types.ACTIONS.ACTION_NIL);
 			
+			//I believe the advance method is more costly than the equiv method.
 			if(!testState1.equiv(testState2)){
 				isStochastic = true;
 				break;
