@@ -56,7 +56,7 @@ public class MCTSRunner {
 		config.setRepetitions(1);
 		config.setController(customSampleController);
 		config.setSaveActions(false);
-		config.setCalculateStatistics(true);
+		config.setCalculateStatistics(false);
 
 		// #############
 		// UNCOMMENT THE APPROPRIATE PARTS TO...
