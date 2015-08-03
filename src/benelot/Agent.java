@@ -59,7 +59,7 @@ public class Agent extends AbstractPlayer {
 	public static double startingReward = 0;
 	public static double numberOfBlockedMovables = 0;
 	
-	public boolean isStochastic;
+	public boolean isStochastic = false;
 	
 	public int oldAction = -2;
 
@@ -95,13 +95,17 @@ public class Agent extends AbstractPlayer {
 		iTypeAttractivity = new ITypeAttractivity(so);
 
 		// Advance a bit to check if stochastic
+		isStochastic = false;
 		StateObservation testState1 = so.copy();
 		StateObservation testState2 = so.copy();
 		for (int ii = 1; ii < 4; ii++) {
 			testState1.advance(Types.ACTIONS.ACTION_NIL);
 			testState2.advance(Types.ACTIONS.ACTION_NIL);
 			
-			isStochastic = testState1.equiv(testState2);
+			if(!testState1.equiv(testState2)){
+				isStochastic = true;
+				break;
+			}
 		}
 		
 		if (isStochastic) {
