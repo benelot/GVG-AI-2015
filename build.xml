@@ -1,26 +1,50 @@
 <project>
 
-    <target name="clean">
-        <delete dir="build"/>
-    </target>
+	<target name="clean">
+		<delete dir="build" />
+	</target>
+
+
+	<target name="zip" depends="clean">
+		<mkdir dir="build/zip" />
+		<zip destfile="build/zip/Agent.zip" basedir="src" excludes="**/benchmarking/**,**/tutorials/**,**/misc/**,**/*Runner.java,**/rankingtest/**">
+		</zip>
+	</target>
+
+
+
+	<!-- Old unused targets -->
 
 	<!-- Define the CLASSPATH -->
 	<path id="compile.classpath">
-	    <fileset dir=".">
-		<include name="*.jar" />
-	    </fileset>
+		<fileset dir=".">
+			<include name="*.jar" />
+		</fileset>
 	</path>
 
-    <target name="compile" depends="clean">
-        <mkdir dir="build/classes"/>
-        <javac srcdir="src" destdir="build/classes">
-		<classpath refid="compile.classpath" />
-	</javac>
-    </target>
+	<target name="compile" depends="clean">
+		<mkdir dir="build/classes" />
+		<javac srcdir="src" destdir="build/classes" source="1.7" target="1.7" excludes="src/benchmarking/**,src/tutorials/**,src/misc/**">
+			<classpath refid="compile.classpath" />
+		</javac>
+	</target>
 
-    <target name="zip" depends="compile">
-        <mkdir dir="build/zip"/>
-        <jar destfile="build/zip/Agent.zip" basedir="build/classes">
-        </jar>
-    </target>
+	<target name="oracleCompile" depends="clean">
+		<mkdir dir="build/classes" />
+		<javac srcdir="src" destdir="build/classes" source="1.7" target="1.7" fork="yes" executable="/usr/lib/jvm/jdk1.7.0_79/bin/javac" excludes="src/benchmarking/**,src/tutorials/**,src/misc/**">
+			<classpath refid="compile.classpath" />
+		</javac>
+	</target>
+
+	<target name="compiledZip" depends="compile">
+		<mkdir dir="build/zip" />
+		<zip destfile="build/zip/Agent.zip" basedir="build/classes">
+		</zip>
+	</target>
+
+	<target name="oracleZip" depends="oracleCompile">
+		<mkdir dir="build/zip" />
+		<zip destfile="build/zip/Agent.zip" basedir="build/classes">
+		</zip>
+	</target>
 </project>

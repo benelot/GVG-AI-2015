@@ -7,7 +7,6 @@ import java.util.Stack;
 
 import core.game.StateObservation;
 import core.player.AbstractPlayer;
-import misc.GameRunner;
 import ontology.Types;
 import tools.ElapsedCpuTimer;
 
@@ -289,7 +288,6 @@ public class HBFSAgent extends AbstractPlayer {
 	 * @return An action for the current state
 	 */
 	public Types.ACTIONS act(StateObservation so, ElapsedCpuTimer elapsedTimer) {
-		GameRunner.setLastStateObservation(so);
 		switch (controllerState) {
 		case STATE_ACTING:
 			if (actionSequence.isEmpty()) {

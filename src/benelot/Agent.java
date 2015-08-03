@@ -3,7 +3,6 @@ package benelot;
 import core.game.Observation;
 import core.game.StateObservation;
 import core.player.AbstractPlayer;
-import misc.GameRunner;
 import ontology.Types;
 import tools.ElapsedCpuTimer;
 
@@ -141,8 +140,6 @@ public class Agent extends AbstractPlayer {
 	public Types.ACTIONS act(StateObservation stateObs,
 			ElapsedCpuTimer elapsedTimer) {
 
-		//
-		GameRunner.setLastStateObservation(stateObs);
 
 		if (agentType == AgentType.BFS
 				|| (agentType == AgentType.MIXED && !isStochastic)) {
