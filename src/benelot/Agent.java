@@ -55,8 +55,9 @@ public class Agent extends AbstractPlayer {
 	// keeps track of the reward at the start of the MCTS search
 	public static double startingReward;
 	public static double numberOfBlockedMovables;
-	public static boolean isStochastic;
-
+	
+	public boolean isStochastic;
+	
 	public int oldAction;
 
 	/**
@@ -64,8 +65,6 @@ public class Agent extends AbstractPlayer {
 	 */
 	private SingleMCTSPlayer mctsPlayer;
 	private HBFSAgent bfAgent;
-
-	public static int NUM_ACTIONS;
 
 	/**
 	 * Public constructor with state observation and time due.
@@ -82,7 +81,6 @@ public class Agent extends AbstractPlayer {
 		for (int i = 0; i < actions.length; ++i) {
 			actions[i] = act.get(i);
 		}
-		// NUM_ACTIONS = actions.length;
 
 		// Create the player.
 		mctsPlayer = new SingleMCTSPlayer(new Random());
@@ -248,7 +246,7 @@ public class Agent extends AbstractPlayer {
 
 			startingReward = stateObs.getGameScore();
 
-			numberOfBlockedMovables = SingleTreeNode.trapHeur(stateObs);
+			numberOfBlockedMovables = SingleTreeNode.trapHeuristic(stateObs);
 
 			// Determine the action using MCTS...
 			action = mctsPlayer.run(elapsedTimer);
