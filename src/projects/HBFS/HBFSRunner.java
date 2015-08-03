@@ -22,16 +22,16 @@ public class HBFSRunner {
 		// config.addGameLevel(RunConfig.GamesTraining2015.BOLOADVENTURES ,1 ); //? potential bug: forward model doesn't update avatar position
 		// config.addGameLevel(RunConfig.GamesTraining2015.CHIPSCHALLENGE ,1); //? potential bug: forward model doesn't update avatar position
 		
-		config.addGameLevel(RunConfig.GamesTraining2015.BRAINMAN, new int[] {1,2,3,4}); //* except 2, 3
-		// config.addGameLevel(RunConfig.GamesTraining2015.REALSOKOBAN, new int[] {1,2,3,4}); // * except 1, 2
-		// config.addGameLevel(RunConfig.GamesTraining2015.BAIT, new int[] {1,2,3, 4}); //* except 3
-		// config.addGameLevel(RunConfig.GamesTraining2014.SOKOBAN, new int[] {1,2,3,4}); //*
-		// config.addGameLevel(RunConfig.GamesTraining2015.MODALITY, new int[] {1,2,3,4}); //*
-		// config.addGameLevel(RunConfig.GamesValidationGECCO2015.ESCAPE, new int[] {1,2,3,4}); //*
-		// config.addGameLevel(RunConfig.GamesValidationGECCO2015.LABYRINTH, new int[] {1,2,3,4}); //*
+//		config.addGameLevel(RunConfig.GamesTraining2015.BRAINMAN, new int[] {1,2,3,4}); //* except 2, 3
+//		config.addGameLevel(RunConfig.GamesTraining2015.REALSOKOBAN, new int[] {1,2,3,4}); // * except 1, 2
+//		config.addGameLevel(RunConfig.GamesTraining2015.BAIT, new int[] {1,2,3, 4}); //* except 3
+//		config.addGameLevel(RunConfig.GamesTraining2014.SOKOBAN, new int[] {1,2,3,4}); //*
+//		config.addGameLevel(RunConfig.GamesTraining2015.MODALITY, new int[] {1,2,3,4}); //*
+//		config.addGameLevel(RunConfig.GamesValidationGECCO2015.ESCAPE, new int[] {1,2,3,4}); //*
+//		config.addGameLevel(RunConfig.GamesValidationGECCO2015.LABYRINTH, new int[] {1,2,3,4}); //*
 				
-		// config.addGameLevel(RunConfig.GamesTraining2015.PAINTER, new int[] {1,2,3,4}); // failure. using the load score seems to be a bad idea in this game.
-		// config.addGameLevel(RunConfig.GamesTraining2015.THECITADEL, new int[] {1,2,3,4}); // failure. requires serious planning.
+		//config.addGameLevel(RunConfig.GamesTraining2015.PAINTER, new int[] {1,2,3,4}); // failure. using the load score seems to be a bad idea in this game.
+		config.addGameLevel(RunConfig.GamesTraining2015.THECITADEL, new int[] {1,2,3,4}); // failure. requires serious planning.
 		// // config.addGameLevel(RunConfig.GamesTraining2015.REALPORTALS ,2 ); // failure. special handling of avatar generated observations (avatar can make portals) might be required.
 		// // config.addGameLevel(RunConfig.GamesTraining2015.ZENPUZZLE ,1 ); // failure. using the load score might be a bad idea in this game.
 				
