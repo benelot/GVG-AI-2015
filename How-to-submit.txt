@@ -30,7 +30,7 @@ How to submit to the GVG-AI page:
 
 Go to http://www.gvgai.net/submit_gvg.php.
 
--Login with the username benelot and the password "INI-PASSWORD"
+-Login with the username bladeRunner and the password "hex0179_"
 -Then go to Submit in the topbar.
 -You will get to the "Submit your controller - GVG-AI Competition" page
 -Update the description of our technique if necessary.
