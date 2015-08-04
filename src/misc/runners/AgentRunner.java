@@ -73,8 +73,8 @@ public class AgentRunner {
 		 runconfig.setController(customSampleController);
 		 runconfig.setRepetitions(5);
 		 runconfig.setCalculateStatistics(true);
-		 //GameRunner.runGames(runconfig);
-		 GameRunner.runGamesVisually(runconfig);
+		 GameRunner.runGames(runconfig);
+		 //GameRunner.runGamesVisually(config);
 
 		// #############
 		// == Replay a game
