@@ -3,6 +3,7 @@ package agents.mcts;
 import java.util.ArrayList;
 import java.util.Random;
 
+import bladeRunner.Agent;
 import agents.persistentStorage.PersistentStorage;
 import core.game.Observation;
 import core.game.StateObservation;
@@ -107,7 +108,8 @@ public class SingleTreeNode {
 	public SingleTreeNode treePolicy() {
 
 		SingleTreeNode cur = this;
-		while (!cur.state.isGameOver() && cur.m_depth < PersistentStorage.MCTS_DEPTH_RUN) {
+		while (!cur.state.isGameOver()
+				&& cur.m_depth < PersistentStorage.MCTS_DEPTH_RUN) {
 			if (cur.notFullyExpanded()) {
 				// expand with random actions of the unused actions.
 				return cur.expand();
@@ -145,7 +147,7 @@ public class SingleTreeNode {
 
 	public SingleTreeNode uct() {
 
-		//TODO: Cleanup these parts if not used
+		// TODO: Cleanup these parts if not used
 		// SingleTreeNode selected = null;
 		// double bestValue = -Double.MAX_VALUE;
 		// for (SingleTreeNode child : this.children) {
@@ -197,8 +199,11 @@ public class SingleTreeNode {
 			}
 		}
 		if (selected == -1 || children[selected].isLoseState()) {
-			System.out.println("MCTS::##### Oh crap.  Death awaits with choice "
-					+ selected + ".");
+			if (Agent.isVerbose) {
+				System.out
+						.println("MCTS::##### Oh crap.  Death awaits with choice "
+								+ selected + ".");
+			}
 			selected = 0;
 		}
 		if (selected != -1) {
@@ -263,16 +268,17 @@ public class SingleTreeNode {
 		// rollout with random actions for "ROLLOUT_DEPTH" times
 		while (!finishRollout(rollerState, thisDepth)) {
 			previousScore = rollerState.getGameScore();
-			int action = SingleTreeNode.m_rnd.nextInt(PersistentStorage.actions.length);
+			int action = SingleTreeNode.m_rnd
+					.nextInt(PersistentStorage.actions.length);
 			rollerState.advance(PersistentStorage.actions[action]);
-			PersistentStorage.iTypeAttractivity
-					.updateAttraction(rollerState, previousScore);
+			PersistentStorage.iTypeAttractivity.updateAttraction(rollerState,
+					previousScore);
 			thisDepth++;
 		}
 
 		// get current position and reward at that position
-		double explRew = PersistentStorage.rewMap.getRewardAtWorldPosition(rollerState
-				.getAvatarPosition());
+		double explRew = PersistentStorage.rewMap
+				.getRewardAtWorldPosition(rollerState.getAvatarPosition());
 
 		// use a fraction of "explRew" as an additional reward (Not given by the
 		// Gamestats)
@@ -327,9 +333,10 @@ public class SingleTreeNode {
 	}
 
 	public boolean finishRollout(StateObservation rollerState, int depth) {
-		if (depth >= PersistentStorage.ROLLOUT_DEPTH) // rollout end condition occurs
-											// "ROLLOUT_DEPTH" after the
-											// MCTS/expand is finished
+		if (depth >= PersistentStorage.ROLLOUT_DEPTH) // rollout end condition
+														// occurs
+			// "ROLLOUT_DEPTH" after the
+			// MCTS/expand is finished
 			return true;
 
 		if (rollerState.isGameOver()) // end of game
@@ -388,7 +395,9 @@ public class SingleTreeNode {
 		}
 
 		if (selected == -1) {
-			System.out.println("MCTS::Unexpected selection!");
+			if (Agent.isVerbose) {
+				System.out.println("MCTS::Unexpected selection!");
+			}
 			selected = 0;
 		} else if (allEqual) {
 			// If all are equal, we opt to choose for the one with the best Q.
@@ -423,7 +432,9 @@ public class SingleTreeNode {
 		}
 
 		if (selected == -1) {
-			System.out.println("MCTS::Unexpected selection!");
+			if (Agent.isVerbose) {
+				System.out.println("MCTS::Unexpected selection!");
+			}
 		}
 		return selected;
 	}

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import bladeRunner.Agent;
 import ontology.Types;
 import core.game.Event;
 import core.game.Observation;
@@ -138,8 +139,11 @@ public class ITypeAttractivity extends HashMap<Integer, Double> {
 
 	public void putNewUniqueItype(Observation Obs) {
 		this.put(Obs.itype, this.SpriteCategoryValue.get(Obs.category));
-		System.out.println("ITypeAttractivityMap::added iType " + Obs.itype + " with value "
-				+ this.SpriteCategoryValue.get(Obs.category));
+		if (Agent.isVerbose) {
+			System.out.println("ITypeAttractivityMap::added iType " + Obs.itype
+					+ " with value "
+					+ this.SpriteCategoryValue.get(Obs.category));
+		}
 	}
 
 	/**

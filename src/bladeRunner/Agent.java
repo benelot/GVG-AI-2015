@@ -22,6 +22,7 @@ public class Agent extends AbstractPlayer {
 		MCTS, BFS, MIXED
 	}
 
+	public static boolean isVerbose = true;
 	public AgentType agentType = AgentType.MIXED;
 
 	public boolean isStochastic = false;
@@ -92,10 +93,14 @@ public class Agent extends AbstractPlayer {
 		}
 
 		if (isStochastic) {
-			System.out.println("AGENT::Game seems to be stochastic");
+			if (isVerbose) {
+				System.out.println("AGENT::Game seems to be stochastic");
+			}
 		} else {
 			PersistentStorage.MCTS_DEPTH_RUN += 20;
-			System.out.println("AGENT::Game seems to be deterministic");
+			if (isVerbose) {
+				System.out.println("AGENT::Game seems to be deterministic");
+			}
 		}
 
 		// use time that is left to build a tree or do BFS
