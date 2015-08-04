@@ -66,12 +66,14 @@ public class AgentRunner {
 
 		// ############
 		// == Run against some of our benchmarks (Uncomment one of the next
-		// three lines and the lowest two.)
+		// three lines and at least the lowest two.)
 		// RunConfig runconfig = RunConfig.getRunAllEasyLevelsRunConfig();
 		// RunConfig runconfig = RunConfig.getRunAllHardLevelsRunConfig();
-		// RunConfig runconfig = RunConfig.getRunAllGameLevelsRunConfig();
-		// runconfig.setController(customSampleController);
-		// GameRunner.runGames(runconfig);
+//		 RunConfig runconfig = RunConfig.getRunAllGameLevelsRunConfig();
+//		 runconfig.setController(customSampleController);
+//		 runconfig.setRepetitions(5);
+//		 runconfig.setCalculateStatistics(true);
+//		 GameRunner.runGames(runconfig);
 
 		// #############
 		// == Replay a game
