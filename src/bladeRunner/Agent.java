@@ -59,35 +59,36 @@ public class Agent extends AbstractPlayer {
 		// initialize ItypeAttracivity object for starting situation
 		PersistentStorage.iTypeAttractivity = new ITypeAttractivity(so);
 
-		// Advance a bit to check if stochastic
 		isStochastic = false;
 		
-		//Stochasticity 1
-		StateObservation testState1 = so.copy();
-		StateObservation testState2 = so.copy();
-		for (int ii = 0; ii < 10; ii++) {
-			testState1.advance(Types.ACTIONS.ACTION_NIL);
-			testState2.advance(Types.ACTIONS.ACTION_NIL);
-			
-			//I believe the advance method is more costly than the equiv method.
-			if(!testState1.equiv(testState2)){
-				isStochastic = true;
-				break;
-			}
-		}
-		
-////		Stochasticity 2
-		//TODO: Does not work, calls all games stochastic. Probably because it compares the step number and calls them different.
+//		// Stochasticity 1
+//		// Advance a bit to check if stochastic
+//		StateObservation testState1 = so.copy();
 //		StateObservation testState2 = so.copy();
 //		for (int ii = 0; ii < 10; ii++) {
+//			testState1.advance(Types.ACTIONS.ACTION_NIL);
 //			testState2.advance(Types.ACTIONS.ACTION_NIL);
 //			
 //			//I believe the advance method is more costly than the equiv method.
-//			if(!so.equiv(testState2)){
+//			if(!testState1.equiv(testState2)){
 //				isStochastic = true;
 //				break;
 //			}
 //		}
+		
+		// Stochasticity 2
+		//Checks if there are Non player characters
+		StateObservation testState2 = so.copy();
+		for (int ii = 0; ii < 10; ii++) {
+			testState2.advance(Types.ACTIONS.ACTION_NIL);
+			
+			//I believe the advance method is more costly than the equiv method.
+			if(testState2.getNPCPositions().length > 0)
+			{
+				isStochastic = true;
+				break;
+			}
+		}
 		
 		if (isStochastic) {
 			System.out.println("AGENT::Game seems to be stochastic");
