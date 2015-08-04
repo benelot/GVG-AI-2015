@@ -21,19 +21,16 @@ public class Agent extends AbstractPlayer {
 	public enum AgentType {
 		MCTS, BFS, MIXED
 	}
+	
+	public static final boolean isVerbose = true; 
 
-	public static boolean isVerbose = true;
 	public AgentType agentType = AgentType.MIXED;
-
 	public boolean isStochastic = false;
 
 	public int oldAction = -2;
 
-	/**
-	 * Random generator for the agent.
-	 */
 	private SingleMCTSPlayer mctsPlayer;
-	private HBFSAgent bfAgent;
+	private HBFSAgent hbfsAgent;
 
 	/**
 	 * Public constructor with state observation and time due.
@@ -103,13 +100,13 @@ public class Agent extends AbstractPlayer {
 			}
 		}
 
-		// use time that is left to build a tree or do BFS
+		// use time that is left to build a tree or do HBFS
 		if ((isStochastic || agentType == AgentType.MCTS)
 				&& agentType != AgentType.BFS) {
 			mctsPlayer.init(so);
 			mctsPlayer.run(elapsedTimer);
 		} else {
-			bfAgent = new HBFSAgent(so, elapsedTimer);
+			hbfsAgent = new HBFSAgent(so, elapsedTimer);
 		}
 
 	}
@@ -129,140 +126,142 @@ public class Agent extends AbstractPlayer {
 
 		if (agentType == AgentType.BFS
 				|| (agentType == AgentType.MIXED && !isStochastic)) {
-			Types.ACTIONS bfaction = this.bfAgent.act(stateObs, elapsedTimer);
-			return bfaction;
+			Types.ACTIONS hbfsAction= hbfsAgent.act(stateObs, elapsedTimer);
+			return hbfsAction;
 		} else {
+			return performMCTS(stateObs, elapsedTimer);
+		}
+		
+	}
 
-			// Heuristic: change the reward in the exploration reward map of the
-			// visited current position
-			Vector2d avatarPos = stateObs.getAvatarPosition();
+	private Types.ACTIONS performMCTS(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) {
+		// Heuristic: change the reward in the exploration reward map of the
+		// visited current position
+		Vector2d avatarPos = stateObs.getAvatarPosition();
 
-			// increment reward at all unvisited positions and decrement at
-			// current position
-			PersistentStorage.rewMap.incrementAll(0.001);
-			PersistentStorage.rewMap.setRewardAtWorldPosition(avatarPos, -0.3);
+		// increment reward at all unvisited positions and decrement at
+		// current position
+		PersistentStorage.rewMap.incrementAll(0.001);
+		PersistentStorage.rewMap.setRewardAtWorldPosition(avatarPos, -0.3);
 
-			// rewMap.print();
+		// rewMap.print();
 
-			// Heuristic: Punish the exploration area where enemies have been
-			// and reward it if the enemies are attractive
-			// TODO: This could also be done for resources and one could reward
-			// the surroundings (with a reward gradient, see IDEA below)
-			// TODO: Or maybe it would be better not to reward the positions
-			// where the npcs were, but always the position and surroundings,
-			// where they currently are
-			// which would require a lot of time (I tried it for all Sprites,
-			// but it was too inefficient)
-			// Heuristic (IDEA): Perhaps increase reward towards positions that
-			// have
-			// a resource. -> some sort of diffusion model with the resources as
-			// positive sources and the enemies as negative sources to create a
-			// reward
-			// gradient.
+		// Heuristic: Punish the exploration area where enemies have been
+		// and reward it if the enemies are attractive
+		// TODO: This could also be done for resources and one could reward
+		// the surroundings (with a reward gradient, see IDEA below)
+		// TODO: Or maybe it would be better not to reward the positions
+		// where the npcs were, but always the position and surroundings,
+		// where they currently are
+		// which would require a lot of time (I tried it for all Sprites,
+		// but it was too inefficient)
+		// Heuristic (IDEA): Perhaps increase reward towards positions that
+		// have
+		// a resource. -> some sort of diffusion model with the resources as
+		// positive sources and the enemies as negative sources to create a
+		// reward
+		// gradient.
 
-			boolean rewardNPCs = true;
-			if (rewardNPCs) {
-				ArrayList<Observation>[] npcPositions = null;
-				npcPositions = stateObs.getNPCPositions();
-				double npcAttractionValue = 0;
-				if (npcPositions != null) {
-					for (ArrayList<Observation> npcs : npcPositions) {
-						if (npcs.size() > 0) {
-							Vector2d npcPos = npcs.get(0).position;
-							try {
-								npcAttractionValue = PersistentStorage.iTypeAttractivity
-										.get(npcs.get(0).itype);
-							} catch (java.lang.NullPointerException e) {
-								PersistentStorage.iTypeAttractivity
-										.putNewUniqueItype(npcs.get(0));
-								npcAttractionValue = PersistentStorage.iTypeAttractivity
-										.get(npcs.get(0).itype);
-							}
-							if (Math.abs(PersistentStorage.rewMap
-									.getRewardAtWorldPosition(npcPos)) < 1) {
-								PersistentStorage.rewMap
-										.incrementRewardAtWorldPosition(npcPos,
-												npcAttractionValue * 0.02);
-							}
+		boolean rewardNPCs = true;
+		if (rewardNPCs) {
+			ArrayList<Observation>[] npcPositions = null;
+			npcPositions = stateObs.getNPCPositions();
+			double npcAttractionValue = 0;
+			if (npcPositions != null) {
+				for (ArrayList<Observation> npcs : npcPositions) {
+					if (npcs.size() > 0) {
+						Vector2d npcPos = npcs.get(0).position;
+						try {
+							npcAttractionValue = PersistentStorage.iTypeAttractivity
+									.get(npcs.get(0).itype);
+						} catch (java.lang.NullPointerException e) {
+							PersistentStorage.iTypeAttractivity
+							.putNewUniqueItype(npcs.get(0));
+							npcAttractionValue = PersistentStorage.iTypeAttractivity
+									.get(npcs.get(0).itype);
+						}
+						if (Math.abs(PersistentStorage.rewMap
+								.getRewardAtWorldPosition(npcPos)) < 1) {
+							PersistentStorage.rewMap
+							.incrementRewardAtWorldPosition(npcPos,
+									npcAttractionValue * 0.02);
 						}
 					}
 				}
 			}
+		}
 
-			boolean rewardRecources = true;
-			if (rewardRecources) {
-				ArrayList<Observation>[] resPositions = null;
-				resPositions = stateObs.getNPCPositions();
-				double resAttractionValue = 0;
-				if (resPositions != null) {
-					for (ArrayList<Observation> ress : resPositions) {
-						if (ress.size() > 0) {
-							Vector2d resPos = ress.get(0).position;
-							try {
-								resAttractionValue = PersistentStorage.iTypeAttractivity
-										.get(ress.get(0).itype);
-							} catch (java.lang.NullPointerException e) {
-								PersistentStorage.iTypeAttractivity
-										.putNewUniqueItype(ress.get(0));
-								resAttractionValue = PersistentStorage.iTypeAttractivity
-										.get(ress.get(0).itype);
-							}
-							if (Math.abs(PersistentStorage.rewMap
-									.getRewardAtWorldPosition(resPos)) < 1) {
-								PersistentStorage.rewMap
-										.incrementRewardAtWorldPosition(resPos,
-												resAttractionValue * 0.02);
-							}
+		boolean rewardRecources = true;
+		if (rewardRecources) {
+			ArrayList<Observation>[] resPositions = null;
+			resPositions = stateObs.getNPCPositions();
+			double resAttractionValue = 0;
+			if (resPositions != null) {
+				for (ArrayList<Observation> ress : resPositions) {
+					if (ress.size() > 0) {
+						Vector2d resPos = ress.get(0).position;
+						try {
+							resAttractionValue = PersistentStorage.iTypeAttractivity
+									.get(ress.get(0).itype);
+						} catch (java.lang.NullPointerException e) {
+							PersistentStorage.iTypeAttractivity
+							.putNewUniqueItype(ress.get(0));
+							resAttractionValue = PersistentStorage.iTypeAttractivity
+									.get(ress.get(0).itype);
+						}
+						if (Math.abs(PersistentStorage.rewMap
+								.getRewardAtWorldPosition(resPos)) < 1) {
+							PersistentStorage.rewMap
+							.incrementRewardAtWorldPosition(resPos,
+									resAttractionValue * 0.02);
 						}
 					}
 				}
 			}
+		}
 
-			int useOldTree = 1;
-			if (useOldTree == 1) {
-				// Sets a new tree with the children[oldAction] as the root
-				mctsPlayer.initWithOldTree(stateObs, oldAction);
-			} else {
-				// Set the state observation object as the new root of the tree.
-				// (Forgets the whole tree)
-				mctsPlayer.init(stateObs);
-			}
+		int useOldTree = 1;
+		if (useOldTree == 1) {
+			// Sets a new tree with the children[oldAction] as the root
+			mctsPlayer.initWithOldTree(stateObs, oldAction);
+		} else {
+			// Set the state observation object as the new root of the tree.
+			// (Forgets the whole tree)
+			mctsPlayer.init(stateObs);
+		}
 
-			PersistentStorage.startingReward = stateObs.getGameScore();
+		PersistentStorage.startingReward = stateObs.getGameScore();
 
-			PersistentStorage.numberOfBlockedMovables = SingleTreeNode
-					.trapHeuristic(stateObs);
+		PersistentStorage.numberOfBlockedMovables = SingleTreeNode
+				.trapHeuristic(stateObs);
 
-			// Determine the action using MCTS...
-			int action = mctsPlayer.run(elapsedTimer);
-			// if (stateObs.getGameTick() % 2 == 0) {
-			// action = -2;
-			// }
-			if (action > -2) {
-				PersistentStorage.MCTS_DEPTH_RUN += useOldTree;
-			}
+		// Determine the action using MCTS...
+		int action = mctsPlayer.run(elapsedTimer);
+		// if (stateObs.getGameTick() % 2 == 0) {
+		// action = -2;
+		// }
+		if (action > -2) {
+			PersistentStorage.MCTS_DEPTH_RUN += useOldTree;
+		}
 
-			// there is a problem when the tree is so small that the chosen
-			// children don't have any grand children,
-			// in this case Danny's isDeadEnd method will give back a true based
-			// on the "fear_unknown" input. Therefore,
-			// I treat this waiting as a thinking step, where we expand the old
-			// tree instead of creating a complete
-			// new tree that also leads to the same problem -> the guy is stuck.
+		// there is a problem when the tree is so small that the chosen
+		// children don't have any grand children,
+		// in this case Danny's isDeadEnd method will give back a true based
+		// on the "fear_unknown" input. Therefore,
+		// I treat this waiting as a thinking step, where we expand the old
+		// tree instead of creating a complete
+		// new tree that also leads to the same problem -> the guy is stuck.
 
-			if (action == -1)
-				action = -2;
+		if (action == -1)
+			action = -2;
 
-			oldAction = action;
+		oldAction = action;
 
-			// ... and return it.
-			if (action == -2 || action == -1) {
-				return Types.ACTIONS.ACTION_NIL;
-			} else {
-				return PersistentStorage.actions[action];
-			}
-
-		} // end if isstochastic
-
+		// ... and return it.
+		if (action == -2 || action == -1) {
+			return Types.ACTIONS.ACTION_NIL;
+		} else {
+			return PersistentStorage.actions[action];
+		}
 	}
 }

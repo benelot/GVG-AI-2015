@@ -167,10 +167,8 @@ public class HBFSNode implements Comparable<HBFSNode> {
 		if (hashCode() != obj.hashCode())
 			return false;
 		HBFSAgent.equalCalls++;
-		if (Agent.isVerbose) {
-			if (HBFSAgent.equalCalls % HBFSAgent.callReportFrequency == 1) {
-				System.out.print(".");
-			}
+		if (Agent.isVerbose && HBFSAgent.equalCalls % HBFSAgent.callReportFrequency == 1) {
+			System.out.print(".");
 		}
 		// detailed comparison
 		HBFSNode n = (HBFSNode) obj;
@@ -214,10 +212,8 @@ public class HBFSNode implements Comparable<HBFSNode> {
 	public int compareTo(HBFSNode o) {
 		int rt = Double.compare(getScore(), o.getScore());
 		HBFSAgent.compareCalls++;
-		if (HBFSAgent.compareCalls % (2 * HBFSAgent.callReportFrequency) == 1) {
-			if (Agent.isVerbose) {
-				System.out.print("-");
-			}
+		if (Agent.isVerbose && HBFSAgent.compareCalls % (2 * HBFSAgent.callReportFrequency) == 1) {
+			System.out.print("-");
 		}
 		return rt;
 	}

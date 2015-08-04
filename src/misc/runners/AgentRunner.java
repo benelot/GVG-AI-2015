@@ -35,7 +35,7 @@ public class AgentRunner {
 //		config.addGameLevel(RunConfig.GamesValidation2014.WHACKAMOLE, new int[] {1,2,3,4});
 		
 		// GamesTraining2015
-	//	config.addGameLevel(RunConfig.GamesTraining2015.BAIT ,new int[] {1,2,3,4} ); //can do 1,2,4
+	    config.addGameLevel(RunConfig.GamesTraining2015.BAIT ,new int[] {1,2,3,4} ); //can do 1,2,4
 //		config.addGameLevel(RunConfig.GamesTraining2015.BOLOADVENTURES ,new int[] {1,2,3,4} ); //bug
 //		config.addGameLevel(RunConfig.GamesTraining2015.BRAINMAN ,new int[] {1,4} ); // can do 1,4
 //		config.addGameLevel(RunConfig.GamesTraining2015.CHIPSCHALLENGE ,new int[] {1,2,3,4} );
@@ -73,7 +73,8 @@ public class AgentRunner {
 		 runconfig.setController(customSampleController);
 		 runconfig.setRepetitions(5);
 		 runconfig.setCalculateStatistics(true);
-		 GameRunner.runGames(runconfig);
+		 //GameRunner.runGames(runconfig);
+		 GameRunner.runGamesVisually(runconfig);
 
 		// #############
 		// == Replay a game
