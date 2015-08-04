@@ -61,14 +61,28 @@ public class Agent extends AbstractPlayer {
 
 		// Advance a bit to check if stochastic
 		isStochastic = false;
-		StateObservation testState1 = so.copy();
+		
+//		Stochasticity 1
+//		StateObservation testState1 = so.copy();
+//		StateObservation testState2 = so.copy();
+//		for (int ii = 0; ii < 10; ii++) {
+//			testState1.advance(Types.ACTIONS.ACTION_NIL);
+//			testState2.advance(Types.ACTIONS.ACTION_NIL);
+//			
+//			//I believe the advance method is more costly than the equiv method.
+//			if(!testState1.equiv(testState2)){
+//				isStochastic = true;
+//				break;
+//			}
+//		}
+		
+//		Stochasticity 2
 		StateObservation testState2 = so.copy();
-		for (int ii = 1; ii < 4; ii++) {
-			testState1.advance(Types.ACTIONS.ACTION_NIL);
+		for (int ii = 0; ii < 10; ii++) {
 			testState2.advance(Types.ACTIONS.ACTION_NIL);
 			
 			//I believe the advance method is more costly than the equiv method.
-			if(!testState1.equiv(testState2)){
+			if(!so.equiv(testState2)){
 				isStochastic = true;
 				break;
 			}
