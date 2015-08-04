@@ -32,6 +32,7 @@ public class GameRunner {
 	}
 
 	public static Map<String, GameStats> gameStatistics = new TreeMap<String, GameStats>();
+	public static int isDeterministic;
 	public static int win;
 	public static double score;
 	public static double time;
@@ -111,7 +112,7 @@ public class GameRunner {
 								false, config.getController(), (config
 										.isSaveActions()) ? actionsFile : null,
 								random.nextInt());
-						processGameStatistics(RunConfig
+						processGameStatistics(true,RunConfig
 								.getGamePath(gameLevelPair.game));
 					}
 				}
