@@ -16,10 +16,10 @@ public class GameStats {
 	public int sampleSize;
 
 	public void print() {
-		System.out.println("Winratio: " + winRatio);
-		System.out.println("Average Score: " + avgScore);
-		System.out.println("Average Time: " + avgTime);
-		System.out.println("Sample size: " + sampleSize);
-		System.out.println("---------------------------------");
+		System.out.println("STATISTICS::Winratio: " + winRatio);
+		System.out.println("STATISTICS::Average Score: " + avgScore);
+		System.out.println("STATISTICS::Average Time: " + avgTime);
+		System.out.println("STATISTICS::Sample size: " + sampleSize);
+		System.out.println("STATISTICS::---------------------------------");
 	}
 }

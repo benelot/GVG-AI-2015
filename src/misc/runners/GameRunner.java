@@ -211,8 +211,8 @@ public class GameRunner {
 
 	public static void writeGameStatistic(String gamePath) {
 		GameStats gameStat = gameStatistics.get(gamePath);
-		System.out.println("Statistics for: " + gamePath);
-		System.out.println("---------------------------------");
+		System.out.println("STATISTICS::Statistics for: " + gamePath);
+		System.out.println("STATISTICS::---------------------------------");
 		gameStat.print();
 	}
 
