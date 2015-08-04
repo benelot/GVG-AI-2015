@@ -83,7 +83,7 @@ public class Agent extends AbstractPlayer {
 			testState2.advance(Types.ACTIONS.ACTION_NIL);
 			
 			//I believe the advance method is more costly than the equiv method.
-			if(testState2.getNPCPositions().length > 0)
+			if(testState2.getNPCPositions() != null &  testState2.getNPCPositions().length > 0)
 			{
 				isStochastic = true;
 				break;
