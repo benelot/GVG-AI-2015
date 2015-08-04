@@ -138,7 +138,7 @@ public class ITypeAttractivity extends HashMap<Integer, Double> {
 
 	public void putNewUniqueItype(Observation Obs) {
 		this.put(Obs.itype, this.SpriteCategoryValue.get(Obs.category));
-		System.out.println("added iType" + Obs.itype + " with value "
+		System.out.println("ITypeAttractivityMap::added iType " + Obs.itype + " with value "
 				+ this.SpriteCategoryValue.get(Obs.category));
 	}
 

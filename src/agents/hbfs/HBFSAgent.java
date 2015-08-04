@@ -93,7 +93,7 @@ public class HBFSAgent extends AbstractPlayer {
 	public int pipeEmptyEvents = 0;
 	
 	private void initializeBfs(StateObservation so) {
-		System.out.println("##Initializing HBFS...");
+		System.out.println("HBFS::##Initializing HBFS...");
 		System.gc();
 		
 		//testForwardModel(so);
@@ -123,7 +123,7 @@ public class HBFSAgent extends AbstractPlayer {
 	}
 	
 	public void testForwardModel(StateObservation so) {
-		System.out.println("##Testing Forward Model...");
+		System.out.println("HBFS::##Testing Forward Model...");
 		StateObservation s0 = so;
 		int[] es = new int[ACTIONS.length];
 		int[] es2 = new int[ACTIONS.length];
@@ -149,7 +149,7 @@ public class HBFSAgent extends AbstractPlayer {
 				s.push(so);
 			}
 			d[k] = es[k] - es2[k];
-			System.out.println(ACTIONS[k] + " | ineffective on repeat: " + es2[k] + " | ineffective on 1st: " + es[k]);
+			System.out.println("HBFS::"+ACTIONS[k] + " | ineffective on repeat: " + es2[k] + " | ineffective on 1st: " + es[k]);
 		}
 		for (StateObservation so2 : s) {
 			testForwardModel(so2);
@@ -169,7 +169,7 @@ public class HBFSAgent extends AbstractPlayer {
 		
 		if (pipe.isEmpty()) {
 			controllerState = STATE_OTHER;
-			System.out.println("performBfs was called on empty pipe. Changing to STATE_OTHER.");
+			System.out.println("HBFS::performBfs was called on empty pipe. Changing to STATE_OTHER.");
 			return false;
 		}
 		
@@ -221,7 +221,7 @@ public class HBFSAgent extends AbstractPlayer {
 		}
 		
 		if (pipe.isEmpty()) {
-			System.out.println("\n#Pipe unexpectedly empty. Reseeding and clearing rejection set.");
+			System.out.println("\nHBFS::#Pipe unexpectedly empty. Reseeding and clearing rejection set.");
 			visited.clear();
 			for (Types.ACTIONS a : ACTIONS) {
 				StateObservation soCopy = current.so.copy();
@@ -253,7 +253,7 @@ public class HBFSAgent extends AbstractPlayer {
 	 */
 	public HBFSAgent(StateObservation so, ElapsedCpuTimer elapsedTimer) {
 		// Get the actions in a static array.
-		System.out.println("##Creating HBFSAgent...");
+		System.out.println("HBFS::##Creating HBFSAgent...");
 		ArrayList<Types.ACTIONS> act = so.getAvailableActions();
 		ACTIONS = new Types.ACTIONS[act.size()];
 		for (int i = 0; i < ACTIONS.length; ++i) {
@@ -268,7 +268,7 @@ public class HBFSAgent extends AbstractPlayer {
 			hasTerminated = performBfs();
 		}
 		if (controllerState != STATE_PLANNING)
-			System.out.println("#Controller State: controllerState");
+			System.out.println("HBFS::#Controller State: controllerState");
 	}
 	
 	public void displayAgentState() {
@@ -278,11 +278,11 @@ public class HBFSAgent extends AbstractPlayer {
 	public void displayAgentState(HBFSNode node) {
 		if (node == null) node = pipe.peek();
 		if (node == null) {
-			System.out.println("#Pipe Empty");
+			System.out.println("HBFS::#Pipe Empty");
 			return;
 		}
 		System.out.println();
-		System.out.format("Pipe:%5d|R.Set:%5d|Rejects:%6d|Depth:%3d|Events:%3d|E.Score:%3.2f|D.Score:%3.2f|L.Score:%3.2f|Score:%3.2f|B.Delta:%3.2f|C.Score:%3.2f|Speed:%3d", 
+		System.out.format("HBFS::Pipe:%5d|R.Set:%5d|Rejects:%6d|Depth:%3d|Events:%3d|E.Score:%3.2f|D.Score:%3.2f|L.Score:%3.2f|Score:%3.2f|B.Delta:%3.2f|C.Score:%3.2f|Speed:%3d", 
 				pipe.size(), visited.size(), stats_rejects, node.depth, node.so.getEventsHistory().size(), node.getEventScore(), node.getTileDiversityScore(), 
 				node.getLoadScore(), node.getScore(), HBFSAgent.maxScoreDifference, HBFSAgent.correspondingScore, turnAroundSpeed);
 	}
@@ -302,14 +302,14 @@ public class HBFSAgent extends AbstractPlayer {
 			
 			if (actionSequence.isEmpty()) {
 				if (isVerbose) HBFSNode.displayStateObservation(so);
-				System.out.println("--Action Stack Empty.");		
+				System.out.println("HBFS::--Action Stack Empty.");		
 				controllerState = STATE_IDLE;
 				cleanBfs(); // free handles to allow the garbage collector to start cleaning.
 				return Types.ACTIONS.ACTION_NIL;
 			}
 			if (isVerbose) {
 				HBFSNode.displayStateObservation(so);
-			    System.out.println("--Performing Action: " + actionSequence.peek());
+			    System.out.println("HBFS::--Performing Action: " + actionSequence.peek());
 			}
 			return actionSequence.pop();
 			
@@ -325,31 +325,31 @@ public class HBFSAgent extends AbstractPlayer {
 				turnAroundSpeed+= 1;					
 			}
 			if (hasTerminated) {
-				System.out.println("\n#Solution Found. ACTING Phase...");
+				System.out.println("\nHBFS::#Solution Found. ACTING Phase...");
 				controllerState = STATE_ACTING;
 				actionSequence = hbfsSolution.getActionSequence();
 				System.out.println("Best Sequence Length: " + actionSequence.size());
 			}
 			if (so.getGameTick() > MAX_TICKS) {
-				System.out.println("\n#Timeout! ACTING Phase...");
+				System.out.println("\nHBFS::#Timeout! ACTING Phase...");
 				controllerState = STATE_ACTING;
 				hbfsSolution = pipe.peek();
 				actionSequence = hbfsSolution.getActionSequence();
 				System.out.println("Timeout Sequence Length: " + actionSequence.size());
 			}
 			if (pipeEmptyEvents > 1) {
-				System.out.println("\n#Pipe Constantly Empty! Performing some move. ACTING Phase...");
+				System.out.println("\nHBFS::#Pipe Constantly Empty! Performing some move. ACTING Phase...");
 				controllerState = STATE_ACTING;
 				actionSequence = new Stack<Types.ACTIONS>();
 				actionSequence.push(ACTIONS[(int) Math.floor(Math.random()*4)]);
-				System.out.println("Random Sequence Length: " + actionSequence.size());
+				System.out.println("HBFS::Random Sequence Length: " + actionSequence.size());
 			}
 			return Types.ACTIONS.ACTION_NIL;
 		
 		case STATE_IDLE:
 		case STATE_OTHER:
 			if (!so.isGameOver()) {
-				System.out.println("\n#Controller IDLE but game continues. Restarting PLANNING Phase...");
+				System.out.println("\nHBFS::#Controller IDLE but game continues. Restarting PLANNING Phase...");
 				initializeBfs(so);
 				controllerState = STATE_PLANNING;
 			}

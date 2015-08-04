@@ -101,9 +101,7 @@ public class SingleTreeNode {
 			// backUpBest(selected, delta);
 
 			remaining = elapsedTimer.remainingTimeMillis();
-			// numIters++;
 		}
-		// System.out.println("-- " + numIters + " --");
 	}
 
 	public SingleTreeNode treePolicy() {
@@ -199,7 +197,7 @@ public class SingleTreeNode {
 			}
 		}
 		if (selected == -1 || children[selected].isLoseState()) {
-			System.out.println("##### Oh crap.  Death awaits with choice "
+			System.out.println("MCTS::##### Oh crap.  Death awaits with choice "
 					+ selected + ".");
 			selected = 0;
 		}
@@ -390,7 +388,7 @@ public class SingleTreeNode {
 		}
 
 		if (selected == -1) {
-			System.out.println("Unexpected selection!");
+			System.out.println("MCTS::Unexpected selection!");
 			selected = 0;
 		} else if (allEqual) {
 			// If all are equal, we opt to choose for the one with the best Q.
@@ -425,7 +423,7 @@ public class SingleTreeNode {
 		}
 
 		if (selected == -1) {
-			System.out.println("Unexpected selection!");
+			System.out.println("MCTS::Unexpected selection!");
 		}
 		return selected;
 	}

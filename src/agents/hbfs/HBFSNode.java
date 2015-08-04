@@ -233,7 +233,7 @@ public class HBFSNode implements Comparable<HBFSNode> {
 
 	public static void displayStateObservation(StateObservation so) {
 		ArrayList<Observation>[][] grid = so.getObservationGrid();
-		System.out.println("#Grid:      " + grid.length + " X " + grid[1].length);
+		System.out.println("HBFS::#Grid:      " + grid.length + " X " + grid[1].length);
 		System.out.println("Actions:   " + so.getAvailableActions());
 		System.out.println("Immovable: " + arrayListToString(so.getImmovablePositions()));
 		System.out.println("Movable:   " + arrayListToString(so.getMovablePositions()));
