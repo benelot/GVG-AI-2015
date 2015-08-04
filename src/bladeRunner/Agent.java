@@ -62,31 +62,32 @@ public class Agent extends AbstractPlayer {
 		// Advance a bit to check if stochastic
 		isStochastic = false;
 		
-//		Stochasticity 1
-//		StateObservation testState1 = so.copy();
-//		StateObservation testState2 = so.copy();
-//		for (int ii = 0; ii < 10; ii++) {
-//			testState1.advance(Types.ACTIONS.ACTION_NIL);
-//			testState2.advance(Types.ACTIONS.ACTION_NIL);
-//			
-//			//I believe the advance method is more costly than the equiv method.
-//			if(!testState1.equiv(testState2)){
-//				isStochastic = true;
-//				break;
-//			}
-//		}
-		
-//		Stochasticity 2
+		//Stochasticity 1
+		StateObservation testState1 = so.copy();
 		StateObservation testState2 = so.copy();
 		for (int ii = 0; ii < 10; ii++) {
+			testState1.advance(Types.ACTIONS.ACTION_NIL);
 			testState2.advance(Types.ACTIONS.ACTION_NIL);
 			
 			//I believe the advance method is more costly than the equiv method.
-			if(!so.equiv(testState2)){
+			if(!testState1.equiv(testState2)){
 				isStochastic = true;
 				break;
 			}
 		}
+		
+////		Stochasticity 2
+		//TODO: Does not work, calls all games stochastic. Probably because it compares the step number and calls them different.
+//		StateObservation testState2 = so.copy();
+//		for (int ii = 0; ii < 10; ii++) {
+//			testState2.advance(Types.ACTIONS.ACTION_NIL);
+//			
+//			//I believe the advance method is more costly than the equiv method.
+//			if(!so.equiv(testState2)){
+//				isStochastic = true;
+//				break;
+//			}
+//		}
 		
 		if (isStochastic) {
 			System.out.println("AGENT::Game seems to be stochastic");
