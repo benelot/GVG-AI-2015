@@ -67,8 +67,8 @@ public class GameRunner {
 							(config.isSaveActions()) ? actionsFile : null,
 							random.nextInt());
 					if (config.isCalculateStatistics()) {
-						// processGameStatistics(RunConfig
-						// .getGamePath(gameLevelPair.game));
+						 processGameStatistics(true, RunConfig
+						 .getGamePath(gameLevelPair.game));
 					}
 
 					System.gc(); // free memory where possible
@@ -76,7 +76,7 @@ public class GameRunner {
 				}
 			}
 		}
-		// writeGameStatistics();
+		 writeGameStatistics();
 	}
 
 	/**
@@ -211,14 +211,19 @@ public class GameRunner {
 			gameStatistics.put(gamePath, new GameStats(isDeterministic, win,
 					score, time));
 		}
+		writeGameStatistic(gamePath);
+	}
+	
+	public static void writeGameStatistic(String gamePath){
+		GameStats gameStat = gameStatistics.get(gamePath);
+		System.out.println("Statistics for: " + gamePath);
+		System.out.println("---------------------------------");
+		gameStat.print();
 	}
 
 	public static void writeGameStatistics() {
 		for (String gamePath : gameStatistics.keySet()) {
-			GameStats gameStat = gameStatistics.get(gamePath);
-			System.out.println("Statistics for: " + gamePath);
-			System.out.println("---------------------------------");
-			gameStat.print();
+			writeGameStatistic(gamePath);
 		}
 	}
 
