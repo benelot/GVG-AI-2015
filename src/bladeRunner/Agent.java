@@ -21,11 +21,11 @@ public class Agent extends AbstractPlayer {
 	public enum AgentType {
 		MCTS, BFS, MIXED
 	}
-	
+
 	public AgentType agentType = AgentType.MIXED;
 
 	public boolean isStochastic = false;
-	
+
 	public int oldAction = -2;
 
 	/**
@@ -60,44 +60,43 @@ public class Agent extends AbstractPlayer {
 		PersistentStorage.iTypeAttractivity = new ITypeAttractivity(so);
 
 		isStochastic = false;
-		
-//		// Stochasticity 1
-//		// Advance a bit to check if stochastic
-//		StateObservation testState1 = so.copy();
-//		StateObservation testState2 = so.copy();
-//		for (int ii = 0; ii < 10; ii++) {
-//			testState1.advance(Types.ACTIONS.ACTION_NIL);
-//			testState2.advance(Types.ACTIONS.ACTION_NIL);
-//			
-//			//I believe the advance method is more costly than the equiv method.
-//			if(!testState1.equiv(testState2)){
-//				isStochastic = true;
-//				break;
-//			}
-//		}
-		
+
+		// // Stochasticity 1
+		// // Advance a bit to check if stochastic
+		// StateObservation testState1 = so.copy();
+		// StateObservation testState2 = so.copy();
+		// for (int ii = 0; ii < 10; ii++) {
+		// testState1.advance(Types.ACTIONS.ACTION_NIL);
+		// testState2.advance(Types.ACTIONS.ACTION_NIL);
+		//
+		// //I believe the advance method is more costly than the equiv method.
+		// if(!testState1.equiv(testState2)){
+		// isStochastic = true;
+		// break;
+		// }
+		// }
+
 		// Stochasticity 2
-		//Checks if there are Non player characters
+		// Checks if there are Non player characters
 		StateObservation testState2 = so.copy();
 		for (int ii = 0; ii < 10; ii++) {
 			testState2.advance(Types.ACTIONS.ACTION_NIL);
-			
-			//I believe the advance method is more costly than the equiv method.
-			if(testState2.getNPCPositions() != null && testState2.getNPCPositions().length > 0)
-			{
+
+			// I believe the advance method is more costly than the equiv
+			// method.
+			if (testState2.getNPCPositions() != null
+					&& testState2.getNPCPositions().length > 0) {
 				isStochastic = true;
 				break;
 			}
 		}
-		
+
 		if (isStochastic) {
 			System.out.println("AGENT::Game seems to be stochastic");
-		}
-		else{
+		} else {
 			PersistentStorage.MCTS_DEPTH_RUN += 20;
 			System.out.println("AGENT::Game seems to be deterministic");
 		}
-
 
 		// use time that is left to build a tree or do BFS
 		if ((isStochastic || agentType == AgentType.MCTS)
@@ -166,18 +165,19 @@ public class Agent extends AbstractPlayer {
 						if (npcs.size() > 0) {
 							Vector2d npcPos = npcs.get(0).position;
 							try {
-								npcAttractionValue = PersistentStorage.iTypeAttractivity.get(npcs
-										.get(0).itype);
+								npcAttractionValue = PersistentStorage.iTypeAttractivity
+										.get(npcs.get(0).itype);
 							} catch (java.lang.NullPointerException e) {
 								PersistentStorage.iTypeAttractivity
 										.putNewUniqueItype(npcs.get(0));
-								npcAttractionValue = PersistentStorage.iTypeAttractivity.get(npcs
-										.get(0).itype);
+								npcAttractionValue = PersistentStorage.iTypeAttractivity
+										.get(npcs.get(0).itype);
 							}
 							if (Math.abs(PersistentStorage.rewMap
 									.getRewardAtWorldPosition(npcPos)) < 1) {
-								PersistentStorage.rewMap.incrementRewardAtWorldPosition(npcPos,
-										npcAttractionValue * 0.02);
+								PersistentStorage.rewMap
+										.incrementRewardAtWorldPosition(npcPos,
+												npcAttractionValue * 0.02);
 							}
 						}
 					}
@@ -194,18 +194,19 @@ public class Agent extends AbstractPlayer {
 						if (ress.size() > 0) {
 							Vector2d resPos = ress.get(0).position;
 							try {
-								resAttractionValue = PersistentStorage.iTypeAttractivity.get(ress
-										.get(0).itype);
+								resAttractionValue = PersistentStorage.iTypeAttractivity
+										.get(ress.get(0).itype);
 							} catch (java.lang.NullPointerException e) {
 								PersistentStorage.iTypeAttractivity
 										.putNewUniqueItype(ress.get(0));
-								resAttractionValue = PersistentStorage.iTypeAttractivity.get(ress
-										.get(0).itype);
+								resAttractionValue = PersistentStorage.iTypeAttractivity
+										.get(ress.get(0).itype);
 							}
 							if (Math.abs(PersistentStorage.rewMap
 									.getRewardAtWorldPosition(resPos)) < 1) {
-								PersistentStorage.rewMap.incrementRewardAtWorldPosition(resPos,
-										resAttractionValue * 0.02);
+								PersistentStorage.rewMap
+										.incrementRewardAtWorldPosition(resPos,
+												resAttractionValue * 0.02);
 							}
 						}
 					}
@@ -224,7 +225,8 @@ public class Agent extends AbstractPlayer {
 
 			PersistentStorage.startingReward = stateObs.getGameScore();
 
-			PersistentStorage.numberOfBlockedMovables = SingleTreeNode.trapHeuristic(stateObs);
+			PersistentStorage.numberOfBlockedMovables = SingleTreeNode
+					.trapHeuristic(stateObs);
 
 			// Determine the action using MCTS...
 			int action = mctsPlayer.run(elapsedTimer);
