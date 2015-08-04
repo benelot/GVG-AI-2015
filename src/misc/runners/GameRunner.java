@@ -67,8 +67,8 @@ public class GameRunner {
 							(config.isSaveActions()) ? actionsFile : null,
 							random.nextInt());
 					if (config.isCalculateStatistics()) {
-						 processGameStatistics(true, RunConfig
-						 .getGamePath(gameLevelPair.game));
+						processGameStatistics(true,
+								RunConfig.getGamePath(gameLevelPair.game));
 					}
 
 					System.gc(); // free memory where possible
@@ -76,7 +76,9 @@ public class GameRunner {
 				}
 			}
 		}
-		 writeGameStatistics();
+		if (config.isCalculateStatistics()) {
+			writeGameStatistics();
+		}
 	}
 
 	/**
@@ -112,8 +114,8 @@ public class GameRunner {
 								false, config.getController(), (config
 										.isSaveActions()) ? actionsFile : null,
 								random.nextInt());
-						processGameStatistics(true,RunConfig
-								.getGamePath(gameLevelPair.game));
+						processGameStatistics(true,
+								RunConfig.getGamePath(gameLevelPair.game));
 					}
 				}
 			}
@@ -191,8 +193,7 @@ public class GameRunner {
 		GameRunner.time = time;
 	}
 
-	public static void processGameStatistics(boolean det,
-			String gamePath) {
+	public static void processGameStatistics(boolean det, String gamePath) {
 		setGameStatistics(det,
 				ArcadeMachine.lastWinner == Types.WINNER.PLAYER_WINS,
 				ArcadeMachine.lastScore, ArcadeMachine.lastTime);
@@ -213,8 +214,8 @@ public class GameRunner {
 		}
 		writeGameStatistic(gamePath);
 	}
-	
-	public static void writeGameStatistic(String gamePath){
+
+	public static void writeGameStatistic(String gamePath) {
 		GameStats gameStat = gameStatistics.get(gamePath);
 		System.out.println("Statistics for: " + gamePath);
 		System.out.println("---------------------------------");
