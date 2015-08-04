@@ -28,6 +28,8 @@ public class HBFSNode implements Comparable<HBFSNode> {
 	// trapped tile score - how many tiles are trapped?
 	// attention score - how close does this path get to attended tiles, where
 	// attention is a function of tile scarcity?
+	// tabulate possible tile interactions
+	// reward all changes in tile occurrence distribution 
 	private double score = -1;
 	private double eventScore = -1;
 	private double tileDiversityScore = -1;
