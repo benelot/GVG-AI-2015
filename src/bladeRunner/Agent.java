@@ -21,7 +21,7 @@ public class Agent extends AbstractPlayer {
 	public enum AgentType {
 		MCTS, BFS, MIXED
 	}
-
+	
 	public AgentType agentType = AgentType.MIXED;
 
 	public boolean isStochastic = false;
@@ -89,11 +89,11 @@ public class Agent extends AbstractPlayer {
 		}
 		
 		if (isStochastic) {
-			System.out.println("Game seems to be stochastic");
+			System.out.println("AGENT::Game seems to be stochastic");
 		}
 		else{
 			PersistentStorage.MCTS_DEPTH_RUN += 20;
-			System.out.println("Game seems to be deterministic");
+			System.out.println("AGENT::Game seems to be deterministic");
 		}
 
 

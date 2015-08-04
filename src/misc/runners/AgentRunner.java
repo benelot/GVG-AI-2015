@@ -1,6 +1,6 @@
 package misc.runners;
 
-public class MCTSRunner {
+public class AgentRunner {
 
 	public static void main(String[] args) throws Exception {
 

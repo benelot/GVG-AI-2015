@@ -67,8 +67,8 @@ public class GameRunner {
 							(config.isSaveActions()) ? actionsFile : null,
 							random.nextInt());
 					if (config.isCalculateStatistics()) {
-						processGameStatistics(true,
-								RunConfig.getGamePath(gameLevelPair.game));
+						processGameStatistics(RunConfig
+								.getGamePath(gameLevelPair.game));
 					}
 
 					System.gc(); // free memory where possible
@@ -114,8 +114,8 @@ public class GameRunner {
 								false, config.getController(), (config
 										.isSaveActions()) ? actionsFile : null,
 								random.nextInt());
-						processGameStatistics(true,
-								RunConfig.getGamePath(gameLevelPair.game));
+						processGameStatistics(RunConfig
+								.getGamePath(gameLevelPair.game));
 					}
 				}
 			}
@@ -185,22 +185,17 @@ public class GameRunner {
 								gameLevelInformation[4]), true, readActionsFile);
 	}
 
-	public static void setGameStatistics(boolean isDeterministic, boolean win,
-			double score, double time) {
-		GameRunner.isDeterministic = (isDeterministic) ? 1 : 0;
+	public static void setGameStatistics(boolean win, double score, double time) {
 		GameRunner.win = (win) ? 1 : 0;
 		GameRunner.score = score;
 		GameRunner.time = time;
 	}
 
-	public static void processGameStatistics(boolean det, String gamePath) {
-		setGameStatistics(det,
-				ArcadeMachine.lastWinner == Types.WINNER.PLAYER_WINS,
+	public static void processGameStatistics(String gamePath) {
+		setGameStatistics(ArcadeMachine.lastWinner == Types.WINNER.PLAYER_WINS,
 				ArcadeMachine.lastScore, ArcadeMachine.lastTime);
 		GameStats gameStats = gameStatistics.get(gamePath);
 		if (gameStats != null) {
-			gameStats.detRatio = ((gameStats.detRatio * gameStats.sampleSize) + isDeterministic)
-					/ (gameStats.sampleSize + 1);
 			gameStats.winRatio = ((gameStats.winRatio * gameStats.sampleSize) + win)
 					/ (gameStats.sampleSize + 1);
 			gameStats.avgScore = ((gameStats.avgScore * gameStats.sampleSize) + score)
@@ -209,8 +204,7 @@ public class GameRunner {
 					/ (gameStats.sampleSize + 1);
 			gameStats.sampleSize++;
 		} else {
-			gameStatistics.put(gamePath, new GameStats(isDeterministic, win,
-					score, time));
+			gameStatistics.put(gamePath, new GameStats(win, score, time));
 		}
 		writeGameStatistic(gamePath);
 	}
