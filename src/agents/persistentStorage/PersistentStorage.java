@@ -1,7 +1,5 @@
 package agents.persistentStorage;
 
-import agents.mcts.ITypeAttractivity;
-import agents.mcts.RewardMap;
 import ontology.Types.ACTIONS;
 
 public class PersistentStorage {

@@ -1,10 +1,5 @@
 package misc.runners;
 
-import misc.runners.RunConfig.GamesExtra;
-import misc.runners.RunConfig.GamesTraining2014;
-import misc.runners.RunConfig.GamesTraining2015;
-import misc.runners.RunConfig.GamesValidation2014;
-
 public class PlayAllGamesRunConfig extends RunConfig {
 	public PlayAllGamesRunConfig() {
 		

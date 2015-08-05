@@ -1,4 +1,4 @@
-package agents.mcts;
+package agents.persistentStorage;
 
 import java.awt.Dimension;
 

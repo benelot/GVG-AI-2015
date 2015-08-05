@@ -1,8 +1,5 @@
-package misc.tutorials.playgames;
+package misc.runners;
 
-import misc.runners.GameRunner;
-import misc.runners.PlayAllGamesRunConfig;
-import misc.runners.RunConfig;
 
 public class PlayAllGamesYourself {
 

@@ -32,7 +32,7 @@ import tools.ElapsedCpuTimer;
 // - Both pipe and rejection Set are cleared once they reach a limit number of 
 //   elements to prevent stalling and eventual out of memory errors
 // 
-// - Increase memory available to java: add VM Arguments -Xmx4096m and -Xms1024m  in eclispe run configuration dialog (run button)
+// - Increase memory available to java: add VM Arguments -Xmx4096m and -Xms1024m  in eclipse run configuration dialog (run button)
 //
 //   Puzzle Style Games: * (see HBFSRunner) work with HBFS, heuristic parameters wT = -3; wL = -2;
 // - When running two different games in a row, errors can occur. The controller gets reset, so it is currently unclear why this happens. 
