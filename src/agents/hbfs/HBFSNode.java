@@ -28,6 +28,8 @@ public class HBFSNode implements Comparable<HBFSNode> {
 	// trapped tile score - how many tiles are trapped?
 	// attention score - how close does this path get to attended tiles, where
 	// attention is a function of tile scarcity?
+	// tabulate possible tile interactions
+	// reward all changes in tile occurrence distribution 
 	private double score = -1;
 	private double eventScore = -1;
 	private double tileDiversityScore = -1;
@@ -165,10 +167,8 @@ public class HBFSNode implements Comparable<HBFSNode> {
 		if (hashCode() != obj.hashCode())
 			return false;
 		HBFSAgent.equalCalls++;
-		if (Agent.isVerbose) {
-			if (HBFSAgent.equalCalls % HBFSAgent.callReportFrequency == 1) {
-				System.out.print(".");
-			}
+		if (Agent.isVerbose && HBFSAgent.equalCalls % HBFSAgent.callReportFrequency == 1) {
+			System.out.print(".");
 		}
 		// detailed comparison
 		HBFSNode n = (HBFSNode) obj;
@@ -212,10 +212,8 @@ public class HBFSNode implements Comparable<HBFSNode> {
 	public int compareTo(HBFSNode o) {
 		int rt = Double.compare(getScore(), o.getScore());
 		HBFSAgent.compareCalls++;
-		if (HBFSAgent.compareCalls % (2 * HBFSAgent.callReportFrequency) == 1) {
-			if (Agent.isVerbose) {
-				System.out.print("-");
-			}
+		if (Agent.isVerbose && HBFSAgent.compareCalls % (2 * HBFSAgent.callReportFrequency) == 1) {
+			System.out.print("-");
 		}
 		return rt;
 	}

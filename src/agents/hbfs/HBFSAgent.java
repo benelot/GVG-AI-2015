@@ -50,10 +50,9 @@ public class HBFSAgent extends AbstractPlayer {
 	public static final int STATE_IDLE = 3;
 	public static final int STATE_OTHER = 4;
 
-	public static final int prime = 4583; // 4583; //7927; //13163; // 18097;
-											// //4583; -- the prime should be
-											// larger than 4/3 *
-											// MAX_REJECTION_SET_SIZE
+	public static final int prime = 4583; // 4583; 7927; 13163; 18097;
+	// 4583; -- prime should be larger than 4/3 * MAX_REJECTION_SET_SIZE
+	
 	public static int MAX_PIPE_LENGTH = 2000;
 	public static int MAX_REJECTION_SET_SIZE = 3000;
 	public static int CARRY_OVER_PIPE_LENGTH = 200;
@@ -66,18 +65,17 @@ public class HBFSAgent extends AbstractPlayer {
 	public static final double wEvents = -0.1;
 	public static final double wDepth = 1;
 
+	public static final int INITIALIZATION_REMTIME = 25;
+	public static final int ACTION_REMTIME = 10;
+	public static final int INITIALIZATION_ITEMS_PER_ROUND = 1;
+	public static final int ACTION_ITEMS_PER_ROUND = 1;
+	public static final boolean IS_VERY_VERBOSE = false;
+	public static final int reportFrequency = 100;
+	
 	public static int NUM_ACTIONS;
-	public static int INITIALIZATION_REMTIME = 25;
-	public static int ACTION_REMTIME = 10;
-	public static int INITIALIZATION_ITEMS_PER_ROUND = 1;
-	public static int ACTION_ITEMS_PER_ROUND = 1;
 	public static int MAX_TICKS = 1800;
-
-	public static boolean isVerbose = false;
-	public static int reportFrequency = 100;
 	public static Types.ACTIONS[] ACTIONS;
 	public static int rootLoad = -1;
-
 	public static double correspondingScore = Double.NEGATIVE_INFINITY;
 	public static double maxScoreDifference = Double.NEGATIVE_INFINITY;
 	public static int compareCalls = 0;
@@ -134,9 +132,8 @@ public class HBFSAgent extends AbstractPlayer {
 	}
 
 	public void testForwardModel(StateObservation so) {
-		if (Agent.isVerbose) {
-			System.out.println("HBFS::##Testing Forward Model...");
-		}
+		System.out.println("HBFS::##Testing Forward Model...");
+		
 		StateObservation s0 = so;
 		int[] es = new int[ACTIONS.length];
 		int[] es2 = new int[ACTIONS.length];
@@ -162,11 +159,10 @@ public class HBFSAgent extends AbstractPlayer {
 				s.push(so);
 			}
 			d[k] = es[k] - es2[k];
-			if (Agent.isVerbose) {
-				System.out.println("HBFS::" + ACTIONS[k]
+			System.out.println("HBFS::" + ACTIONS[k]
 						+ " | ineffective on repeat: " + es2[k]
 						+ " | ineffective on 1st: " + es[k]);
-			}
+			
 		}
 		for (StateObservation so2 : s) {
 			testForwardModel(so2);
@@ -182,9 +178,10 @@ public class HBFSAgent extends AbstractPlayer {
 		actionSequence = null;
 		pipe = null;
 		visited = null;
-		// System.gc(); // gc can cause the initialization to time out.
+		// System.gc(); 
 	}
 
+	@SuppressWarnings("unused")
 	private boolean performBfs() {
 
 		if (pipe.isEmpty()) {
@@ -266,7 +263,7 @@ public class HBFSAgent extends AbstractPlayer {
 		} else {
 		}
 
-		if (isVerbose) {
+		if (Agent.isVerbose & HBFSAgent.IS_VERY_VERBOSE) {
 			current.displayActionSequence();
 			displayAgentState(current);
 		}
@@ -349,10 +346,10 @@ public class HBFSAgent extends AbstractPlayer {
 		case STATE_ACTING:
 
 			if (actionSequence.isEmpty()) {
-				if (isVerbose) {
-					HBFSNode.displayStateObservation(so);
-				}
 				if (Agent.isVerbose) {
+					if (HBFSAgent.IS_VERY_VERBOSE) {
+						HBFSNode.displayStateObservation(so);
+					}
 					System.out.println("HBFS::--Action Stack Empty.");
 				}
 				controllerState = STATE_IDLE;
@@ -360,10 +357,10 @@ public class HBFSAgent extends AbstractPlayer {
 							// start cleaning.
 				return Types.ACTIONS.ACTION_NIL;
 			}
-			if (isVerbose) {
-				HBFSNode.displayStateObservation(so);
-			}
 			if (Agent.isVerbose) {
+				if (HBFSAgent.IS_VERY_VERBOSE) {
+					HBFSNode.displayStateObservation(so);
+				}
 				System.out.println("HBFS::--Performing Action: "
 						+ actionSequence.peek());
 			}
@@ -383,47 +380,32 @@ public class HBFSAgent extends AbstractPlayer {
 				turnAroundSpeed += 1;
 			}
 			if (hasTerminated) {
-				if (Agent.isVerbose) {
-					if (Agent.isVerbose) {
-						System.out
-								.println("\nHBFS::#Solution Found. ACTING Phase...");
-					}
-				}
 				controllerState = STATE_ACTING;
 				actionSequence = hbfsSolution.getActionSequence();
 				if (Agent.isVerbose) {
-					if (Agent.isVerbose) {
-						System.out.println("Best Sequence Length: "
-								+ actionSequence.size());
-					}
+					System.out.println("\nHBFS::#Solution Found. ACTING Phase...");
+					System.out.println("Best Sequence Length: "
+							+ actionSequence.size());
 				}
 			}
 			if (so.getGameTick() > MAX_TICKS) {
-				if (Agent.isVerbose) {
-					if (Agent.isVerbose) {
-						System.out.println("\nHBFS::#Timeout! ACTING Phase...");
-					}
-				}
 				controllerState = STATE_ACTING;
 				hbfsSolution = pipe.peek();
 				actionSequence = hbfsSolution.getActionSequence();
 				if (Agent.isVerbose) {
+					System.out.println("\nHBFS::#Timeout! ACTING Phase...");
 					System.out.println("Timeout Sequence Length: "
 							+ actionSequence.size());
 				}
 			}
 			if (pipeEmptyEvents > 1) {
-				if (Agent.isVerbose) {
-					System.out
-							.println("\nHBFS::#Pipe Constantly Empty! Performing some move. ACTING Phase...");
-				}
 				controllerState = STATE_ACTING;
 				actionSequence = new Stack<Types.ACTIONS>();
 				actionSequence
 						.push(ACTIONS[(int) Math.floor(Math.random() * 4)]);
 				if (Agent.isVerbose) {
-					System.out.println("HBFS::Random Sequence Length: "
-							+ actionSequence.size());
+					System.out.println("\nHBFS::#Pipe Constantly Empty! Performing some move. ACTING Phase...");
+					System.out.println("HBFS::Random Sequence Length: " + actionSequence.size());
 				}
 			}
 			return Types.ACTIONS.ACTION_NIL;
@@ -432,8 +414,7 @@ public class HBFSAgent extends AbstractPlayer {
 		case STATE_OTHER:
 			if (!so.isGameOver()) {
 				if (Agent.isVerbose) {
-					System.out
-							.println("\nHBFS::#Controller IDLE but game continues. Restarting PLANNING Phase...");
+					System.out.println("\nHBFS::#Controller IDLE but game continues. Restarting PLANNING Phase...");
 				}
 				initializeBfs(so);
 				controllerState = STATE_PLANNING;

@@ -24,8 +24,9 @@ public class Agent extends AbstractPlayer {
 	public static boolean isVerbose = true;
 	public AgentType forcedAgentType = AgentType.MIXED;
 
+
 	/**
-	 * Random generator for the agent.
+	 * Agents
 	 */
 	private MCTSAgent mctsAgent;
 	private HBFSAgent bfAgent;
