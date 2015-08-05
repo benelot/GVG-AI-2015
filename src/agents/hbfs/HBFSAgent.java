@@ -5,9 +5,9 @@ import java.util.HashSet;
 import java.util.PriorityQueue;
 import java.util.Stack;
 
+import agents.GameAgent;
 import bladeRunner.Agent;
 import core.game.StateObservation;
-import core.player.AbstractPlayer;
 import ontology.Types;
 import tools.ElapsedCpuTimer;
 
@@ -43,7 +43,7 @@ import tools.ElapsedCpuTimer;
 //
 //
 
-public class HBFSAgent extends AbstractPlayer {
+public class HBFSAgent extends GameAgent {
 
 	public static final int STATE_PLANNING = 1;
 	public static final int STATE_ACTING = 2;
@@ -422,6 +422,13 @@ public class HBFSAgent extends AbstractPlayer {
 			return Types.ACTIONS.ACTION_NIL;
 		default:
 			throw new IllegalStateException();
+		}
+	}
+
+	public void cleanMemory() {
+		visited.clear();
+		if (Agent.isVerbose) {
+			System.out.print("RSc.");
 		}
 	}
 

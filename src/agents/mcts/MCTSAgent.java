@@ -1,9 +1,9 @@
 package agents.mcts;
 
+import agents.GameAgent;
 import agents.persistentStorage.PersistentStorage;
 import core.game.Observation;
 import core.game.StateObservation;
-import core.player.AbstractPlayer;
 import tools.ElapsedCpuTimer;
 import tools.Vector2d;
 
@@ -16,7 +16,7 @@ import ontology.Types.ACTIONS;
 /**
  * Created with IntelliJ IDEA. User: Diego Date: 07/11/13 Time: 17:13
  */
-public class MCTSAgent extends AbstractPlayer {
+public class MCTSAgent extends GameAgent {
 	/**
 	 * Root of the tree.
 	 */
@@ -262,5 +262,10 @@ public class MCTSAgent extends AbstractPlayer {
 	}
 	
 	public int oldAction = -2;
+
+	public void cleanMemory() {
+		// TODO Implement what to do when we run out of memory.
+		
+	}
 
 }

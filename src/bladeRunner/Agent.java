@@ -3,6 +3,7 @@ package bladeRunner;
 import java.util.ArrayList;
 import java.util.Random;
 
+import agents.GameAgent;
 import agents.gameClassifier.GameClassifier;
 import agents.gameClassifier.GameClassifier.GameType;
 import agents.hbfs.HBFSAgent;
@@ -24,12 +25,12 @@ public class Agent extends AbstractPlayer {
 	public static boolean isVerbose = true;
 	public AgentType forcedAgentType = AgentType.MIXED;
 
-
 	/**
 	 * Agents
 	 */
 	private MCTSAgent mctsAgent;
-	private HBFSAgent bfAgent;
+	private HBFSAgent bfsAgent;
+	private GameAgent currentAgent;
 
 	/**
 	 * Public constructor with state observation and time due.
@@ -40,9 +41,9 @@ public class Agent extends AbstractPlayer {
 	 *            Timer for the controller creation.
 	 */
 	public Agent(StateObservation so, ElapsedCpuTimer elapsedTimer) {
-		
-		//#################
-		//PERSISTENT STORAGE
+
+		// #################
+		// PERSISTENT STORAGE
 		// Get the actions in a static array.
 		ArrayList<Types.ACTIONS> act = so.getAvailableActions();
 		PersistentStorage.actions = new Types.ACTIONS[act.size()];
@@ -52,11 +53,11 @@ public class Agent extends AbstractPlayer {
 
 		// initialize exploration reward map with 1
 		PersistentStorage.rewMap = new RewardMap(so, 1);
-		
+
 		// initialize ItypeAttracivity object for starting situation
 		PersistentStorage.iTypeAttractivity = new ITypeAttractivity(so);
-		
-		//Classify game
+
+		// Classify game
 		GameClassifier.determineGameType(so);
 
 		// use time that is left to build a tree or do BFS
@@ -66,8 +67,10 @@ public class Agent extends AbstractPlayer {
 			mctsAgent = new MCTSAgent(new Random());
 			mctsAgent.init(so);
 			mctsAgent.run(elapsedTimer);
+			currentAgent = mctsAgent;
 		} else {
-			bfAgent = new HBFSAgent(so, elapsedTimer);
+			bfsAgent = new HBFSAgent(so, elapsedTimer);
+			currentAgent = bfsAgent;
 		}
 
 	}
@@ -85,12 +88,15 @@ public class Agent extends AbstractPlayer {
 	public Types.ACTIONS act(StateObservation stateObs,
 			ElapsedCpuTimer elapsedTimer) {
 		Types.ACTIONS action = Types.ACTIONS.ACTION_NIL;
-		if (forcedAgentType == AgentType.BFS
-				|| (forcedAgentType == AgentType.MIXED && !(GameClassifier.getGameType() == GameType.STOCHASTIC))) {
-			action = bfAgent.act(stateObs, elapsedTimer);
-		} else {
-			action = mctsAgent.act(stateObs, elapsedTimer);
-		} // end if isstochastic
+
+		// give the agent a second chance to find a solution after it has
+		// cleaned up its memory because of the OutOfMemoryError.
+		try {
+			action = currentAgent.act(stateObs, elapsedTimer);
+		} catch (OutOfMemoryError e) {
+			currentAgent.cleanMemory();
+			action = currentAgent.act(stateObs, elapsedTimer);
+		}
 		return action;
 	}
 }

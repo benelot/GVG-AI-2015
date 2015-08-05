@@ -43,8 +43,7 @@ public class MCTSNode {
 		this(null, null, rnd);
 	}
 
-	public MCTSNode(StateObservation state, MCTSNode parent,
-			Random rnd) {
+	public MCTSNode(StateObservation state, MCTSNode parent, Random rnd) {
 		this.state = state;
 		this.parent = parent;
 		MCTSNode.m_rnd = rnd;
@@ -189,8 +188,7 @@ public class MCTSNode {
 					+ PersistentStorage.K
 					* Math.sqrt(Math.log(nVisits + 1)
 							/ (children[i].nVisits + MCTSNode.epsilon))
-					+ MCTSNode.m_rnd.nextDouble()
-					* MCTSNode.epsilon;
+					+ MCTSNode.m_rnd.nextDouble() * MCTSNode.epsilon;
 
 			// small sampleRandom numbers: break ties in unexpanded nodes
 			if (uctValue > bestValue && !children[i].isLoseState()) {
@@ -237,8 +235,7 @@ public class MCTSNode {
 			// pick the best Q.
 			double bestValue = -Double.MAX_VALUE;
 			for (MCTSNode child : children) {
-				double hvVal = child.totValue
-						+ MCTSNode.m_rnd.nextDouble()
+				double hvVal = child.totValue + MCTSNode.m_rnd.nextDouble()
 						* MCTSNode.epsilon;
 
 				// small sampleRandom numbers: break ties in unexpanded nodes
@@ -386,8 +383,7 @@ public class MCTSNode {
 					allEqual = false;
 				}
 
-				if (children[i].nVisits + MCTSNode.m_rnd.nextDouble()
-						* epsilon > bestValue) {
+				if (children[i].nVisits + MCTSNode.m_rnd.nextDouble() * epsilon > bestValue) {
 					bestValue = children[i].nVisits;
 					selected = i;
 				}
@@ -502,7 +498,7 @@ public class MCTSNode {
 		ArrayList<Observation>[] movePos = null;
 		movePos = a_gameState.getMovablePositions();
 		int isTrapped = 0;
-		int isCompletlyFree = 0;
+		int isCompletelyFree = 0;
 		double blockSquare = a_gameState.getBlockSize()
 				* a_gameState.getBlockSize();
 		if (movePos != null) {
@@ -510,63 +506,75 @@ public class MCTSNode {
 				for (int i = 0; i < movePos[j].size(); i++) {
 					Vector2d mPPos = movePos[j].get(i).position;
 
-					ArrayList<Observation>[] trapPos = a_gameState
+					ArrayList<Observation>[] trappedByImmovables = a_gameState
 							.getImmovablePositions(mPPos);
 
-					// if surrounded by 3 objects, its trapped
-					if (trapPos[0].size() >= 3) {
-						if ((trapPos[0].get(0).sqDist - blockSquare) < 1
-								&& (trapPos[0].get(1).sqDist - blockSquare) < 1
-								&& (trapPos[0].get(2).sqDist - blockSquare) < 1) {
-							isTrapped++;
+					ArrayList<Observation>[] trappedByMovables = a_gameState
+							.getMovablePositions(mPPos);
+
+					if (trappedByImmovables != null
+							&& trappedByImmovables.length > 0) {
+						// if surrounded by 3 objects, its trapped
+						if (trappedByImmovables[0].size() >= 3) {
+							if ((trappedByImmovables[0].get(0).sqDist - blockSquare) < 1
+									&& (trappedByImmovables[0].get(1).sqDist - blockSquare) < 1
+									&& (trappedByImmovables[0].get(2).sqDist - blockSquare) < 1) {
+								isTrapped++;
+							}
 						}
-					}
-					// if surrounded by a corner its trapped
-					if (trapPos[0].size() >= 2) {
-						if ((trapPos[0].get(0).sqDist - blockSquare) < 1
-								&& (trapPos[0].get(1).sqDist - blockSquare) < 1
-								&& Math.abs((trapPos[0].get(1).position.x - trapPos[0]
-										.get(0).position.x)
-										* (trapPos[0].get(1).position.y - trapPos[0]
-												.get(0).position.y)) > 1) {
-							isTrapped++;
-						} else {
-							// if surrounded by two immovable objects and a
-							// movable object its trapped
-							ArrayList<Observation>[] trapPos2 = a_gameState
-									.getMovablePositions(mPPos);
-							if (trapPos2[0].size() > 1) {
-								if ((trapPos[0].get(0).sqDist - blockSquare) < 1
-										&& (trapPos[0].get(1).sqDist - blockSquare) < 1
-										&& (trapPos2[0].get(1).sqDist - blockSquare) < 1) {
-									isTrapped++;
+						// if surrounded by a corner its trapped
+						if (trappedByImmovables[0].size() >= 2) {
+							if ((trappedByImmovables[0].get(0).sqDist - blockSquare) < 1
+									&& (trappedByImmovables[0].get(1).sqDist - blockSquare) < 1
+									&& Math.abs((trappedByImmovables[0].get(1).position.x - trappedByImmovables[0]
+											.get(0).position.x)
+											* (trappedByImmovables[0].get(1).position.y - trappedByImmovables[0]
+													.get(0).position.y)) > 1) {
+								isTrapped++;
+							} else {
+								// if surrounded by two immovable objects and a
+								// movable object its trapped
+								if (trappedByMovables != null
+										&& trappedByMovables.length > 0) {
+									if (trappedByMovables[0].size() > 1) {
+										if ((trappedByImmovables[0].get(0).sqDist - blockSquare) < 1
+												&& (trappedByImmovables[0]
+														.get(1).sqDist - blockSquare) < 1
+												&& (trappedByMovables[0].get(1).sqDist - blockSquare) < 1) {
+											isTrapped++;
+										}
+									}
 								}
 							}
-
 						}
 					}
-					// reward movable objects that are not surrounded by
-					// anything
-					ArrayList<Observation>[] trapPos2 = a_gameState
-							.getMovablePositions(mPPos);
-					if (trapPos[0].size() > 0) {
-						if (trapPos2[0].size() > 1) {
-							if ((trapPos[0].get(0).sqDist - blockSquare) > 1
-									&& (trapPos2[0].get(1).sqDist - blockSquare) > 1) {
-								isCompletlyFree++;
-							}
-						} else {
-							if (trapPos[0].get(0).sqDist - blockSquare > 1) {
-								isCompletlyFree++;
-							}
 
+					if (trappedByImmovables != null
+							&& trappedByImmovables.length > 0
+							&& trappedByMovables != null
+							&& trappedByMovables.length > 0) {
+						// reward movable objects that are not surrounded by
+						// anything
+						if (trappedByImmovables[0].size() > 0) {
+							if (trappedByMovables[0].size() > 1) {
+								if ((trappedByImmovables[0].get(0).sqDist - blockSquare) > 1
+										&& (trappedByMovables[0].get(1).sqDist - blockSquare) > 1) {
+									isCompletelyFree++;
+								}
+							} else {
+								if (trappedByImmovables[0].get(0).sqDist
+										- blockSquare > 1) {
+									isCompletelyFree++;
+								}
+
+							}
 						}
 					}
 				}
 			}
 		}
 		// reward the completely free objects not as much as the trapped ones.
-		return isTrapped - isCompletlyFree / 2;
+		return isTrapped - isCompletelyFree / 2;
 	}
 
 	public void correctDepth() {
