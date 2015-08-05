@@ -12,7 +12,7 @@ import tools.ElapsedCpuTimer;
 import tools.Utils;
 import tools.Vector2d;
 
-public class SingleTreeNode {
+public class MCTSNode {
 	public enum StateType {
 		UNCACHED, LOSE, NORMAL, WIN
 	}
@@ -26,8 +26,8 @@ public class SingleTreeNode {
 	public static double epsilon = 1e-6;
 	public static double egreedyEpsilon = 0.05;
 	public StateObservation state;
-	public SingleTreeNode parent;
-	public SingleTreeNode[] children;
+	public MCTSNode parent;
+	public MCTSNode[] children;
 	public double totValue;
 	public int nVisits;
 
@@ -39,16 +39,16 @@ public class SingleTreeNode {
 	// keeps track of the reward at the start of the MCTS search
 	// public double startingRew;
 
-	public SingleTreeNode(Random rnd) {
+	public MCTSNode(Random rnd) {
 		this(null, null, rnd);
 	}
 
-	public SingleTreeNode(StateObservation state, SingleTreeNode parent,
+	public MCTSNode(StateObservation state, MCTSNode parent,
 			Random rnd) {
 		this.state = state;
 		this.parent = parent;
-		SingleTreeNode.m_rnd = rnd;
-		children = new SingleTreeNode[PersistentStorage.actions.length];
+		MCTSNode.m_rnd = rnd;
+		children = new MCTSNode[PersistentStorage.actions.length];
 		totValue = 0.0;
 		if (parent != null) {
 			m_depth = parent.m_depth + 1;
@@ -58,10 +58,10 @@ public class SingleTreeNode {
 
 	}
 
-	public SingleTreeNode(StateObservation state, SingleTreeNode parent) {
+	public MCTSNode(StateObservation state, MCTSNode parent) {
 		this.state = state;
 		this.parent = parent;
-		children = new SingleTreeNode[PersistentStorage.actions.length];
+		children = new MCTSNode[PersistentStorage.actions.length];
 		totValue = 0.0;
 		if (parent != null) {
 			m_depth = parent.m_depth + 1;
@@ -73,7 +73,7 @@ public class SingleTreeNode {
 
 	public int countNodes() {
 		int n = 1;
-		for (SingleTreeNode child : children) {
+		for (MCTSNode child : children) {
 			if (child != null) {
 				n += child.countNodes();
 			}
@@ -91,7 +91,7 @@ public class SingleTreeNode {
 		while (remaining > 10) {
 
 			// form tree with MCTS
-			SingleTreeNode selected = treePolicy();
+			MCTSNode selected = treePolicy();
 
 			// rollout subsequent steps randomly
 			double delta = selected.rollOut();
@@ -105,9 +105,9 @@ public class SingleTreeNode {
 		}
 	}
 
-	public SingleTreeNode treePolicy() {
+	public MCTSNode treePolicy() {
 
-		SingleTreeNode cur = this;
+		MCTSNode cur = this;
 		while (!cur.state.isGameOver()
 				&& cur.m_depth < PersistentStorage.MCTS_DEPTH_RUN) {
 			if (cur.notFullyExpanded()) {
@@ -115,7 +115,7 @@ public class SingleTreeNode {
 				return cur.expand();
 
 			} else {
-				SingleTreeNode next = cur.uct();
+				MCTSNode next = cur.uct();
 				// SingleTreeNode next = cur.egreedy();
 				cur = next;
 			}
@@ -124,12 +124,12 @@ public class SingleTreeNode {
 		return cur;
 	}
 
-	public SingleTreeNode expand() {
+	public MCTSNode expand() {
 
 		int bestAction = 0;
 		double bestValue = -1; // select a never used action
 		for (int i = 0; i < children.length; i++) {
-			double x = SingleTreeNode.m_rnd.nextDouble();
+			double x = MCTSNode.m_rnd.nextDouble();
 			if (x > bestValue && children[i] == null) {
 				bestAction = i;
 				bestValue = x;
@@ -139,13 +139,13 @@ public class SingleTreeNode {
 		nextState.advance(PersistentStorage.actions[bestAction]);
 
 		// build children for the newly tried action
-		SingleTreeNode tn = new SingleTreeNode(nextState, this);
+		MCTSNode tn = new MCTSNode(nextState, this);
 		children[bestAction] = tn;
 		return tn;
 
 	}
 
-	public SingleTreeNode uct() {
+	public MCTSNode uct() {
 
 		// TODO: Cleanup these parts if not used
 		// SingleTreeNode selected = null;
@@ -175,22 +175,22 @@ public class SingleTreeNode {
 		// }
 		// return selected;
 
-		SingleTreeNode selectedNode = null;
+		MCTSNode selectedNode = null;
 		int selected = -1;
 		double bestValue = -Double.MAX_VALUE;
 		for (int i = 0; i < children.length; i++) {
 			double hvVal = children[i].totValue;
 			double childValue = hvVal
-					/ (children[i].nVisits + SingleTreeNode.epsilon);
+					/ (children[i].nVisits + MCTSNode.epsilon);
 
 			// reward + UCT-exploration term. Not clear to me if this is useful
 			// for the size of the tree that we have within our time constraints
 			double uctValue = childValue
 					+ PersistentStorage.K
 					* Math.sqrt(Math.log(nVisits + 1)
-							/ (children[i].nVisits + SingleTreeNode.epsilon))
-					+ SingleTreeNode.m_rnd.nextDouble()
-					* SingleTreeNode.epsilon;
+							/ (children[i].nVisits + MCTSNode.epsilon))
+					+ MCTSNode.m_rnd.nextDouble()
+					* MCTSNode.epsilon;
 
 			// small sampleRandom numbers: break ties in unexpanded nodes
 			if (uctValue > bestValue && !children[i].isLoseState()) {
@@ -224,22 +224,22 @@ public class SingleTreeNode {
 		return selectedNode;
 	}
 
-	public SingleTreeNode egreedy() {
+	public MCTSNode egreedy() {
 
-		SingleTreeNode selected = null;
+		MCTSNode selected = null;
 
-		if (SingleTreeNode.m_rnd.nextDouble() < egreedyEpsilon) {
+		if (MCTSNode.m_rnd.nextDouble() < egreedyEpsilon) {
 			// Choose randomly
-			int selectedIdx = SingleTreeNode.m_rnd.nextInt(children.length);
+			int selectedIdx = MCTSNode.m_rnd.nextInt(children.length);
 			selected = children[selectedIdx];
 
 		} else {
 			// pick the best Q.
 			double bestValue = -Double.MAX_VALUE;
-			for (SingleTreeNode child : children) {
+			for (MCTSNode child : children) {
 				double hvVal = child.totValue
-						+ SingleTreeNode.m_rnd.nextDouble()
-						* SingleTreeNode.epsilon;
+						+ MCTSNode.m_rnd.nextDouble()
+						* MCTSNode.epsilon;
 
 				// small sampleRandom numbers: break ties in unexpanded nodes
 				if (hvVal > bestValue) {
@@ -268,7 +268,7 @@ public class SingleTreeNode {
 		// rollout with random actions for "ROLLOUT_DEPTH" times
 		while (!finishRollout(rollerState, thisDepth)) {
 			previousScore = rollerState.getGameScore();
-			int action = SingleTreeNode.m_rnd
+			int action = MCTSNode.m_rnd
 					.nextInt(PersistentStorage.actions.length);
 			rollerState.advance(PersistentStorage.actions[action]);
 			PersistentStorage.iTypeAttractivity.updateAttraction(rollerState,
@@ -345,9 +345,9 @@ public class SingleTreeNode {
 		return false;
 	}
 
-	public void backUp(SingleTreeNode node, double result) {
+	public void backUp(MCTSNode node, double result) {
 		// add the rewards and visits the the chosen branch of the tree
-		SingleTreeNode n = node;
+		MCTSNode n = node;
 		while (n != null) {
 			n.nVisits++;
 			n.totValue += result;
@@ -359,9 +359,9 @@ public class SingleTreeNode {
 		}
 	}
 
-	public void backUpBest(SingleTreeNode node, double result) {
+	public void backUpBest(MCTSNode node, double result) {
 		// add the rewards and visits the the chosen branch of the tree
-		SingleTreeNode n = node;
+		MCTSNode n = node;
 		while (n != null) {
 			n.nVisits++;
 			if (n.totValue < result) {
@@ -386,7 +386,7 @@ public class SingleTreeNode {
 					allEqual = false;
 				}
 
-				if (children[i].nVisits + SingleTreeNode.m_rnd.nextDouble()
+				if (children[i].nVisits + MCTSNode.m_rnd.nextDouble()
 						* epsilon > bestValue) {
 					bestValue = children[i].nVisits;
 					selected = i;
@@ -419,7 +419,7 @@ public class SingleTreeNode {
 			if (children[i] != null) {
 				// we divide the reward by the number of times that we actually
 				// tried that child ( the sqrt is there just for fun ;) )
-				double disturbedChildRew = (children[i].totValue + (SingleTreeNode.m_rnd
+				double disturbedChildRew = (children[i].totValue + (MCTSNode.m_rnd
 						.nextDouble() - 0.5) * epsilon)
 						/ Math.sqrt(children[i].nVisits);
 				if (disturbedChildRew > bestValue
@@ -440,7 +440,7 @@ public class SingleTreeNode {
 	}
 
 	public boolean isDeadEnd(int max_depth, boolean fear_unknown) {
-		SingleTreeNode cur = this;
+		MCTSNode cur = this;
 		boolean allDeaths = true;
 
 		// Base case
@@ -487,7 +487,7 @@ public class SingleTreeNode {
 	}
 
 	public boolean notFullyExpanded() {
-		for (SingleTreeNode tn : children) {
+		for (MCTSNode tn : children) {
 			if (tn == null) {
 				return true;
 			}
@@ -572,7 +572,7 @@ public class SingleTreeNode {
 	public void correctDepth() {
 		// should correct (subtract 1 of) the depth of the whole tree. Needed
 		// after cut, but seems to be to slow
-		SingleTreeNode root = this;
+		MCTSNode root = this;
 		root.m_depth -= 1;
 		for (int i = 0; i < root.children.length; i++) {
 			if (root.children[i] != null) {

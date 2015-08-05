@@ -20,7 +20,7 @@ public class MCTSAgent extends AbstractPlayer {
 	/**
 	 * Root of the tree.
 	 */
-	public SingleTreeNode m_root;
+	public MCTSNode m_root;
 
 	/**
 	 * Random generator.
@@ -37,7 +37,7 @@ public class MCTSAgent extends AbstractPlayer {
 	 */
 	public MCTSAgent(Random a_rnd) {
 		m_rnd = a_rnd;
-		m_root = new SingleTreeNode(a_rnd);
+		m_root = new MCTSNode(a_rnd);
 
 		nodeQty = 0;
 	}
@@ -50,14 +50,14 @@ public class MCTSAgent extends AbstractPlayer {
 	 */
 	public void initNew(StateObservation a_gameState) {
 		// Set the game observation to a newly root node.
-		m_root = new SingleTreeNode(m_rnd);
+		m_root = new MCTSNode(m_rnd);
 		m_root.state = a_gameState;
 
 	}
 
 	public void init(StateObservation a_gameState) {
 		// Set the game observation to a newly root node.
-		m_root = new SingleTreeNode(m_rnd);
+		m_root = new MCTSNode(m_rnd);
 		m_root.state = a_gameState;
 
 	}
@@ -73,7 +73,7 @@ public class MCTSAgent extends AbstractPlayer {
 			m_root.state = a_gameState;
 		} else {
 			if (action == -1) {
-				m_root = new SingleTreeNode(m_rnd);
+				m_root = new MCTSNode(m_rnd);
 				m_root.state = a_gameState;
 			} else {
 				// cut old tree
@@ -227,7 +227,7 @@ public class MCTSAgent extends AbstractPlayer {
 
 		PersistentStorage.startingReward = stateObs.getGameScore();
 
-		PersistentStorage.numberOfBlockedMovables = SingleTreeNode
+		PersistentStorage.numberOfBlockedMovables = MCTSNode
 				.trapHeuristic(stateObs);
 
 		// Determine the action using MCTS...
