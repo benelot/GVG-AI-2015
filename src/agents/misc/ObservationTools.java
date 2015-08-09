@@ -13,8 +13,8 @@ public class ObservationTools {
 		int load;             // total number of tiles
 		int tileTransforms;   // total number of tile transforms w.r.t. root (a tile vanishes or transforms into another one, movement does not count)
 		int tileMovements;    // total number of tile movements w.r.t. root (a tile moves from one pos. to another)
-		int relevantEvents;   // total number of relevant events w.r.t. root (all except irrelevant events)
-		int irrelevantEvents; // total number of relevant events w.r.t. root (events that involve walls etc...)
+		int relevantEvents;   // not so important; total number of relevant events w.r.t. root (all except irrelevant events)
+		int irrelevantEvents; // not so important; total number of relevant events w.r.t. root (events that involve walls etc...)
 		int trappedTiles;
 		
 	}

@@ -82,20 +82,36 @@ public class HBFSNode implements Comparable<HBFSNode> {
 	public int getHash() {
 		int sequenceLength = so.getWorldDimension().height
 				* so.getWorldDimension().width + 2;
+		if (HBFSAgent.RESPECT_AGENT_ORIENTATION) sequenceLength+=2;
+		if (HBFSAgent.REPSECT_AGENT_SPEED) sequenceLength+=1;
+		
 		ArrayList<Observation>[][] grid = so.getObservationGrid();
 		totalLoad = 0;
 		hash = sequenceLength;
 		for (int i = 0; i < grid.length; i++) {
 			for (int j = 0; j < grid[i].length; j++) {
 				for (Observation o : grid[i][j]) {
-					hash = (hash << 4) ^ (hash >> 28) ^ o.itype;
+					hash = (hash << 4) ^ (hash >> 28) ^ (1+o.itype);
 				}
 				totalLoad += grid[i][j].size();
 			}
 		}
 		hash = (hash << 4) ^ (hash >> 28) ^ ((int) so.getAvatarPosition().x);
 		hash = (hash << 4) ^ (hash >> 28) ^ ((int) so.getAvatarPosition().y);
-		hash = hash % HBFSAgent.prime;
+		
+		if (HBFSAgent.RESPECT_AGENT_ORIENTATION) {
+			hash = (hash << 4) ^ (hash >> 28) ^ ((int) so.getAvatarOrientation().x);
+			hash = (hash << 4) ^ (hash >> 28) ^ ((int) so.getAvatarOrientation().y);
+		}
+		
+		if (HBFSAgent.REPSECT_AGENT_SPEED) {
+			hash = (hash << 4) ^ (hash >> 28) ^ ((int) so.getAvatarSpeed());
+		}
+		
+		//hash = hash % HBFSAgent.prime;
+		
+		if (HBFSAgent.TRACK_HASHING) HBFSAgent.hashList.add(hash);
+		
 		return hash;
 	}
 
@@ -164,35 +180,45 @@ public class HBFSNode implements Comparable<HBFSNode> {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (hashCode() != obj.hashCode())
-			return false;
 		HBFSAgent.equalCalls++;
 		if (Agent.isVerbose && HBFSAgent.equalCalls % HBFSAgent.callReportFrequency == 1) {
 			System.out.print(".");
 		}
-		// detailed comparison
+		if (hashCode() != obj.hashCode())
+			return false;
+		
+		if (HBFSAgent.TRACK_HASHING) HBFSAgent.hashesEqual++;
+		
 		HBFSNode n = (HBFSNode) obj;
 		if (!n.so.getAvatarPosition().equals(so.getAvatarPosition())) {
+			if (HBFSAgent.TRACK_HASHING) HBFSAgent.hashCollisions++;
 			return false;
 		}
-		if (!n.so.getAvatarOrientation().equals(so.getAvatarOrientation())) {
-			return false;
+		if (HBFSAgent.RESPECT_AGENT_ORIENTATION) {
+			if (!n.so.getAvatarOrientation().equals(so.getAvatarOrientation())) {
+				if (HBFSAgent.TRACK_HASHING) HBFSAgent.hashCollisions++;
+				return false;
+			}
 		}
-		if (n.so.getAvatarSpeed() != so.getAvatarSpeed()) {
-			return false;
+		if (HBFSAgent.REPSECT_AGENT_SPEED) {
+			if (n.so.getAvatarSpeed() != so.getAvatarSpeed()) {
+				if (HBFSAgent.TRACK_HASHING) HBFSAgent.hashCollisions++;
+				return false;
+			}
 		}
 
 		ArrayList<Observation>[][] grid = so.getObservationGrid();
 		ArrayList<Observation>[][] ngrid = n.so.getObservationGrid();
 
-		// int k = 0;
 		for (int i = 0; i < grid.length; i++) {
 			for (int j = 0; j < grid[i].length; j++) {
 				if (grid[i][j].size() != ngrid[i][j].size()) {
+					if (HBFSAgent.TRACK_HASHING) HBFSAgent.hashCollisions++;
 					return false;
 				}
 				for (int k = 1; k < grid[i][j].size(); k++) {
 					if (grid[i][j].get(k).itype != ngrid[i][j].get(k).itype) {
+						if (HBFSAgent.TRACK_HASHING) HBFSAgent.hashCollisions++;
 						return false;
 					}
 				}

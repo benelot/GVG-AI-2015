@@ -1,7 +1,11 @@
 package agents.hbfs;
 
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Stack;
 
@@ -50,12 +54,15 @@ public class HBFSAgent extends GameAgent {
 	public static final int STATE_IDLE = 3;
 	public static final int STATE_OTHER = 4;
 
-	public static final int prime = 4583; // 4583; 7927; 13163; 18097;
+	public static final int prime = 179426549; //4583; // 4583; 7927; 13163; 18097;
 	// 4583; -- prime should be larger than 4/3 * MAX_REJECTION_SET_SIZE
 	
 	public static int MAX_PIPE_LENGTH = 2000;
 	public static int MAX_REJECTION_SET_SIZE = 3000;
-	public static int CARRY_OVER_PIPE_LENGTH = 200;
+	public static int INITIAL_REJECTION_SET_CAPACITY = 4000;
+	public static int CARRY_OVER_PIPE_LENGTH_HEAD = 200;
+	public static int CARRY_OVER_PIPE_LENGTH_BODY = 200;
+	
 
 	public static final int callReportFrequency = 10000;
 
@@ -70,6 +77,9 @@ public class HBFSAgent extends GameAgent {
 	public static final int INITIALIZATION_ITEMS_PER_ROUND = 1;
 	public static final int ACTION_ITEMS_PER_ROUND = 1;
 	public static final boolean IS_VERY_VERBOSE = false;
+	public static final boolean TRACK_HASHING = false;
+	public static final boolean RESPECT_AGENT_ORIENTATION = true; // true works better for brain man
+	public static final boolean REPSECT_AGENT_SPEED = false;
 	public static final int reportFrequency = 100;
 	
 	public static int NUM_ACTIONS;
@@ -80,6 +90,9 @@ public class HBFSAgent extends GameAgent {
 	public static double maxScoreDifference = Double.NEGATIVE_INFINITY;
 	public static int compareCalls = 0;
 	public static int equalCalls = 0;
+	public static int hashCollisions = 0;
+	public static int hashesEqual = 0;
+	public static List<Integer> hashList = new LinkedList<Integer>();
 
 	public int controllerState = STATE_PLANNING;
 	public Stack<Types.ACTIONS> actionSequence = null;
@@ -93,6 +106,7 @@ public class HBFSAgent extends GameAgent {
 	public int stats_nonUseful = 0;
 	public int turnAroundSpeed = -1;
 	public int pipeEmptyEvents = 0;
+	
 
 	private void initializeBfs(StateObservation so) {
 		if (Agent.isVerbose) {
@@ -104,7 +118,7 @@ public class HBFSAgent extends GameAgent {
 		controllerState = STATE_OTHER;
 
 		pipe = new PriorityQueue<HBFSNode>(MAX_PIPE_LENGTH);
-		visited = new HashSet<HBFSNode>(HBFSAgent.prime);
+		visited = new HashSet<HBFSNode>(INITIAL_REJECTION_SET_CAPACITY);
 
 		// reset protocol statistics
 		stats_rejects = 0;
@@ -170,7 +184,7 @@ public class HBFSAgent extends GameAgent {
 
 	}
 
-	private void cleanBfs() {
+	private void cleanHbfs() {
 		pipe.clear();
 		visited.clear();
 		bfsRoot = null;
@@ -182,7 +196,7 @@ public class HBFSAgent extends GameAgent {
 	}
 
 	@SuppressWarnings("unused")
-	private boolean performBfs() {
+	private boolean performHbfs() {
 
 		if (pipe.isEmpty()) {
 			controllerState = STATE_OTHER;
@@ -263,8 +277,19 @@ public class HBFSAgent extends GameAgent {
 
 	private void resetPipe() {
 		Stack<HBFSNode> backup = new Stack<HBFSNode>();
-		for (int k = 0; k < CARRY_OVER_PIPE_LENGTH; k++) {
-			backup.push(pipe.remove());
+		for (int k = 0; k < CARRY_OVER_PIPE_LENGTH_HEAD; k++) {
+			backup.push(pipe.remove());	
+		}
+		if (CARRY_OVER_PIPE_LENGTH_BODY > 0) {
+			int nth = pipe.size() / CARRY_OVER_PIPE_LENGTH_BODY;
+			int n = 0;
+			for (HBFSNode node : pipe) {
+				n++;
+				if (n % nth == 1) {
+					backup.push(node);
+				}
+
+			}
 		}
 		pipe.clear();
 		pipe.addAll(backup);
@@ -299,7 +324,7 @@ public class HBFSAgent extends GameAgent {
 		while (!hasTerminated
 				&& elapsedTimer.remainingTimeMillis() > INITIALIZATION_REMTIME
 				&& controllerState == STATE_PLANNING) {
-			hasTerminated = performBfs();
+			hasTerminated = performHbfs();
 		}
 		if (controllerState != STATE_PLANNING) {
 			if (Agent.isVerbose) {
@@ -356,7 +381,7 @@ public class HBFSAgent extends GameAgent {
 					System.out.println("HBFS::--Action Stack Empty.");
 				}
 				controllerState = STATE_IDLE;
-				cleanBfs(); // free handles to allow the garbage collector to
+				cleanHbfs(); // free handles to allow the garbage collector to
 							// start cleaning.
 				return Types.ACTIONS.ACTION_NIL;
 			}
@@ -379,7 +404,7 @@ public class HBFSAgent extends GameAgent {
 			while (!hasTerminated
 					&& elapsedTimer.remainingTimeMillis() > ACTION_REMTIME
 					&& controllerState == STATE_PLANNING) {
-				hasTerminated = performBfs();
+				hasTerminated = performHbfs();
 				turnAroundSpeed += 1;
 			}
 			if (hasTerminated) {
@@ -438,6 +463,28 @@ public class HBFSAgent extends GameAgent {
 			
 			System.out.print("RSc.");
 		}
+	}
+
+	public static void saveHashlist() {
+		try {
+			FileWriter fos = new FileWriter("hashList.data");
+			PrintWriter dos = new PrintWriter(fos);
+			// loop through all your data and print it to the file
+			for (int q : hashList)
+			{
+				dos.println(q);
+			}
+			dos.close();
+			fos.close();
+		} catch (Exception e) {
+			System.out.println("Couldn't write hash list.");
+	
+		}
+	}
+	
+	public static void displayHashingDiagnostics() {
+		System.out.println("HBFS::Hashing Diagnostics: " + HBFSAgent.equalCalls + " equal calls; " + HBFSAgent.hashCollisions +"/" + HBFSAgent.hashesEqual
+				+ " hash collisions/hashes equal" + "; collision fraction: " + (double)HBFSAgent.hashCollisions/(double)HBFSAgent.hashesEqual);
 	}
 
 }
