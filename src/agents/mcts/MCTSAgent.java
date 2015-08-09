@@ -1,7 +1,7 @@
 package agents.mcts;
 
 import agents.GameAgent;
-import agents.persistentStorage.PersistentStorage;
+import agents.misc.PersistentStorage;
 import core.game.Observation;
 import core.game.StateObservation;
 import tools.ElapsedCpuTimer;
@@ -263,7 +263,7 @@ public class MCTSAgent extends GameAgent {
 	
 	public int oldAction = -2;
 
-	public void cleanMemory() {
+	public void clearMemory() {
 		// TODO Implement what to do when we run out of memory.
 		
 	}

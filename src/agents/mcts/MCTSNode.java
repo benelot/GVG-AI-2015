@@ -3,8 +3,8 @@ package agents.mcts;
 import java.util.ArrayList;
 import java.util.Random;
 
+import agents.misc.PersistentStorage;
 import bladeRunner.Agent;
-import agents.persistentStorage.PersistentStorage;
 import core.game.Observation;
 import core.game.StateObservation;
 import ontology.Types;

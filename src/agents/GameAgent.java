@@ -9,6 +9,6 @@ import core.player.AbstractPlayer;
  */
 public abstract class GameAgent extends AbstractPlayer {
 	
-	public abstract void cleanMemory();
+	public abstract void clearMemory();
 
 }

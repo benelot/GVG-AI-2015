@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import agents.GameAgent;
-import agents.gameClassifier.GameClassifier;
-import agents.gameClassifier.GameClassifier.GameType;
 import agents.hbfs.HBFSAgent;
 import agents.mcts.MCTSAgent;
-import agents.persistentStorage.ITypeAttractivity;
-import agents.persistentStorage.PersistentStorage;
-import agents.persistentStorage.RewardMap;
+import agents.misc.GameClassifier;
+import agents.misc.ITypeAttractivity;
+import agents.misc.PersistentStorage;
+import agents.misc.RewardMap;
+import agents.misc.GameClassifier.GameType;
 import core.game.StateObservation;
 import core.player.AbstractPlayer;
 import ontology.Types;
@@ -29,7 +29,7 @@ public class Agent extends AbstractPlayer {
 	 * Agents
 	 */
 	private MCTSAgent mctsAgent;
-	private HBFSAgent bfsAgent;
+	private HBFSAgent hbfsAgent;
 	private GameAgent currentAgent;
 
 	/**
@@ -69,8 +69,8 @@ public class Agent extends AbstractPlayer {
 			mctsAgent.run(elapsedTimer);
 			currentAgent = mctsAgent;
 		} else {
-			bfsAgent = new HBFSAgent(so, elapsedTimer);
-			currentAgent = bfsAgent;
+			hbfsAgent = new HBFSAgent(so, elapsedTimer);
+			currentAgent = hbfsAgent;
 		}
 
 	}
@@ -89,13 +89,11 @@ public class Agent extends AbstractPlayer {
 			ElapsedCpuTimer elapsedTimer) {
 		Types.ACTIONS action = Types.ACTIONS.ACTION_NIL;
 
-		// give the agent a second chance to find a solution after it has
-		// cleaned up its memory because of the OutOfMemoryError.
 		try {
 			action = currentAgent.act(stateObs, elapsedTimer);
 		} catch (OutOfMemoryError e) {
-			currentAgent.cleanMemory();
-			action = currentAgent.act(stateObs, elapsedTimer);
+			currentAgent.clearMemory();
+			//action = currentAgent.act(stateObs, elapsedTimer);
 		}
 		return action;
 	}

@@ -1,4 +1,4 @@
-package agents.persistentStorage;
+package agents.misc;
 
 import java.util.ArrayList;
 import java.util.HashMap;

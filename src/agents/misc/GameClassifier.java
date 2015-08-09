@@ -1,8 +1,7 @@
-package agents.gameClassifier;
+package agents.misc;
 
 import bladeRunner.Agent;
 import ontology.Types;
-import agents.persistentStorage.PersistentStorage;
 import core.game.StateObservation;
 
 public class GameClassifier {

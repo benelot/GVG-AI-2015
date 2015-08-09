@@ -218,16 +218,7 @@ public class HBFSAgent extends GameAgent {
 				}
 
 				if (pipe.size() > MAX_PIPE_LENGTH) {
-					Stack<HBFSNode> backup = new Stack<HBFSNode>();
-					for (int k = 0; k < CARRY_OVER_PIPE_LENGTH; k++) {
-						backup.push(pipe.remove());
-					}
-					pipe.clear();
-					pipe.addAll(backup);
-					backup = null;
-					if (Agent.isVerbose) {
-						System.out.print("Pc.");
-					}
+					resetPipe();
 					// System.gc();
 				}
 
@@ -268,6 +259,18 @@ public class HBFSAgent extends GameAgent {
 			displayAgentState(current);
 		}
 		return false;
+	}
+
+	private void resetPipe() {
+		Stack<HBFSNode> backup = new Stack<HBFSNode>();
+		for (int k = 0; k < CARRY_OVER_PIPE_LENGTH; k++) {
+			backup.push(pipe.remove());
+		}
+		pipe.clear();
+		pipe.addAll(backup);
+		if (Agent.isVerbose) {
+			System.out.print("Pc.");
+		}
 	}
 
 	/**
@@ -425,9 +428,14 @@ public class HBFSAgent extends GameAgent {
 		}
 	}
 
-	public void cleanMemory() {
-		visited.clear();
+	public void clearMemory() {
 		if (Agent.isVerbose) {
+			System.out.println("\nHBFS::#Clearing Memory.");
+		}
+		visited.clear();
+		resetPipe();
+		if (Agent.isVerbose) {
+			
 			System.out.print("RSc.");
 		}
 	}
