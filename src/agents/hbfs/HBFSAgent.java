@@ -55,7 +55,6 @@ public class HBFSAgent extends GameAgent {
 	public static final int STATE_OTHER = 4;
 
 	public static final int prime = 179426549; //4583; // 4583; 7927; 13163; 18097;
-	// 4583; -- prime should be larger than 4/3 * MAX_REJECTION_SET_SIZE
 	
 	public static int MAX_PIPE_LENGTH = 2000;
 	public static int MAX_REJECTION_SET_SIZE = 3000;
