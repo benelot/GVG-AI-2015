@@ -66,7 +66,7 @@ public class HBFSAgent extends GameAgent {
 
 	public static final int callReportFrequency = 10000;
 
-	public static final double wLoad = -2; // -4
+	public static final double wLoad = -2; //-2; // -4
 	public static final double wPosition = 0;
 	public static final double wTileDiversity = -3; // -2
 	public static final double wEvents = -0.1;
@@ -81,9 +81,10 @@ public class HBFSAgent extends GameAgent {
 	public static final boolean RESPECT_AGENT_ORIENTATION = true; // true works better for brain man
 	public static final boolean REPSECT_AGENT_SPEED = false;
 	public static final int reportFrequency = 100;
+	public static final int MAX_TICKS = 1800;
+	public static final int MAX_TICKS_2nd_TIMEOUT = 1950;
 	
 	public static int NUM_ACTIONS;
-	public static int MAX_TICKS = 1800;
 	public static Types.ACTIONS[] ACTIONS;
 	public static int rootLoad = -1;
 	public static double correspondingScore = Double.NEGATIVE_INFINITY;
@@ -106,6 +107,7 @@ public class HBFSAgent extends GameAgent {
 	public int stats_nonUseful = 0;
 	public int turnAroundSpeed = -1;
 	public int pipeEmptyEvents = 0;
+	public boolean hasTimedOut = false;
 	
 
 	private void initializeBfs(StateObservation so) {
@@ -416,7 +418,7 @@ public class HBFSAgent extends GameAgent {
 							+ actionSequence.size());
 				}
 			}
-			if (so.getGameTick() > MAX_TICKS) {
+			if (hasTimedOut && so.getGameTick() > MAX_TICKS_2nd_TIMEOUT || (!hasTimedOut && so.getGameTick() > MAX_TICKS)) {
 				controllerState = STATE_ACTING;
 				hbfsSolution = pipe.peek();
 				actionSequence = hbfsSolution.getActionSequence();
@@ -425,6 +427,7 @@ public class HBFSAgent extends GameAgent {
 					System.out.println("Timeout Sequence Length: "
 							+ actionSequence.size());
 				}
+				hasTimedOut = true;
 			}
 			if (pipeEmptyEvents > 1) {
 				controllerState = STATE_ACTING;

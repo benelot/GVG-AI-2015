@@ -16,15 +16,15 @@ public class HBFSRunner {
 		// - In some games the forward model does not seem to work properly. E.g. in BOLOADVENTURES (level 1), 
 		//   an initial move to the left is not reflected in the updated StateObservation (see comments in HBFSAgent.initializeBfs(StateObservation so))
 		
-//		config.addGameLevel(RunConfig.GamesTraining2015.BOLOADVENTURES ,1 ); 
-		config.addGameLevel(RunConfig.GamesTraining2015.CHIPSCHALLENGE ,new int[] {0,1,2,3,4}); //* except 4
-//		config.addGameLevel(RunConfig.GamesTraining2015.BRAINMAN, new int[] {1,2,3,4}); //* except 2, 3
-//		config.addGameLevel(RunConfig.GamesTraining2015.REALSOKOBAN, new int[] {1,2,3,4}); // * except 1, 2
-//		config.addGameLevel(RunConfig.GamesTraining2015.BAIT, new int[] {1,2,3, 4}); //* except 3
-//		config.addGameLevel(RunConfig.GamesTraining2014.SOKOBAN, new int[] {1,2,3,4}); //*
-//		config.addGameLevel(RunConfig.GamesTraining2015.MODALITY, new int[] {1,2,3,4}); //*
-//		config.addGameLevel(RunConfig.GamesValidationGECCO2015.ESCAPE, new int[] {1,2,3,4}); //*
-//		config.addGameLevel(RunConfig.GamesValidationGECCO2015.LABYRINTH, new int[] {1,2,3,4}); //*
+		config.addGameLevel(RunConfig.GamesTraining2015.BOLOADVENTURES , new int[] {0,1,2,3,4}); // failure, too hard
+//		config.addGameLevel(RunConfig.GamesTraining2015.CHIPSCHALLENGE ,new int[] {0,1,2,3,4}); //* except 4
+//		config.addGameLevel(RunConfig.GamesTraining2015.BRAINMAN, new int[] {0,1,2,3,4}); //* except 0, 2, 3
+//		config.addGameLevel(RunConfig.GamesTraining2015.REALSOKOBAN, new int[] {0,1,2,3,4}); // * except 1, 2
+//		config.addGameLevel(RunConfig.GamesTraining2015.BAIT, new int[] {0,1,2,3,4}); //* except 3
+//		config.addGameLevel(RunConfig.GamesTraining2014.SOKOBAN, new int[] {0,1,2,3,4}); //*
+//		config.addGameLevel(RunConfig.GamesTraining2015.MODALITY, new int[] {0,1,2,3,4}); //*
+//		config.addGameLevel(RunConfig.GamesValidationGECCO2015.ESCAPE, new int[] {0,1,2,3,4}); //*
+//		config.addGameLevel(RunConfig.GamesValidationGECCO2015.LABYRINTH, new int[] {0,1,2,3,4}); //*
 				
 		//config.addGameLevel(RunConfig.GamesTraining2015.PAINTER, new int[] {1,2,3,4}); // failure. using the load score seems to be a bad idea in this game.
 		// config.addGameLevel(RunConfig.GamesTraining2015.THECITADEL, new int[] {1,2,3,4}); // failure. requires serious planning.
