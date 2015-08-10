@@ -99,7 +99,7 @@ public class HBFSAgent extends GameAgent {
 
 	public PriorityQueue<HBFSNode> pipe = null;
 	public HashSet<HBFSNode> visited = null;
-	public HBFSNode bfsRoot = null;
+	public HBFSNode hbfsRoot = null;
 	public HBFSNode hbfsSolution = null;
 
 	public int stats_rejects = 0;
@@ -132,16 +132,16 @@ public class HBFSAgent extends GameAgent {
 		HBFSAgent.equalCalls = 0;
 		HBFSAgent.compareCalls = 0;
 
-		bfsRoot = new HBFSNode(so, null, null, 0);
-		HBFSNode.setRootLoad(bfsRoot.getLoad());
+		hbfsRoot = new HBFSNode(so, null, null, 0);
+		HBFSNode.setRootLoad(hbfsRoot.getLoad());
 		// HBFSNode.displayStateObservation(so);
 
-		if (bfsRoot.so.isGameOver()) {
+		if (hbfsRoot.so.isGameOver()) {
 			throw new IllegalStateException();
 		}
 
-		pipe.add(bfsRoot);
-		visited.add(bfsRoot);
+		pipe.add(hbfsRoot);
+		visited.add(hbfsRoot);
 
 		controllerState = STATE_PLANNING;
 	}
@@ -188,7 +188,7 @@ public class HBFSAgent extends GameAgent {
 	private void cleanHbfs() {
 		pipe.clear();
 		visited.clear();
-		bfsRoot = null;
+		hbfsRoot = null;
 		hbfsSolution = null;
 		actionSequence = null;
 		pipe = null;

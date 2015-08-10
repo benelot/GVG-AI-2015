@@ -5,6 +5,9 @@ import ontology.Types;
 import core.game.StateObservation;
 
 public class GameClassifier {
+	
+	public static final int testingSteps = 20;
+	
 	public enum GameType {
 		STOCHASTIC, DETERMINISTIC,NOT_DETERMINED
 	}
@@ -59,4 +62,18 @@ public class GameClassifier {
 	public static GameType getGameType() {
 		return gameType;
 	}
+	
+	public static boolean hasMovement(StateObservation so) {
+		int hash0 = ObservationTools.getHash(so);
+		for (int k = 0; k < testingSteps; k++) {
+			so.advance(Types.ACTIONS.ACTION_NIL);
+			int hash1 = ObservationTools.getHash(so);
+			if (hash0 != hash1) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	
 }

@@ -26,6 +26,8 @@ public class ObservationTools {
 	public static int getHash(StateObservation so) {
 		int sequenceLength = so.getWorldDimension().height
 				* so.getWorldDimension().width + 2;
+		if (HBFSAgent.RESPECT_AGENT_ORIENTATION) sequenceLength+=2;
+		if (HBFSAgent.REPSECT_AGENT_SPEED) sequenceLength+=1;
 		int hash = sequenceLength;
 		ArrayList<Observation>[][] grid = so.getObservationGrid();
 		for (int i = 0; i < grid.length; i++) {
@@ -37,7 +39,17 @@ public class ObservationTools {
 		}
 		hash = (hash << 4) ^ (hash >> 28) ^ ((int) so.getAvatarPosition().x);
 		hash = (hash << 4) ^ (hash >> 28) ^ ((int) so.getAvatarPosition().y);
-		hash = hash % HBFSAgent.prime;
+		
+		if (HBFSAgent.RESPECT_AGENT_ORIENTATION) {
+			hash = (hash << 4) ^ (hash >> 28) ^ ((int) so.getAvatarOrientation().x);
+			hash = (hash << 4) ^ (hash >> 28) ^ ((int) so.getAvatarOrientation().y);
+		}
+		
+		if (HBFSAgent.REPSECT_AGENT_SPEED) {
+			hash = (hash << 4) ^ (hash >> 28) ^ ((int) so.getAvatarSpeed());
+		}
+		
+		//hash = hash % HBFSAgent.prime;
 		return hash;
 	}
 	
