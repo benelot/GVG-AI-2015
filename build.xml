@@ -7,7 +7,7 @@
 
 	<target name="zip" depends="clean">
 		<mkdir dir="build/zip" />
-		<zip destfile="build/zip/Agent.zip" basedir="src" excludes="**/benchmarking/**,**/tutorials/**,**/misc/**,**/*Runner.java,**/rankingtest/**">
+		<zip destfile="build/zip/Agent.zip" basedir="src" excludes="**/benchmarking/**,**/tutorials/**,**/misc/runners/**,**/*Runner.java,**/rankingtest/**">
 		</zip>
 	</target>
 

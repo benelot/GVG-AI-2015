@@ -28,9 +28,11 @@ public class Agent extends AbstractPlayer {
 	/**
 	 * Agents
 	 */
-	private MCTSAgent mctsAgent;
-	private HBFSAgent hbfsAgent;
-	private GameAgent currentAgent;
+	private static MCTSAgent mctsAgent;
+	private static HBFSAgent hbfsAgent;
+	private static GameAgent currentAgent;
+	private GameAgent previousAgent;
+	private static int agentSwitchTicksRemaining = 0;
 
 	/**
 	 * Public constructor with state observation and time due.
@@ -64,9 +66,7 @@ public class Agent extends AbstractPlayer {
 		if ((GameClassifier.getGameType() == GameType.STOCHASTIC || forcedAgentType == AgentType.MCTS)
 				&& forcedAgentType != AgentType.BFS) {
 			// Create the player.
-			mctsAgent = new MCTSAgent(new Random());
-			mctsAgent.init(so);
-			mctsAgent.run(elapsedTimer);
+			mctsAgent = new MCTSAgent(so, elapsedTimer, new Random());
 			currentAgent = mctsAgent;
 		} else {
 			hbfsAgent = new HBFSAgent(so, elapsedTimer);
@@ -93,8 +93,87 @@ public class Agent extends AbstractPlayer {
 			action = currentAgent.act(stateObs, elapsedTimer);
 		} catch (OutOfMemoryError e) {
 			currentAgent.clearMemory();
-			//action = currentAgent.act(stateObs, elapsedTimer);
+			// action = currentAgent.act(stateObs, elapsedTimer);
 		}
+
+		// if agent is switched to another one
+		if (agentSwitchTicksRemaining > 0 && previousAgent != null) {
+			agentSwitchTicksRemaining--;
+		} else {
+			switchBack();
+		}
+
 		return action;
+	}
+
+	/**
+	 * TODO: Not yet working, the agents need to be both initialized.
+	 * 
+	 * @param type
+	 */
+	public void switchAgent(AgentType type) {
+		switch (type) {
+		case BFS:
+			if (hbfsAgent != null) {
+				currentAgent = hbfsAgent;
+			} else {
+				throw new NullPointerException(
+						"HBFS Agent needs to be initialized.");
+			}
+			break;
+		case MCTS:
+			if (mctsAgent != null) {
+				currentAgent = mctsAgent;
+			} else {
+				throw new NullPointerException(
+						"MCTS Agent needs to be initialized.");
+			}
+			break;
+		case MIXED:
+		default:
+			break;
+		}
+	}
+
+	/**
+	 * TODO: Not yet working, the agents need to be both initialized.
+	 * 
+	 * @param type
+	 */
+	public static void switchAgentForTicks(AgentType type, int ticks) {
+		agentSwitchTicksRemaining = ticks;
+		switch (type) {
+		case BFS:
+			if (hbfsAgent != null) {
+				currentAgent = hbfsAgent;
+			} else {
+				throw new NullPointerException(
+						"HBFS Agent needs to be initialized.");
+			}
+			break;
+		case MCTS:
+			if (mctsAgent != null) {
+				currentAgent = mctsAgent;
+			} else {
+				throw new NullPointerException(
+						"MCTS Agent needs to be initialized.");
+			}
+			break;
+		case MIXED:
+		default:
+			break;
+		}
+	}
+
+	/**
+	 * TODO: Not yet working, the agents need to be both initialized.
+	 * 
+	 * @param type
+	 */
+	public void switchBack() {
+		if (previousAgent != null) {
+			currentAgent = previousAgent;
+			previousAgent = null;
+		}
 	}
 }

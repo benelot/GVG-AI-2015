@@ -35,9 +35,12 @@ public class MCTSAgent extends GameAgent {
 	 * @param a_rnd
 	 *            sampleRandom generator object.
 	 */
-	public MCTSAgent(Random a_rnd) {
+	public MCTSAgent(StateObservation so, ElapsedCpuTimer elapsedTimer,
+			Random a_rnd) {
 		m_rnd = a_rnd;
 		m_root = new MCTSNode(a_rnd);
+		init(so);
+		run(elapsedTimer);
 
 		nodeQty = 0;
 	}
@@ -260,12 +263,12 @@ public class MCTSAgent extends GameAgent {
 		}
 
 	}
-	
+
 	public int oldAction = -2;
 
 	public void clearMemory() {
 		// TODO Implement what to do when we run out of memory.
-		
+
 	}
 
 }
