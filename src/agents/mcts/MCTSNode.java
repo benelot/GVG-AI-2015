@@ -23,6 +23,7 @@ public class MCTSNode {
 	private static final double HUGE_NEGATIVE_REWARD = -Double.MAX_VALUE;
 	private static final double HUGE_POSITIVE_REWARD = Double.MAX_VALUE;
 
+	public static double fear_of_unknown = 0.9;
 	public static double epsilon = 1e-6;
 	public static double egreedyEpsilon = 0.05;
 	public StateObservation state;
@@ -394,18 +395,18 @@ public class MCTSNode {
 
 		if (selected == -1) {
 			if (Agent.isVerbose) {
-				System.out.println("MCTS::Unexpected selection!");
+				System.out.println("MCTS::There are no visited actions!");
 			}
 			selected = 0;
 		} else if (allEqual) {
 			// If all are equal, we opt to choose for the one with the best Q.
-			selected = bestAction(false);
+			selected = bestAction();
 		}
-		selected = bestAction(false);
+		selected = bestAction();
 		return selected;
 	}
 
-	public int bestAction(boolean fear_unknown) {
+	public int bestAction() {
 		int selected = -1;
 		double bestValue = -Double.MAX_VALUE;
 
@@ -421,7 +422,7 @@ public class MCTSNode {
 						.nextDouble() - 0.5) * epsilon)
 						/ Math.sqrt(children[i].nVisits);
 				if (disturbedChildRew > bestValue
-						&& !children[i].isDeadEnd(2, fear_unknown)) {
+						&& !children[i].isDeadEnd(2)) {
 					bestValue = disturbedChildRew;
 					// bestValue = children[i].totValue;
 					selected = i;
@@ -431,13 +432,13 @@ public class MCTSNode {
 
 		if (selected == -1) {
 			if (Agent.isVerbose) {
-				System.out.println("MCTS::Unexpected selection!");
+				System.out.println("MCTS::Best action is no action!");
 			}
 		}
 		return selected;
 	}
 
-	public boolean isDeadEnd(int max_depth, boolean fear_unknown) {
+	public boolean isDeadEnd(int max_depth) {
 		MCTSNode cur = this;
 		boolean allDeaths = true;
 
@@ -449,12 +450,14 @@ public class MCTSNode {
 			for (int i = 0; allDeaths && i < cur.children.length; i++) {
 				if (cur.children[i] != null) {
 					allDeaths = allDeaths
-							&& cur.children[i].isDeadEnd(max_depth - 1,
-									fear_unknown);
+							&& cur.children[i].isDeadEnd(max_depth - 1);
 				} else {
-					if (!fear_unknown) {
+					if (MCTSNode.m_rnd.nextDouble() > fear_of_unknown) {
 						// Well, there's an unknown path, and we're not worried
 						// - so let's guess it isn't a dead end!
+						if (Agent.isVerbose) {
+							System.out.println("MCTS::Overcame fear of unknown!");
+						}						
 						return false;
 					}
 				}

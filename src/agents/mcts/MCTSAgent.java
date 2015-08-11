@@ -1,7 +1,6 @@
 package agents.mcts;
 
 import agents.GameAgent;
-import agents.mcts.MCTSNode.StateType;
 import agents.misc.PersistentStorage;
 import core.game.Observation;
 import core.game.StateObservation;
@@ -78,13 +77,14 @@ public class MCTSAgent extends GameAgent {
 		 */
 
 		if (action == KEEP_COMPLETE_OLD_TREE) {
-			// keep the complete old tree
+			// Reset the tree
+			m_root = new MCTSNode(m_rnd);
 			// Set all children to UNCACHED if they are not null.
-			for (MCTSNode child : m_root.children) {
-				if (child != null) {
-					child.stateType = StateType.UNCACHED;
-				}
-			}
+			//for (MCTSNode child : m_root.children) {
+			//	if (child != null) {
+			//		child.stateType = StateType.UNCACHED;
+			//	}
+			//}
 			m_root.state = a_gameState;
 		} else {
 			if (action == ADD_NEW_ROOT_NODE) {
@@ -118,7 +118,7 @@ public class MCTSAgent extends GameAgent {
 		// Determine the best action to take and return it.
 		// int action = m_root.mostVisitedAction();
 
-		int action = m_root.bestAction(true);
+		int action = m_root.bestAction();
 
 		// for (int i = 1; i<= m_root.children.length ; i++ ){
 		// if(m_root.children[i-1] != null){
