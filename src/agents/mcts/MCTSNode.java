@@ -393,7 +393,7 @@ public class MCTSNode {
 
 		if (selected == -1) {
 			if (Agent.isVerbose) {
-				System.out.println("MCTS::Unexpected selection!");
+				System.out.println("MCTS::There are no visited actions!");
 			}
 			selected = 0;
 		} else if (allEqual) {
@@ -430,7 +430,7 @@ public class MCTSNode {
 
 		if (selected == -1) {
 			if (Agent.isVerbose) {
-				System.out.println("MCTS::Unexpected selection!");
+				System.out.println("MCTS::Best action is no action!");
 			}
 		}
 		return selected;
