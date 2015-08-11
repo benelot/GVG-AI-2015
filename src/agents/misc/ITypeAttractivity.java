@@ -17,7 +17,10 @@ public class ITypeAttractivity extends HashMap<Integer, Double> {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private HashMap<Integer, Double> SpriteCategoryValue;
+	/**
+	 * The attractivity of a certain IType.
+	 */
+	private HashMap<Integer, Double> spriteCategoryAttractivityValue;
 
 	public ITypeAttractivity() {
 		super();
@@ -36,21 +39,21 @@ public class ITypeAttractivity extends HashMap<Integer, Double> {
 		ArrayList<Observation>[][] grid = StateObs.getObservationGrid();
 
 		// Set prior Attraction values of categories
-		SpriteCategoryValue = new HashMap<Integer, Double>();
-		SpriteCategoryValue.put(Types.TYPE_AVATAR, -1.0);
-		SpriteCategoryValue.put(Types.TYPE_RESOURCE, 0.2);
-		SpriteCategoryValue.put(Types.TYPE_PORTAL, 0.1);
-		SpriteCategoryValue.put(Types.TYPE_NPC, 0.2);
-		SpriteCategoryValue.put(Types.TYPE_STATIC, 0.05);
-		SpriteCategoryValue.put(Types.TYPE_FROMAVATAR, 0.0);
-		SpriteCategoryValue.put(Types.TYPE_MOVABLE, 0.1);
+		spriteCategoryAttractivityValue = new HashMap<Integer, Double>();
+		spriteCategoryAttractivityValue.put(Types.TYPE_AVATAR, -1.0);
+		spriteCategoryAttractivityValue.put(Types.TYPE_RESOURCE, 0.2);
+		spriteCategoryAttractivityValue.put(Types.TYPE_PORTAL, 0.1);
+		spriteCategoryAttractivityValue.put(Types.TYPE_NPC, 0.2);
+		spriteCategoryAttractivityValue.put(Types.TYPE_STATIC, 0.05);
+		spriteCategoryAttractivityValue.put(Types.TYPE_FROMAVATAR, 0.0);
+		spriteCategoryAttractivityValue.put(Types.TYPE_MOVABLE, 0.1);
 
 		// go through observation grid and put all iTypes into the map
 		for (ArrayList<Observation>[] Obsarray : grid) {
 			for (ArrayList<Observation> Obslist : Obsarray) {
 				for (Observation Obs : Obslist) {
 					this.put(Obs.itype,
-							this.SpriteCategoryValue.get(Obs.category));
+							this.spriteCategoryAttractivityValue.get(Obs.category));
 				}
 			}
 		}
@@ -75,14 +78,14 @@ public class ITypeAttractivity extends HashMap<Integer, Double> {
 		ArrayList<Observation>[][] grid = StateObs.getObservationGrid();
 
 		// Set prior Attraction values of categories
-		SpriteCategoryValue = SpriteCategoryPriors;
+		spriteCategoryAttractivityValue = SpriteCategoryPriors;
 
 		// go through observation grid and put all iTypes into the map
 		for (ArrayList<Observation>[] Obsarray : grid) {
 			for (ArrayList<Observation> Obslist : Obsarray) {
 				for (Observation Obs : Obslist) {
 					this.put(Obs.itype,
-							this.SpriteCategoryValue.get(Obs.category));
+							this.spriteCategoryAttractivityValue.get(Obs.category));
 				}
 			}
 		}
@@ -107,20 +110,20 @@ public class ITypeAttractivity extends HashMap<Integer, Double> {
 		ArrayList<Observation>[][] grid = StateObs.getObservationGrid();
 
 		// Set prior Attraction values of categories
-		SpriteCategoryValue = new HashMap<Integer, Double>();
-		SpriteCategoryValue.put(Types.TYPE_AVATAR,
+		spriteCategoryAttractivityValue = new HashMap<Integer, Double>();
+		spriteCategoryAttractivityValue.put(Types.TYPE_AVATAR,
 				SpriteCategoryPriors[Types.TYPE_AVATAR]);
-		SpriteCategoryValue.put(Types.TYPE_RESOURCE,
+		spriteCategoryAttractivityValue.put(Types.TYPE_RESOURCE,
 				SpriteCategoryPriors[Types.TYPE_RESOURCE]);
-		SpriteCategoryValue.put(Types.TYPE_PORTAL,
+		spriteCategoryAttractivityValue.put(Types.TYPE_PORTAL,
 				SpriteCategoryPriors[Types.TYPE_PORTAL]);
-		SpriteCategoryValue.put(Types.TYPE_NPC,
+		spriteCategoryAttractivityValue.put(Types.TYPE_NPC,
 				SpriteCategoryPriors[Types.TYPE_NPC]);
-		SpriteCategoryValue.put(Types.TYPE_STATIC,
+		spriteCategoryAttractivityValue.put(Types.TYPE_STATIC,
 				SpriteCategoryPriors[Types.TYPE_STATIC]);
-		SpriteCategoryValue.put(Types.TYPE_FROMAVATAR,
+		spriteCategoryAttractivityValue.put(Types.TYPE_FROMAVATAR,
 				SpriteCategoryPriors[Types.TYPE_FROMAVATAR]);
-		SpriteCategoryValue.put(Types.TYPE_MOVABLE,
+		spriteCategoryAttractivityValue.put(Types.TYPE_MOVABLE,
 				SpriteCategoryPriors[Types.TYPE_MOVABLE]);
 
 		// go through observation grid and put all iTypes into the map
@@ -128,7 +131,7 @@ public class ITypeAttractivity extends HashMap<Integer, Double> {
 			for (ArrayList<Observation> Obslist : Obsarray) {
 				for (Observation Obs : Obslist) {
 					this.put(Obs.itype,
-							this.SpriteCategoryValue.get(Obs.category));
+							this.spriteCategoryAttractivityValue.get(Obs.category));
 				}
 			}
 		}
@@ -138,11 +141,11 @@ public class ITypeAttractivity extends HashMap<Integer, Double> {
 	// METHODS
 
 	public void putNewUniqueItype(Observation Obs) {
-		this.put(Obs.itype, this.SpriteCategoryValue.get(Obs.category));
+		this.put(Obs.itype, this.spriteCategoryAttractivityValue.get(Obs.category));
 		if (Agent.isVerbose) {
 			System.out.println("ITypeAttractivityMap::added iType " + Obs.itype
 					+ " with value "
-					+ this.SpriteCategoryValue.get(Obs.category));
+					+ this.spriteCategoryAttractivityValue.get(Obs.category));
 		}
 	}
 

@@ -13,9 +13,6 @@ import java.util.Random;
 import ontology.Types;
 import ontology.Types.ACTIONS;
 
-/**
- * Created with IntelliJ IDEA. User: Diego Date: 07/11/13 Time: 17:13
- */
 public class MCTSAgent extends GameAgent {
 	/**
 	 * Root of the tree.
@@ -66,10 +63,12 @@ public class MCTSAgent extends GameAgent {
 	}
 
 	public void initWithOldTree(StateObservation a_gameState, int action) {
-		// Here we create a new root-tree for the next search query based
-		// on the old tree. The old tree gets cut at the chosen action.
-		// The depth of that tree is not changed such that it grows throughout
-		// the game. Therefore, the maximal MCTS_DEpth also grows
+		/*
+		 * Here we create a new root-tree for the next search query based on the
+		 * old tree. The old tree gets cut at the chosen action. The depth of
+		 * that tree is not changed such that it grows throughout the game.
+		 * Therefore, the maximal MCTS_DEpth also grows
+		 */
 
 		if (action == -2) {
 			// keep the complete old tree
@@ -144,21 +143,23 @@ public class MCTSAgent extends GameAgent {
 
 		// rewMap.print();
 
-		// Heuristic: Punish the exploration area where enemies have been
-		// and reward it if the enemies are attractive
-		// TODO: This could also be done for resources and one could reward
-		// the surroundings (with a reward gradient, see IDEA below)
-		// TODO: Or maybe it would be better not to reward the positions
-		// where the npcs were, but always the position and surroundings,
-		// where they currently are
-		// which would require a lot of time (I tried it for all Sprites,
-		// but it was too inefficient)
-		// Heuristic (IDEA): Perhaps increase reward towards positions that
-		// have
-		// a resource. -> some sort of diffusion model with the resources as
-		// positive sources and the enemies as negative sources to create a
-		// reward
-		// gradient.
+		/*
+		 * Heuristic: Punish the exploration area where enemies have been // and
+		 * reward it if the enemies are attractive
+		 * 
+		 * @note TODO: This could also be done for resources and one could
+		 * reward the surroundings (with a reward gradient, see IDEA below)
+		 * 
+		 * @note TODO: Or maybe it would be better not to reward the positions
+		 * where the npcs were, but always the position and surroundings, where
+		 * they currently are which would require a lot of time (I tried it for
+		 * all Sprites, but it was too inefficient)
+		 * 
+		 * @note Heuristic (IDEA): Perhaps increase reward towards positions
+		 * that have a resource. -> some sort of diffusion model with the
+		 * resources as positive sources and the enemies as negative sources to
+		 * create a reward gradient.
+		 */
 
 		boolean rewardNPCs = true;
 		if (rewardNPCs) {
@@ -242,13 +243,14 @@ public class MCTSAgent extends GameAgent {
 			PersistentStorage.MCTS_DEPTH_RUN += useOldTree;
 		}
 
-		// there is a problem when the tree is so small that the chosen
-		// children don't have any grand children,
-		// in this case Danny's isDeadEnd method will give back a true based
-		// on the "fear_unknown" input. Therefore,
-		// I treat this waiting as a thinking step, where we expand the old
-		// tree instead of creating a complete
-		// new tree that also leads to the same problem -> the guy is stuck.
+		/*
+		 * there is a problem when the tree is so small that the chosen children
+		 * don't have any grand children, in this case Danny's isDeadEnd method
+		 * will give back a true based on the "fear_unknown" input. Therefore, I
+		 * treat this waiting as a thinking step, where we expand the old tree
+		 * instead of creating a complete new tree that also leads to the same
+		 * problem -> the guy is stuck.
+		 */
 
 		if (action == -1)
 			action = -2;

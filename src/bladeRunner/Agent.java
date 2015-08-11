@@ -16,22 +16,37 @@ import core.player.AbstractPlayer;
 import ontology.Types;
 import tools.ElapsedCpuTimer;
 
+/**
+ * The main agent holding subagents.
+ *
+ */
 public class Agent extends AbstractPlayer {
 
+	/**
+	 * The type of agent we intend to run.
+	 */
 	public enum AgentType {
 		MCTS, BFS, MIXED
 	}
 
-	public static boolean isVerbose = true;
+	public static boolean isVerbose = false;
+	
+	/**
+	 * The agent type we force the agent into.
+	 */
 	public AgentType forcedAgentType = AgentType.MIXED;
 
 	/**
 	 * Agents
 	 */
-	private static MCTSAgent mctsAgent;
-	private static HBFSAgent hbfsAgent;
-	private static GameAgent currentAgent;
-	private GameAgent previousAgent;
+	private static MCTSAgent mctsAgent = null;
+	private static HBFSAgent hbfsAgent = null;
+	private static GameAgent currentAgent = null;
+	
+	/**
+	 * Agent switching properties
+	 */
+	private GameAgent previousAgent = null;
 	private static int agentSwitchTicksRemaining = 0;
 
 	/**
@@ -107,9 +122,11 @@ public class Agent extends AbstractPlayer {
 	}
 
 	/**
-	 * TODO: Not yet working, the agents need to be both initialized.
+	 * Switch to another agent for a limited number of ticks. TODO: Not yet
+	 * working, the agents need to be both initialized.
 	 * 
 	 * @param type
+	 *            The type of agent we want to switch to.
 	 */
 	public void switchAgent(AgentType type) {
 		switch (type) {
@@ -136,9 +153,13 @@ public class Agent extends AbstractPlayer {
 	}
 
 	/**
-	 * TODO: Not yet working, the agents need to be both initialized.
+	 * Switch to another agent for a limited number of ticks. TODO: Not yet
+	 * working, the agents need to be both initialized.
 	 * 
 	 * @param type
+	 *            The type of agent we want to switch to.
+	 * @param ticks
+	 *            The number of ticks the agent should be switched.
 	 */
 	public static void switchAgentForTicks(AgentType type, int ticks) {
 		agentSwitchTicksRemaining = ticks;
@@ -166,9 +187,8 @@ public class Agent extends AbstractPlayer {
 	}
 
 	/**
-	 * TODO: Not yet working, the agents need to be both initialized.
-	 * 
-	 * @param type
+	 * Switch the agent back to the previous agent. TODO: Not yet working, the
+	 * agents need to be both initialized.
 	 */
 	public void switchBack() {
 		if (previousAgent != null) {

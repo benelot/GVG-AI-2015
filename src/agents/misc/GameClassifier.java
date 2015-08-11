@@ -6,12 +6,22 @@ import core.game.StateObservation;
 
 public class GameClassifier {
 
-	public static final int testingSteps = 80;
+	/**
+	 * Number of test steps we run in the game classifier.
+	 */
+	public static final int testingSteps = 20;
 
+	/**
+	 * The game classification categories.
+	 *
+	 */
 	public enum GameType {
 		STOCHASTIC, DETERMINISTIC, NOT_DETERMINED
 	}
 
+	/**
+	 * Our chosen game category
+	 */
 	static GameType gameType;
 
 	public static GameType determineGameType(StateObservation so) {
@@ -79,14 +89,37 @@ public class GameClassifier {
 		return gameType;
 	}
 
+	/**
+	 * Test if the game has movement in it.
+	 * 
+	 * @param so
+	 *            The state observation.
+	 * @param testingSteps
+	 *            The number of testing steps we advance the so.
+	 * @return If the game has movement or not.
+	 */
 	public static boolean hasMovement(StateObservation so, int testingSteps) {
-		int hash0 = ObservationTools.getHash(so);
-		int hash1 = 0;
-		System.out.println(hash0);
+		// get initial hash
+		int initialHash = ObservationTools.getHash(so);
+
+		// second hash
+		int advancedHash = 0;
+		if (Agent.isVerbose) {
+			System.out.println("Initial hash: " + initialHash);
+		}
+
+		// check if hash changes as we advance the forward model
 		for (int k = 0; k < testingSteps; k++) {
+
+			// advance the forward model
 			so.advance(Types.ACTIONS.ACTION_NIL);
-			hash1 = ObservationTools.getHash(so);
-			if (hash0 != hash1) {
+
+			// get the hash and compare
+			advancedHash = ObservationTools.getHash(so);
+			if (initialHash != advancedHash) {
+				if (Agent.isVerbose) {
+					System.out.println(advancedHash + " is different.");
+				}
 				return true;
 			}
 		}

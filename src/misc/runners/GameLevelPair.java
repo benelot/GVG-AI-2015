@@ -1,8 +1,8 @@
 package misc.runners;
 
 /**
- * A data structure to store the name of the game and the selected levels of that
- * game.
+ * A data structure to store the name of the game and the selected levels of
+ * that game.
  * 
  * @author Benjamin Ellenberger
  *
@@ -31,7 +31,6 @@ public class GameLevelPair<FIRST, SECOND> implements
 		return cmp == 0 ? compare(level, o.level) : cmp;
 	}
 
-	// todo move this to a helper class.
 	@SuppressWarnings("unchecked")
 	private static int compare(Object o1, Object o2) {
 		return o1 == null ? o2 == null ? 0 : -1 : o2 == null ? +1
@@ -43,7 +42,6 @@ public class GameLevelPair<FIRST, SECOND> implements
 		return 31 * hashcode(game) + hashcode(level);
 	}
 
-	// todo move this to a helper class.
 	private static int hashcode(Object o) {
 		return o == null ? 0 : o.hashCode();
 	}
@@ -58,7 +56,6 @@ public class GameLevelPair<FIRST, SECOND> implements
 				&& equal(level, ((GameLevelPair<?, ?>) obj).level);
 	}
 
-	// todo move this to a helper class.
 	private boolean equal(Object o1, Object o2) {
 		return o1 == null ? o2 == null : (o1 == o2 || o1.equals(o2));
 	}

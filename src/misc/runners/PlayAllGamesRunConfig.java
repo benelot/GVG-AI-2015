@@ -4,10 +4,10 @@ public class PlayAllGamesRunConfig extends RunConfig {
 	public PlayAllGamesRunConfig() {
 		
 		String[] games = {
-		/**
-		 * CIG 2014 Training Set Games
-		 *
-		 */
+			/**
+			 * CIG 2014 Training Set Games
+			 *
+			 */
 			 GamesTraining2014.ALIENS,
 			 GamesTraining2014.BOULDERDASH,
 			 GamesTraining2014.BUTTERFLIES,
@@ -20,10 +20,10 @@ public class PlayAllGamesRunConfig extends RunConfig {
 			 GamesTraining2014.ZELDA,
 
 
-		/**
-		 * CIG 2014 Validation Set Games
-		 *
-		 */
+			/**
+			 * CIG 2014 Validation Set Games
+			 *
+			 */
 			 GamesValidation2014.CAMELRACE,
 			 GamesValidation2014.DIGDUG,
 			 GamesValidation2014.FIRESTORMS,
@@ -36,10 +36,10 @@ public class PlayAllGamesRunConfig extends RunConfig {
 			 GamesValidation2014.EGGOMANIA,
 
 
-		/**
-		 * CIG 2015 New Training Set Games
-		 *
-		 */
+			/**
+			 * CIG 2015 New Training Set Games
+			 *
+			 */
 			 GamesTraining2015.BAIT,
 			 GamesTraining2015.BOLOADVENTURES,
 			 GamesTraining2015.BRAINMAN,
@@ -52,10 +52,10 @@ public class PlayAllGamesRunConfig extends RunConfig {
 			 GamesTraining2015.ZENPUZZLE,
 
 
-		/**
-		 * EXTRA GAMES
-		 *
-		 */
+			/**
+			 * EXTRA GAMES
+			 *
+			 */
 			 GamesExtra.SOLARFOX,
 			 GamesExtra.BOMBUZAL
 		};
@@ -65,7 +65,6 @@ public class PlayAllGamesRunConfig extends RunConfig {
 			try {
 				addGameLevel(games[i], new int[]{0,1,2,3,4});
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

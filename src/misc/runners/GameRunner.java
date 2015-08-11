@@ -116,6 +116,8 @@ public class GameRunner {
 								random.nextInt());
 						processGameStatistics(RunConfig
 								.getGamePath(gameLevelPair.game));
+						
+						System.gc(); // free memory where possible
 					}
 				}
 			}

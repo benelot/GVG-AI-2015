@@ -29,7 +29,7 @@ public class HBFSNode implements Comparable<HBFSNode> {
 	// attention score - how close does this path get to attended tiles, where
 	// attention is a function of tile scarcity?
 	// tabulate possible tile interactions
-	// reward all changes in tile occurrence distribution 
+	// reward all changes in tile occurrence distribution
 	private double score = -1;
 	private double eventScore = -1;
 	private double tileDiversityScore = -1;
@@ -75,46 +75,54 @@ public class HBFSNode implements Comparable<HBFSNode> {
 				* loadScore;
 	}
 
-	// Computes hash code for the StateObservation. Used to organize the list of
-	// visited states.
-	// Rotating hash for sequences of small values:
-	// http://burtleburtle.net/bob/hash/doobs.html
+	/**
+	 * Computes hash code for the StateObservation. Used to organize the list of
+	 * visited states. Rotating hash for sequences of small values:
+	 * http://burtleburtle.net/bob/hash/doobs.html
+	 * 
+	 * @return The hash of the state observation.
+	 */
 	public int computeHash() {
 		int sequenceLength = so.getWorldDimension().height
 				* so.getWorldDimension().width + 2;
-		if (HBFSAgent.RESPECT_AGENT_ORIENTATION) sequenceLength+=2;
-		if (HBFSAgent.REPSECT_AGENT_SPEED) sequenceLength+=1;
-		
+		if (HBFSAgent.RESPECT_AGENT_ORIENTATION)
+			sequenceLength += 2;
+		if (HBFSAgent.REPSECT_AGENT_SPEED)
+			sequenceLength += 1;
+
 		ArrayList<Observation>[][] grid = so.getObservationGrid();
 		totalLoad = 0;
 		hash = sequenceLength;
 		int posIndex = 0;
 		for (int i = 0; i < grid.length; i++) {
 			for (int j = 0; j < grid[i].length; j++) {
-				hash = (hash << 4) ^ (hash >> 28) ^ (1+posIndex++); // 9.158E-4
+				hash = (hash << 4) ^ (hash >> 28) ^ (1 + posIndex++); // 9.158E-4
 				// hash = (hash << 4) ^ (hash >> 28) ^ 1; // 0.011
 				for (Observation o : grid[i][j]) {
-					hash = (hash << 4) ^ (hash >> 28) ^ (2+o.itype);
+					hash = (hash << 4) ^ (hash >> 28) ^ (2 + o.itype);
 				}
 				totalLoad += grid[i][j].size();
 			}
 		}
 		hash = (hash << 4) ^ (hash >> 28) ^ ((int) so.getAvatarPosition().x);
 		hash = (hash << 4) ^ (hash >> 28) ^ ((int) so.getAvatarPosition().y);
-		
+
 		if (HBFSAgent.RESPECT_AGENT_ORIENTATION) {
-			hash = (hash << 4) ^ (hash >> 28) ^ ((int) so.getAvatarOrientation().x);
-			hash = (hash << 4) ^ (hash >> 28) ^ ((int) so.getAvatarOrientation().y);
+			hash = (hash << 4) ^ (hash >> 28)
+					^ ((int) so.getAvatarOrientation().x);
+			hash = (hash << 4) ^ (hash >> 28)
+					^ ((int) so.getAvatarOrientation().y);
 		}
-		
+
 		if (HBFSAgent.REPSECT_AGENT_SPEED) {
 			hash = (hash << 4) ^ (hash >> 28) ^ ((int) so.getAvatarSpeed());
 		}
-		
-		//hash = hash % HBFSAgent.prime;
-		
-		if (HBFSAgent.TRACK_HASHING) HBFSAgent.hashList.add(hash);
-		
+
+		// hash = hash % HBFSAgent.prime;
+
+		if (HBFSAgent.TRACK_HASHING)
+			HBFSAgent.hashList.add(hash);
+
 		return hash;
 	}
 
@@ -184,28 +192,33 @@ public class HBFSNode implements Comparable<HBFSNode> {
 	@Override
 	public boolean equals(Object obj) {
 		HBFSAgent.equalCalls++;
-		if (Agent.isVerbose && HBFSAgent.equalCalls % HBFSAgent.callReportFrequency == 1) {
+		if (Agent.isVerbose
+				&& HBFSAgent.equalCalls % HBFSAgent.callReportFrequency == 1) {
 			System.out.print(".");
 		}
 		if (hashCode() != obj.hashCode())
 			return false;
-		
-		if (HBFSAgent.TRACK_HASHING) HBFSAgent.hashesEqual++;
-		
+
+		if (HBFSAgent.TRACK_HASHING)
+			HBFSAgent.hashesEqual++;
+
 		HBFSNode n = (HBFSNode) obj;
 		if (!n.so.getAvatarPosition().equals(so.getAvatarPosition())) {
-			if (HBFSAgent.TRACK_HASHING) HBFSAgent.hashCollisions++;
+			if (HBFSAgent.TRACK_HASHING)
+				HBFSAgent.hashCollisions++;
 			return false;
 		}
 		if (HBFSAgent.RESPECT_AGENT_ORIENTATION) {
 			if (!n.so.getAvatarOrientation().equals(so.getAvatarOrientation())) {
-				if (HBFSAgent.TRACK_HASHING) HBFSAgent.hashCollisions++;
+				if (HBFSAgent.TRACK_HASHING)
+					HBFSAgent.hashCollisions++;
 				return false;
 			}
 		}
 		if (HBFSAgent.REPSECT_AGENT_SPEED) {
 			if (n.so.getAvatarSpeed() != so.getAvatarSpeed()) {
-				if (HBFSAgent.TRACK_HASHING) HBFSAgent.hashCollisions++;
+				if (HBFSAgent.TRACK_HASHING)
+					HBFSAgent.hashCollisions++;
 				return false;
 			}
 		}
@@ -216,12 +229,14 @@ public class HBFSNode implements Comparable<HBFSNode> {
 		for (int i = 0; i < grid.length; i++) {
 			for (int j = 0; j < grid[i].length; j++) {
 				if (grid[i][j].size() != ngrid[i][j].size()) {
-					if (HBFSAgent.TRACK_HASHING) HBFSAgent.hashCollisions++;
+					if (HBFSAgent.TRACK_HASHING)
+						HBFSAgent.hashCollisions++;
 					return false;
 				}
 				for (int k = 1; k < grid[i][j].size(); k++) {
 					if (grid[i][j].get(k).itype != ngrid[i][j].get(k).itype) {
-						if (HBFSAgent.TRACK_HASHING) HBFSAgent.hashCollisions++;
+						if (HBFSAgent.TRACK_HASHING)
+							HBFSAgent.hashCollisions++;
 						return false;
 					}
 				}
@@ -241,7 +256,8 @@ public class HBFSNode implements Comparable<HBFSNode> {
 	public int compareTo(HBFSNode o) {
 		int rt = Double.compare(getScore(), o.getScore());
 		HBFSAgent.compareCalls++;
-		if (Agent.isVerbose && HBFSAgent.compareCalls % (2 * HBFSAgent.callReportFrequency) == 1) {
+		if (Agent.isVerbose
+				&& HBFSAgent.compareCalls % (2 * HBFSAgent.callReportFrequency) == 1) {
 			System.out.print("-");
 		}
 		return rt;
