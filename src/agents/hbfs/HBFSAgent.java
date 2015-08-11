@@ -276,7 +276,7 @@ public class HBFSAgent extends GameAgent {
 		} else {
 		}
 
-		if (Agent.isVerbose & HBFSAgent.IS_VERY_VERBOSE) {
+		if (Agent.isVerbose && HBFSAgent.IS_VERY_VERBOSE) {
 			current.displayActionSequence();
 			displayAgentState(current);
 		}

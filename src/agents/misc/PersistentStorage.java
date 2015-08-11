@@ -11,13 +11,13 @@ public class PersistentStorage {
 	 * situations (e.g. avatar has found sword/has eaten mushroom/has a lot of
 	 * honey)
 	 */
-	public static ITypeAttractivity iTypeAttractivity;
+	public static ITypeAttractivity iTypeAttractivity = null;
 
 	/*
 	 * an exploration reward map that is laid over the game-world to reward
 	 * places that haven't been visited lately
 	 */
-	public static RewardMap rewMap;
+	public static RewardMap rewMap = null;
 
 	// keeps track of the reward at the start of the MCTS search
 	public static double startingReward = 0;
@@ -37,5 +37,4 @@ public class PersistentStorage {
 	
 	// ## Parameters
 	public static int ROLLOUT_DEPTH = 0;
-
 }

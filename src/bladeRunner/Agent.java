@@ -29,8 +29,8 @@ public class Agent extends AbstractPlayer {
 		MCTS, BFS, MIXED
 	}
 
-	public static boolean isVerbose = false;
-	
+	public static final boolean isVerbose = false;
+
 	/**
 	 * The agent type we force the agent into.
 	 */
@@ -42,7 +42,7 @@ public class Agent extends AbstractPlayer {
 	private static MCTSAgent mctsAgent = null;
 	private static HBFSAgent hbfsAgent = null;
 	private static GameAgent currentAgent = null;
-	
+
 	/**
 	 * Agent switching properties
 	 */
@@ -58,7 +58,6 @@ public class Agent extends AbstractPlayer {
 	 *            Timer for the controller creation.
 	 */
 	public Agent(StateObservation so, ElapsedCpuTimer elapsedTimer) {
-
 		// #################
 		// PERSISTENT STORAGE
 		// Get the actions in a static array.
@@ -122,8 +121,9 @@ public class Agent extends AbstractPlayer {
 	}
 
 	/**
-	 * Switch to another agent for a limited number of ticks. TODO: Not yet
-	 * working, the agents need to be both initialized.
+	 * Switch to another agent for a limited number of ticks.
+	 * 
+	 * @note TODO: Not yet working, the agents need to be both initialized.
 	 * 
 	 * @param type
 	 *            The type of agent we want to switch to.
@@ -153,8 +153,9 @@ public class Agent extends AbstractPlayer {
 	}
 
 	/**
-	 * Switch to another agent for a limited number of ticks. TODO: Not yet
-	 * working, the agents need to be both initialized.
+	 * Switch to another agent for a limited number of ticks.
+	 * 
+	 * @note TODO: Not yet working, the agents need to be both initialized.
 	 * 
 	 * @param type
 	 *            The type of agent we want to switch to.
@@ -187,8 +188,9 @@ public class Agent extends AbstractPlayer {
 	}
 
 	/**
-	 * Switch the agent back to the previous agent. TODO: Not yet working, the
-	 * agents need to be both initialized.
+	 * Switch the agent back to the previous agent.
+	 * 
+	 * @note TODO: Not yet working, the agents need to be both initialized.
 	 */
 	public void switchBack() {
 		if (previousAgent != null) {
