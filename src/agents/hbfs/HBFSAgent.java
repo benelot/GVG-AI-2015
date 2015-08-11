@@ -245,7 +245,7 @@ public class HBFSAgent extends GameAgent {
 				}
 
 				HBFSNode m = new HBFSNode(soCopy, a, current, current.depth + 1);
-
+								
 				if (visited.add(m.hashCode())) {
 					pipe.add(m);
 					// visited.add(m);

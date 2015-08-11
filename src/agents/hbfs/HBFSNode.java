@@ -251,7 +251,9 @@ public class HBFSNode implements Comparable<HBFSNode> {
 		Stack<Types.ACTIONS> seq = new Stack<Types.ACTIONS>();
 		HBFSNode current = this;
 		while (true) {
-			seq.push(current.causingAction);
+			if (current.causingAction != null) {
+				seq.push(current.causingAction);
+			}
 			if (current.parent != null) {
 				current = current.parent;
 			} else {
