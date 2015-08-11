@@ -453,6 +453,9 @@ public class MCTSNode {
 					if (MCTSNode.m_rnd.nextDouble() > fear_of_unknown) {
 						// Well, there's an unknown path, and we're not worried
 						// - so let's guess it isn't a dead end!
+						if (Agent.isVerbose) {
+							System.out.println("MCTS::Overcame fear of unknown!");
+						}						
 						return false;
 					}
 				}
