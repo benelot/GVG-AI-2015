@@ -88,8 +88,10 @@ public class HBFSNode implements Comparable<HBFSNode> {
 		ArrayList<Observation>[][] grid = so.getObservationGrid();
 		totalLoad = 0;
 		hash = sequenceLength;
+		int posIndex = 0;
 		for (int i = 0; i < grid.length; i++) {
 			for (int j = 0; j < grid[i].length; j++) {
+				hash = (hash << 4) ^ (hash >> 28) ^ (1+posIndex++);
 				for (Observation o : grid[i][j]) {
 					hash = (hash << 4) ^ (hash >> 28) ^ (1+o.itype);
 				}

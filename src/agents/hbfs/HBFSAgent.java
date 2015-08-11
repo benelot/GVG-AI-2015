@@ -76,7 +76,7 @@ public class HBFSAgent extends GameAgent {
 	public static final int INITIALIZATION_ITEMS_PER_ROUND = 1;
 	public static final int ACTION_ITEMS_PER_ROUND = 1;
 	public static final boolean IS_VERY_VERBOSE = false;
-	public static final boolean TRACK_HASHING = false;
+	public static final boolean TRACK_HASHING = true;
 	public static final boolean RESPECT_AGENT_ORIENTATION = true; // true works better for brain man
 	public static final boolean REPSECT_AGENT_SPEED = false;
 	public static final int reportFrequency = 100;
