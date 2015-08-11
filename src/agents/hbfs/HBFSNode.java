@@ -79,7 +79,7 @@ public class HBFSNode implements Comparable<HBFSNode> {
 	// visited states.
 	// Rotating hash for sequences of small values:
 	// http://burtleburtle.net/bob/hash/doobs.html
-	public int getHash() {
+	public int computeHash() {
 		int sequenceLength = so.getWorldDimension().height
 				* so.getWorldDimension().width + 2;
 		if (HBFSAgent.RESPECT_AGENT_ORIENTATION) sequenceLength+=2;
@@ -91,9 +91,10 @@ public class HBFSNode implements Comparable<HBFSNode> {
 		int posIndex = 0;
 		for (int i = 0; i < grid.length; i++) {
 			for (int j = 0; j < grid[i].length; j++) {
-				hash = (hash << 4) ^ (hash >> 28) ^ (1+posIndex++);
+				hash = (hash << 4) ^ (hash >> 28) ^ (1+posIndex++); // 9.158E-4
+				// hash = (hash << 4) ^ (hash >> 28) ^ 1; // 0.011
 				for (Observation o : grid[i][j]) {
-					hash = (hash << 4) ^ (hash >> 28) ^ (1+o.itype);
+					hash = (hash << 4) ^ (hash >> 28) ^ (2+o.itype);
 				}
 				totalLoad += grid[i][j].size();
 			}
@@ -160,7 +161,7 @@ public class HBFSNode implements Comparable<HBFSNode> {
 		if (totalLoad != -1) {
 			return totalLoad;
 		}
-		getHash();
+		computeHash();
 		return totalLoad;
 	}
 
@@ -234,7 +235,7 @@ public class HBFSNode implements Comparable<HBFSNode> {
 		if (hash != -1) {
 			return hash;
 		}
-		return getHash();
+		return computeHash();
 	}
 
 	public int compareTo(HBFSNode o) {

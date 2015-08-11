@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Stack;
+import java.util.TreeSet;
 
 import agents.GameAgent;
 import bladeRunner.Agent;
@@ -56,11 +57,11 @@ public class HBFSAgent extends GameAgent {
 
 	public static final int prime = 179426549; //4583; // 4583; 7927; 13163; 18097;
 	
-	public static int MAX_PIPE_LENGTH = 2000;
-	public static int MAX_REJECTION_SET_SIZE = 3000;
-	public static int INITIAL_REJECTION_SET_CAPACITY = 4000;
-	public static int CARRY_OVER_PIPE_LENGTH_HEAD = 200;
-	public static int CARRY_OVER_PIPE_LENGTH_BODY = 200;
+	public static int MAX_PIPE_LENGTH = 3000;
+	public static int MAX_REJECTION_SET_SIZE = 10000;
+	//public static int INITIAL_REJECTION_SET_CAPACITY = 4000;
+	public static int CARRY_OVER_PIPE_LENGTH_HEAD = (int) Math.round(MAX_PIPE_LENGTH*0.06);
+	public static int CARRY_OVER_PIPE_LENGTH_BODY = (int) Math.round(MAX_PIPE_LENGTH*0.04);;
 	
 
 	public static final int callReportFrequency = 10000;
@@ -76,7 +77,7 @@ public class HBFSAgent extends GameAgent {
 	public static final int INITIALIZATION_ITEMS_PER_ROUND = 1;
 	public static final int ACTION_ITEMS_PER_ROUND = 1;
 	public static final boolean IS_VERY_VERBOSE = false;
-	public static final boolean TRACK_HASHING = true;
+	public static final boolean TRACK_HASHING = false;
 	public static final boolean RESPECT_AGENT_ORIENTATION = true; // true works better for brain man
 	public static final boolean REPSECT_AGENT_SPEED = false;
 	public static final int reportFrequency = 100;
@@ -98,7 +99,8 @@ public class HBFSAgent extends GameAgent {
 	public Stack<Types.ACTIONS> actionSequence = null;
 
 	public PriorityQueue<HBFSNode> pipe = null;
-	public HashSet<HBFSNode> visited = null;
+	//public HashSet<HBFSNode> visited = null;
+	public TreeSet<Integer> visited = null; 
 	public HBFSNode hbfsRoot = null;
 	public HBFSNode hbfsSolution = null;
 
@@ -109,7 +111,7 @@ public class HBFSAgent extends GameAgent {
 	public boolean hasTimedOut = false;
 	
 
-	private void initializeBfs(StateObservation so) {
+	private void initializeHbfs(StateObservation so) {
 		if (Agent.isVerbose) {
 			System.out.println("HBFS::##Initializing HBFS...");
 		}
@@ -119,8 +121,9 @@ public class HBFSAgent extends GameAgent {
 		controllerState = STATE_OTHER;
 
 		pipe = new PriorityQueue<HBFSNode>(MAX_PIPE_LENGTH);
-		visited = new HashSet<HBFSNode>(INITIAL_REJECTION_SET_CAPACITY);
-
+		//visited = new HashSet<HBFSNode>(INITIAL_REJECTION_SET_CAPACITY);
+		visited = new TreeSet<Integer>();
+		
 		// reset protocol statistics
 		stats_rejects = 0;
 		stats_nonUseful = 0;
@@ -141,7 +144,7 @@ public class HBFSAgent extends GameAgent {
 		}
 
 		pipe.add(hbfsRoot);
-		visited.add(hbfsRoot);
+		visited.add(hbfsRoot.hashCode());
 
 		controllerState = STATE_PLANNING;
 	}
@@ -197,7 +200,7 @@ public class HBFSAgent extends GameAgent {
 	}
 
 	@SuppressWarnings("unused")
-	private boolean performHbfs() {
+	private boolean performHbfs(ElapsedCpuTimer elapsedTimer, int remTime) {
 
 		if (pipe.isEmpty()) {
 			controllerState = STATE_OTHER;
@@ -212,9 +215,13 @@ public class HBFSAgent extends GameAgent {
 
 		for (Types.ACTIONS a : ACTIONS) {
 			StateObservation soCopy = current.so.copy();
-
 			soCopy.advance(a);
 
+			if (elapsedTimer.remainingTimeMillis() < remTime) { 
+				pipe.add(current); // could get stuck, but usually at least one node can be fully processed.
+				break;
+			}
+			
 			if (soCopy.isGameOver()) {
 				if (soCopy.getGameWinner() == Types.WINNER.PLAYER_WINS) {
 					hbfsSolution = new HBFSNode(soCopy, a, current,
@@ -239,7 +246,7 @@ public class HBFSAgent extends GameAgent {
 
 				HBFSNode m = new HBFSNode(soCopy, a, current, current.depth + 1);
 
-				if (visited.add(m)) {
+				if (visited.add(m.hashCode())) {
 					pipe.add(m);
 					// visited.add(m);
 				} else {
@@ -251,6 +258,7 @@ public class HBFSAgent extends GameAgent {
 		}
 
 		if (pipe.isEmpty()) {
+			// Pipe is seeded with children of current and current itself 
 			if (Agent.isVerbose) {
 				System.out
 						.println("\nHBFS::#Pipe unexpectedly empty. Reseeding and clearing rejection set.");
@@ -260,10 +268,10 @@ public class HBFSAgent extends GameAgent {
 				StateObservation soCopy = current.so.copy();
 				soCopy.advance(a);
 				HBFSNode m = new HBFSNode(soCopy, a, current, current.depth + 1);
-				visited.add(m);
+				visited.add(m.hashCode());
 				pipe.add(m);
 			}
-			visited.add(current);
+			visited.add(current.hashCode());
 			pipe.add(current);
 			pipeEmptyEvents += 1;
 		} else {
@@ -319,13 +327,13 @@ public class HBFSAgent extends GameAgent {
 		}
 		NUM_ACTIONS = ACTIONS.length;
 
-		initializeBfs(so);
+		initializeHbfs(so);
 
 		boolean hasTerminated = false;
 		while (!hasTerminated
 				&& elapsedTimer.remainingTimeMillis() > INITIALIZATION_REMTIME
 				&& controllerState == STATE_PLANNING) {
-			hasTerminated = performHbfs();
+			hasTerminated = performHbfs(elapsedTimer, INITIALIZATION_REMTIME);
 		}
 		if (controllerState != STATE_PLANNING) {
 			if (Agent.isVerbose) {
@@ -405,7 +413,7 @@ public class HBFSAgent extends GameAgent {
 			while (!hasTerminated
 					&& elapsedTimer.remainingTimeMillis() > ACTION_REMTIME
 					&& controllerState == STATE_PLANNING) {
-				hasTerminated = performHbfs();
+				hasTerminated = performHbfs(elapsedTimer, ACTION_REMTIME);
 				turnAroundSpeed += 1;
 			}
 			if (hasTerminated) {
@@ -446,7 +454,7 @@ public class HBFSAgent extends GameAgent {
 				if (Agent.isVerbose) {
 					System.out.println("\nHBFS::#Controller IDLE but game continues. Restarting PLANNING Phase...");
 				}
-				initializeBfs(so);
+				initializeHbfs(so);
 				controllerState = STATE_PLANNING;
 			}
 			return Types.ACTIONS.ACTION_NIL;
