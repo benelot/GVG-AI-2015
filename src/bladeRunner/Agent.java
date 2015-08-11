@@ -29,7 +29,7 @@ public class Agent extends AbstractPlayer {
 		MCTS, BFS, MIXED
 	}
 
-	public static final boolean isVerbose = false;
+	public static final boolean isVerbose = true;
 
 	/**
 	 * The agent type we force the agent into.

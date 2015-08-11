@@ -1,6 +1,7 @@
 package agents.mcts;
 
 import agents.GameAgent;
+import agents.mcts.MCTSNode.StateType;
 import agents.misc.PersistentStorage;
 import core.game.Observation;
 import core.game.StateObservation;
@@ -25,6 +26,12 @@ public class MCTSAgent extends GameAgent {
 	public Random m_rnd;
 
 	public int nodeQty;
+
+	// additional actions names
+	public final int ADD_NEW_ROOT_NODE = -1;
+	public final int KEEP_COMPLETE_OLD_TREE = -2;
+
+	public int oldAction = KEEP_COMPLETE_OLD_TREE;
 
 	/**
 	 * Creates the MCTS player with a sampleRandom generator object.
@@ -67,14 +74,20 @@ public class MCTSAgent extends GameAgent {
 		 * Here we create a new root-tree for the next search query based on the
 		 * old tree. The old tree gets cut at the chosen action. The depth of
 		 * that tree is not changed such that it grows throughout the game.
-		 * Therefore, the maximal MCTS_DEpth also grows
+		 * Therefore, the maximal MCTS_Depth also grows
 		 */
 
-		if (action == -2) {
+		if (action == KEEP_COMPLETE_OLD_TREE) {
 			// keep the complete old tree
+			// Set all children to UNCACHED if they are not null.
+			for (MCTSNode child : m_root.children) {
+				if (child != null) {
+					child.stateType = StateType.UNCACHED;
+				}
+			}
 			m_root.state = a_gameState;
 		} else {
-			if (action == -1) {
+			if (action == ADD_NEW_ROOT_NODE) {
 				m_root = new MCTSNode(m_rnd);
 				m_root.state = a_gameState;
 			} else {
@@ -161,24 +174,19 @@ public class MCTSAgent extends GameAgent {
 		 * create a reward gradient.
 		 */
 
-		boolean rewardNPCs = true;
+		boolean rewardNPCs = false;
 		if (rewardNPCs) {
 			ArrayList<Observation>[] npcPositions = null;
 			npcPositions = stateObs.getNPCPositions();
 			double npcAttractionValue = 0;
 			if (npcPositions != null) {
 				for (ArrayList<Observation> npcs : npcPositions) {
-					if (npcs.size() > 0) {
-						Vector2d npcPos = npcs.get(0).position;
-						try {
-							npcAttractionValue = PersistentStorage.iTypeAttractivity
-									.get(npcs.get(0).itype);
-						} catch (java.lang.NullPointerException e) {
-							PersistentStorage.iTypeAttractivity
-									.putNewUniqueItype(npcs.get(0));
-							npcAttractionValue = PersistentStorage.iTypeAttractivity
-									.get(npcs.get(0).itype);
-						}
+					for (int i = 0; i < npcs.size(); i++) {
+						Vector2d npcPos = npcs.get(i).position;
+
+						npcAttractionValue = PersistentStorage.iTypeAttractivity
+								.putIfAbsent(npcs.get(i));
+
 						if (Math.abs(PersistentStorage.rewMap
 								.getRewardAtWorldPosition(npcPos)) < 1) {
 							PersistentStorage.rewMap
@@ -190,24 +198,19 @@ public class MCTSAgent extends GameAgent {
 			}
 		}
 
-		boolean rewardRecources = true;
-		if (rewardRecources) {
+		boolean rewardResources = true;
+		if (rewardResources) {
 			ArrayList<Observation>[] resPositions = null;
 			resPositions = stateObs.getNPCPositions();
 			double resAttractionValue = 0;
 			if (resPositions != null) {
 				for (ArrayList<Observation> ress : resPositions) {
-					if (ress.size() > 0) {
-						Vector2d resPos = ress.get(0).position;
-						try {
-							resAttractionValue = PersistentStorage.iTypeAttractivity
-									.get(ress.get(0).itype);
-						} catch (java.lang.NullPointerException e) {
-							PersistentStorage.iTypeAttractivity
-									.putNewUniqueItype(ress.get(0));
-							resAttractionValue = PersistentStorage.iTypeAttractivity
-									.get(ress.get(0).itype);
-						}
+					for (int i = 0; i < ress.size(); i++) {
+						Vector2d resPos = ress.get(i).position;
+
+						resAttractionValue = PersistentStorage.iTypeAttractivity
+								.putIfAbsent(ress.get(i));
+
 						if (Math.abs(PersistentStorage.rewMap
 								.getRewardAtWorldPosition(resPos)) < 1) {
 							PersistentStorage.rewMap
@@ -219,8 +222,8 @@ public class MCTSAgent extends GameAgent {
 			}
 		}
 
-		int useOldTree = 1;
-		if (useOldTree == 1) {
+		boolean useOldTree = true;
+		if (useOldTree) {
 			// Sets a new tree with the children[oldAction] as the root
 			initWithOldTree(stateObs, oldAction);
 		} else {
@@ -237,10 +240,10 @@ public class MCTSAgent extends GameAgent {
 		// Determine the action using MCTS...
 		int action = run(elapsedTimer);
 		// if (stateObs.getGameTick() % 2 == 0) {
-		// action = -2;
+		// action = KEEP_COMPLETE_TREE;
 		// }
-		if (action > -2) {
-			PersistentStorage.MCTS_DEPTH_RUN += useOldTree;
+		if (action > KEEP_COMPLETE_OLD_TREE && useOldTree) {
+			PersistentStorage.MCTS_DEPTH_RUN += 1;
 		}
 
 		/*
@@ -252,21 +255,19 @@ public class MCTSAgent extends GameAgent {
 		 * problem -> the guy is stuck.
 		 */
 
-		if (action == -1)
-			action = -2;
+		if (action == ADD_NEW_ROOT_NODE)
+			action = KEEP_COMPLETE_OLD_TREE;
 
 		oldAction = action;
 
 		// ... and return it.
-		if (action == -2 || action == -1) {
+		if (action == KEEP_COMPLETE_OLD_TREE || action == ADD_NEW_ROOT_NODE) {
 			return Types.ACTIONS.ACTION_NIL;
 		} else {
 			return PersistentStorage.actions[action];
 		}
 
 	}
-
-	public int oldAction = -2;
 
 	public void clearMemory() {
 		// TODO Implement what to do when we run out of memory.

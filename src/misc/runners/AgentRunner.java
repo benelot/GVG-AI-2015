@@ -10,12 +10,12 @@ public class AgentRunner {
 		RunConfig config = new RunConfig();
 		
 		// GamesTraining2014
-//		config.addGameLevel(RunConfig.GamesTraining2014.ALIENS,new int[] {1,2,3,4} );
+		config.addGameLevel(RunConfig.GamesTraining2014.ALIENS,new int[] {1,2,3,4} );
 //		config.addGameLevel(RunConfig.GamesTraining2014.BOULDERDASH,new int[] {1,2,3,4} );
-		config.addGameLevel(RunConfig.GamesTraining2014.BUTTERFLIES,new int[] {1,2,3,4} );
-//		config.addGameLevel(RunConfig.GamesTraining2014.CHASE,new int[] {1,2,3,4} );
+//		config.addGameLevel(RunConfig.GamesTraining2014.BUTTERFLIES,new int[] {1,2,3,4} );
+//		config.addGameLevel(RunConfig.GamesTraining2014.CHASE,new int[] {0,1,2,3,4} );
 //		config.addGameLevel(RunConfig.GamesTraining2014.FROGS,new int[] {1,2,3,4} );
-		config.addGameLevel(RunConfig.GamesTraining2014.MISSILECOMMAND,new int[] {0,1,2,3,4} );
+//		config.addGameLevel(RunConfig.GamesTraining2014.MISSILECOMMAND,new int[] {0,1,2,3,4} );
 //		config.addGameLevel(RunConfig.GamesTraining2014.PORTALS,new int[] {1,2,3,4} );
 //		config.addGameLevel(RunConfig.GamesTraining2014.SOKOBAN,new int[] {1,2,3,4} );
 //		config.addGameLevel(RunConfig.GamesTraining2014.SURVIVEZOMBIES,new int[] {1,2,3,4} );
@@ -30,7 +30,7 @@ public class AgentRunner {
 //		config.addGameLevel(RunConfig.GamesValidation2014.FIRESTORMS, new int[] {1,2,3,4});
 //		config.addGameLevel(RunConfig.GamesValidation2014.INFECTION, new int[] {1,2,3,4});
 //		config.addGameLevel(RunConfig.GamesValidation2014.OVERLOAD, new int[] {1,2,3,4});
-		config.addGameLevel(RunConfig.GamesValidation2014.PACMAN, new int[] {0,1,2,3,4});
+//		config.addGameLevel(RunConfig.GamesValidation2014.PACMAN, new int[] {0,1,2,3,4});
 //		config.addGameLevel(RunConfig.GamesValidation2014.SEAQUEST, new int[] {1,2,3,4});
 //		config.addGameLevel(RunConfig.GamesValidation2014.WHACKAMOLE, new int[] {1,2,3,4});
 		
@@ -46,8 +46,8 @@ public class AgentRunner {
 		
 //		config.addGameLevel(RunConfig.GamesTraining2015.THECITADEL ,new int[] {1,2,3,4} );
 //		config.addGameLevel(RunConfig.GamesTraining2015.ZENPUZZLE ,new int[] {0,1,2,3,4} );
-		config.addGameLevel(RunConfig.GamesValidationGECCO2015.PLANTS, new int[] {0,1,2,3,4});
-		
+//		config.addGameLevel(RunConfig.GamesValidationGECCO2015.PLANTS, new int[] {0,1,2,3,4});
+//		config.addGameLevel(RunConfig.StochasticGames.JAWS, new int[] {0,1,2,3,4});
 		config.setRepetitions(1);
 		config.setController(controller);
 //		config.setSaveActions(false);
@@ -58,11 +58,11 @@ public class AgentRunner {
 
 		// #############
 		// == Run the agent without visual feedback (faster for evaluation)
-		 GameRunner.runGames(config);
+//		 GameRunner.runGames(config);
 
 		// #############
 		// == Run the agent visually
-//		 GameRunner.runGamesVisually(config);
+		 GameRunner.runGamesVisually(config);
 
 		// ############
 		// == Run against some of our benchmarks (Uncomment one of the next

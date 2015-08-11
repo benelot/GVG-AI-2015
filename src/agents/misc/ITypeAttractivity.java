@@ -139,14 +139,16 @@ public class ITypeAttractivity extends HashMap<Integer, Double> {
 	}
 
 	// METHODS
-
-	public void putNewUniqueItype(Observation Obs) {
-		this.put(Obs.itype, this.spriteCategoryAttractivityValue.get(Obs.category));
-		if (Agent.isVerbose) {
-			System.out.println("ITypeAttractivityMap::added iType " + Obs.itype
-					+ " with value "
-					+ this.spriteCategoryAttractivityValue.get(Obs.category));
+	public Double putIfAbsent(Observation obs){
+		if(!this.containsKey(obs.itype)){
+			this.put(obs.itype, this.spriteCategoryAttractivityValue.get(obs.category));
+			if (Agent.isVerbose) {
+				System.out.println("ITypeAttractivityMap::added iType " + obs.itype
+						+ " with value "
+						+ this.spriteCategoryAttractivityValue.get(obs.category));
+			}
 		}
+		return this.get(obs.itype);		
 	}
 
 	/**

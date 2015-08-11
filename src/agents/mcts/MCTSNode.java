@@ -85,9 +85,7 @@ public class MCTSNode {
 		lastBounds[0] = curBounds[0];
 		lastBounds[1] = curBounds[1];
 
-		long remaining = elapsedTimer.remainingTimeMillis();
-
-		while (remaining > 10) {
+		while (elapsedTimer.remainingTimeMillis() > 10) {
 
 			// form tree with MCTS
 			MCTSNode selected = treePolicy();
@@ -95,12 +93,11 @@ public class MCTSNode {
 			// rollout subsequent steps randomly
 			double delta = selected.rollOut();
 
-			// feedback the reward form rollout along the "selected" branch of
+			// feedback the reward from rollout along the "selected" branch of
 			// the tree
 			backUp(selected, delta);
 			// backUpBest(selected, delta);
 
-			remaining = elapsedTimer.remainingTimeMillis();
 		}
 	}
 
@@ -114,9 +111,8 @@ public class MCTSNode {
 				return cur.expand();
 
 			} else {
-				MCTSNode next = cur.uct();
-				// SingleTreeNode next = cur.egreedy();
-				cur = next;
+				cur = cur.uct();
+				// cur = cur.egreedy();
 			}
 		}
 
@@ -263,15 +259,21 @@ public class MCTSNode {
 							// after MCTS/expand is finished
 		double previousScore;
 		// rollout with random actions for "ROLLOUT_DEPTH" times
-		while (!finishRollout(rollerState, thisDepth)) {
-			previousScore = rollerState.getGameScore();
-			int action = MCTSNode.m_rnd
-					.nextInt(PersistentStorage.actions.length);
-			rollerState.advance(PersistentStorage.actions[action]);
-			PersistentStorage.iTypeAttractivity.updateAttraction(rollerState,
-					previousScore);
-			thisDepth++;
-		}
+//		while (!finishRollout(rollerState, thisDepth)) {
+//			previousScore = rollerState.getGameScore();
+//			int action = MCTSNode.m_rnd
+//					.nextInt(PersistentStorage.actions.length);
+//			rollerState.advance(PersistentStorage.actions[action]);
+//			PersistentStorage.iTypeAttractivity.updateAttraction(rollerState,
+//					previousScore);
+//			thisDepth++;
+//		}
+		previousScore = rollerState.getGameScore();
+		int action = MCTSNode.m_rnd.nextInt(PersistentStorage.actions.length);
+		rollerState.advance(PersistentStorage.actions[action]);
+		PersistentStorage.iTypeAttractivity.updateAttraction(rollerState,
+				previousScore);
+		thisDepth++;
 
 		// get current position and reward at that position
 		double explRew = PersistentStorage.rewMap
@@ -318,7 +320,6 @@ public class MCTSNode {
 		double rawScore = a_gameState.getGameScore();
 
 		if (gameOver && win == Types.WINNER.PLAYER_LOSES) {
-			// return -2;
 			return HUGE_NEGATIVE_REWARD;
 		}
 
@@ -330,14 +331,15 @@ public class MCTSNode {
 	}
 
 	public boolean finishRollout(StateObservation rollerState, int depth) {
-		if (depth >= PersistentStorage.ROLLOUT_DEPTH) // rollout end condition
+		if (depth >= PersistentStorage.ROLLOUT_DEPTH) { // rollout end condition
 														// occurs
 			// "ROLLOUT_DEPTH" after the
 			// MCTS/expand is finished
 			return true;
-
-		if (rollerState.isGameOver()) // end of game
+		}
+		if (rollerState.isGameOver()) { // end of game
 			return true;
+		}
 
 		return false;
 	}
