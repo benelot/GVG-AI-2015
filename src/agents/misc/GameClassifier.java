@@ -9,7 +9,7 @@ public class GameClassifier {
 	/**
 	 * Number of test steps we run in the game classifier.
 	 */
-	public static final int testingSteps = 20;
+	public static final int testingSteps = 80;
 
 	/**
 	 * The game classification categories.
