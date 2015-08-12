@@ -52,6 +52,22 @@ public class RunAllGameLevelsRunConfig extends RunConfig {
 			 GamesTraining2015.REALSOKOBAN,
 			 GamesTraining2015.THECITADEL,
 			 GamesTraining2015.ZENPUZZLE,
+			 
+			 
+		/**
+		 * GECCO 2015 Validation Set Games
+		 *
+		 */
+			 
+			 GamesValidationGECCO2015.BOULDERCHASE,
+			 GamesValidationGECCO2015.CATAPULTS,
+			 GamesValidationGECCO2015.ESCAPE,
+			 GamesValidationGECCO2015.JAWS,
+			 GamesValidationGECCO2015.LABYRINTH,
+			 GamesValidationGECCO2015.LEMMINGS,
+			 GamesValidationGECCO2015.PLANTS,
+			 GamesValidationGECCO2015.ROGUELIKE,
+			 GamesValidationGECCO2015.SURROUND,
 
 
 		/**
