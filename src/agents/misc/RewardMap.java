@@ -108,7 +108,7 @@ public class RewardMap {
 	public void setRewardAtWorldPosition(Vector2d posVec, double value) {
 		int X = floorDiv((int) (posVec.x + 0.1), blockSize);
 		int Y = floorDiv((int) (posVec.y + 0.1), blockSize);
-		if (X >= 0 && Y >= 0 && X <= rewMapWidth && Y <= rewMapHeight) {
+		if (X >= 0 && Y >= 0 && X < rewMapWidth && Y < rewMapHeight) {
 			rewMap[X][Y] = value;
 		}
 	}
@@ -116,7 +116,7 @@ public class RewardMap {
 	public void incrementRewardAtWorldPosition(Vector2d posVec, double incValue) {
 		int X = floorDiv((int) (posVec.x + 0.1), blockSize);
 		int Y = floorDiv((int) (posVec.y + 0.1), blockSize);
-		if (X >= 0 && Y >= 0 && X <= rewMapWidth && Y <= rewMapHeight) {
+		if (X >= 0 && Y >= 0 && X < rewMapWidth && Y < rewMapHeight) {
 			rewMap[X][Y] += incValue;
 		}
 	}

@@ -842,7 +842,7 @@ public class RunConfig {
 	 * 
 	 * @param game
 	 *            A game name from RunConfig.Games*
-	 * @param level
+	 * @param value
 	 *            Level numbers between 0 and 4 (e.g. new int[]{2,3})
 	 * @throws Exception
 	 *             If the level is not between 0 and 4.
