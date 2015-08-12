@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
 
+import agents.misc.Pair;
 import bladeRunner.Agent;
 import core.game.Event;
 import core.game.Observation;
@@ -59,11 +60,11 @@ public class HBFSNode implements Comparable<HBFSNode> {
 	public double scoreDfsNode(HBFSNode arg0) {
 
 		loadScore = HBFSAgent.rootLoad - arg0.getLoad();
-		Set<IntPair> typeIds = new TreeSet<IntPair>();
+		Set<Pair<Integer, Integer>> typeIds = new TreeSet<Pair<Integer, Integer>>();
 		eventScore = 0;
 		for (Event ev : arg0.so.getEventsHistory()) {
 			eventScore += scoreEvent(ev);
-			typeIds.add(new IntPair(ev.activeTypeId, ev.passiveTypeId));
+			typeIds.add(new Pair<Integer, Integer>(ev.activeTypeId, ev.passiveTypeId));
 		}
 		tileDiversityScore = Math.pow(1.75, typeIds.size());
 
