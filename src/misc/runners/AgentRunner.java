@@ -10,29 +10,29 @@ public class AgentRunner {
 		RunConfig config = new RunConfig();
 		
 		// GamesTraining2014
-		config.addGameLevel(RunConfig.GamesTraining2014.ALIENS,new int[] {1,2,3,4} );
-//		config.addGameLevel(RunConfig.GamesTraining2014.BOULDERDASH,new int[] {1,2,3,4} );
-//		config.addGameLevel(RunConfig.GamesTraining2014.BUTTERFLIES,new int[] {1,2,3,4} );
-//		config.addGameLevel(RunConfig.GamesTraining2014.CHASE,new int[] {1,2,3,4} );
-//		config.addGameLevel(RunConfig.GamesTraining2014.FROGS,new int[] {1,2,3,4} );
-		config.addGameLevel(RunConfig.GamesTraining2014.MISSILECOMMAND,new int[] {0,1,2,3,4} );
+//		config.addGameLevel(RunConfig.GamesTraining2014.ALIENS,new int[] {0,1,2,3,4} );
+//		config.addGameLevel(RunConfig.GamesTraining2014.BOULDERDASH,new int[] {0,1,2,3,4} );
+//		config.addGameLevel(RunConfig.GamesTraining2014.BUTTERFLIES,new int[] {0,1,2,3,4} );
+//		config.addGameLevel(RunConfig.GamesTraining2014.CHASE,new int[] {0,1,2,3,4} );
+//		config.addGameLevel(RunConfig.GamesTraining2014.FROGS,new int[] {0,1,2,3,4} );
+//		config.addGameLevel(RunConfig.GamesTraining2014.MISSILECOMMAND,new int[] {0,1,2,3,4} );
 //		config.addGameLevel(RunConfig.GamesTraining2014.PORTALS,new int[] {1,2,3,4} );
 //		config.addGameLevel(RunConfig.GamesTraining2014.SOKOBAN,new int[] {1,2,3,4} );
-//		config.addGameLevel(RunConfig.GamesTraining2014.SURVIVEZOMBIES,new int[] {1,2,3,4} );
-//		config.addGameLevel(RunConfig.GamesTraining2014.ZELDA,new int[] {1,2,3,4} );
+//		config.addGameLevel(RunConfig.GamesTraining2014.SURVIVEZOMBIES,new int[] {0,1,2,3,4} );
+//		config.addGameLevel(RunConfig.GamesTraining2014.ZELDA,new int[] {0,1,2,3,4} );
 		
 		
 		// GamesValidation2014
-//		config.addGameLevel(RunConfig.GamesValidation2014.CAMELRACE, new int[] {1,2,3,4});
+//		config.addGameLevel(RunConfig.GamesValidation2014.CAMELRACE, new int[] {0,1,2,3,4});
 //		config.addGameLevel(RunConfig.GamesValidation2014.DIGDUG, new int[] {1,2,3,4});
-//		config.addGameLevel(RunConfig.GamesValidation2014.EGGOMANIA, new int[] {1,2,3,4});
+//		config.addGameLevel(RunConfig.GamesValidation2014.EGGOMANIA, new int[] {0,1,2,3,4});
 //		config.addGameLevel(RunConfig.GamesValidation2014.FIRECASTER, new int[] {1,2,3,4});
-//		config.addGameLevel(RunConfig.GamesValidation2014.FIRESTORMS, new int[] {1,2,3,4});
-//		config.addGameLevel(RunConfig.GamesValidation2014.INFECTION, new int[] {1,2,3,4});
-//		config.addGameLevel(RunConfig.GamesValidation2014.OVERLOAD, new int[] {1,2,3,4});
+//		config.addGameLevel(RunConfig.GamesValidation2014.FIRESTORMS, new int[] {0,1,2,3,4});
+//		config.addGameLevel(RunConfig.GamesValidation2014.INFECTION, new int[] {0,1,2,3,4});
+//		config.addGameLevel(RunConfig.GamesValidation2014.OVERLOAD, new int[] {0,1,2,3,4});
 //		config.addGameLevel(RunConfig.GamesValidation2014.PACMAN, new int[] {0,1,2,3,4});
-//		config.addGameLevel(RunConfig.GamesValidation2014.SEAQUEST, new int[] {1,2,3,4});
-//		config.addGameLevel(RunConfig.GamesValidation2014.WHACKAMOLE, new int[] {1,2,3,4});
+		config.addGameLevel(RunConfig.GamesValidation2014.SEAQUEST, new int[] {0,1,2,3,4});
+//		config.addGameLevel(RunConfig.GamesValidation2014.WHACKAMOLE, new int[] {0,1,2,3,4});
 		
 		// GamesTraining2015
 //	    config.addGameLevel(RunConfig.GamesTraining2015.BAIT ,new int[] {1,2,3,4} ); //can do 1,2,4
@@ -70,8 +70,10 @@ public class AgentRunner {
 		// RunConfig runconfig = RunConfig.getRunAllEasyLevelsRunConfig();
 		// RunConfig runconfig = RunConfig.getRunAllHardLevelsRunConfig();
 //		 RunConfig runconfig = RunConfig.getRunAllGameLevelsRunConfig();
+
+//		 RunConfig runconfig = config;
 //		 runconfig.setController(controller);
-//		 runconfig.setRepetitions(5);
+//		 runconfig.setRepetitions(2);
 //		 runconfig.setCalculateStatistics(true);
 //		 GameRunner.runGames(runconfig);
 

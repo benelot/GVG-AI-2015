@@ -72,9 +72,12 @@ public class Agent extends AbstractPlayer {
 		
 		// set the MCTS_depth back
 		PersistentStorage.MCTS_DEPTH_RUN = PersistentStorage.MCTS_DEPTH_FIX;
+		
+		PersistentStorage.startingReward = 0;
 
+		int numActions = act.size();
 		// initialize ItypeAttracivity object for starting situation
-		PersistentStorage.iTypeAttractivity = new ITypeAttractivity(so);
+		PersistentStorage.iTypeAttractivity = new ITypeAttractivity(so,numActions);
 
 		// Classify game
 		GameClassifier.determineGameType(so);
