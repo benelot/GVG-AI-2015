@@ -5,6 +5,8 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
 
+import agents.misc.ObservationTools2;
+import agents.misc.ObservationTools2.DefaultAnalysis;
 import bladeRunner.Agent;
 import core.game.Event;
 import core.game.Observation;
@@ -34,6 +36,7 @@ public class HBFSNode implements Comparable<HBFSNode> {
 	private double eventScore = -1;
 	private double tileDiversityScore = -1;
 	private double loadScore = -1;
+	private double transformScore = -1;
 	private int totalLoad = -1;
 	private int hash = -1;
 
@@ -56,9 +59,35 @@ public class HBFSNode implements Comparable<HBFSNode> {
 	// depth has a positive weight, the other 3 weights are negative
 	// paths with minimal values of the heuristic are considered for expansion
 	// (see HBFSAgent)
+//	public double scoreNode(HBFSNode arg0) {
+//
+//		loadScore = HBFSAgent.rootLoad - arg0.getLoad();
+//		Set<IntPair> typeIds = new TreeSet<IntPair>();
+//		eventScore = 0;
+//		for (Event ev : arg0.so.getEventsHistory()) {
+//			eventScore += scoreEvent(ev);
+//			typeIds.add(new IntPair(ev.activeTypeId, ev.passiveTypeId));
+//		}
+//		tileDiversityScore = Math.pow(1.75, typeIds.size());
+//
+//		double positionScore = 0;
+//
+//		return HBFSAgent.wDepth * arg0.depth + HBFSAgent.wEvents * eventScore
+//				+ +HBFSAgent.wTileDiversity * tileDiversityScore
+//				+ HBFSAgent.wPosition * positionScore + HBFSAgent.wLoad
+//				* loadScore;
+//	}
+	
 	public double scoreNode(HBFSNode arg0) {
-
-		loadScore = HBFSAgent.rootLoad - arg0.getLoad();
+		
+		if (arg0.parent == null) {
+			return 0;
+		}
+		
+		DefaultAnalysis a = ObservationTools2.analyze(HBFSAgent.rootObservationList, arg0.parent.so,
+				arg0.so);
+		
+		loadScore = Math.abs(HBFSAgent.rootLoad - arg0.getLoad());
 		Set<IntPair> typeIds = new TreeSet<IntPair>();
 		eventScore = 0;
 		for (Event ev : arg0.so.getEventsHistory()) {
@@ -69,10 +98,15 @@ public class HBFSNode implements Comparable<HBFSNode> {
 
 		double positionScore = 0;
 
+		transformScore = a.tileTransforms;
+		transformScore = a.tileCreations + a.tileDestructions;
+		
+		
 		return HBFSAgent.wDepth * arg0.depth + HBFSAgent.wEvents * eventScore
 				+ +HBFSAgent.wTileDiversity * tileDiversityScore
 				+ HBFSAgent.wPosition * positionScore + HBFSAgent.wLoad
-				* loadScore;
+				* loadScore + HBFSAgent.wTransforms * transformScore;
+		
 	}
 
 	// Computes hash code for the StateObservation. Used to organize the list of
@@ -165,6 +199,14 @@ public class HBFSNode implements Comparable<HBFSNode> {
 		return totalLoad;
 	}
 
+	public double getTransformScore() {
+		if (transformScore != -1) {
+			return transformScore;
+		}
+		getScore();
+		return transformScore;
+	}
+	
 	public double getLoadScore() {
 		if (loadScore != -1) {
 			return loadScore;

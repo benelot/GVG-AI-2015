@@ -15,24 +15,24 @@ public class ObservationTools2 {
 	// Analysis of either the root node or the node2 of the node transition
 	// root->...->node1->node2
 	public static class DefaultAnalysis {
-		int load; // total number of tiles
-		int tileDestructions;
-		int tileCreations;
-		int tileTransforms; // total number of tile transforms w.r.t. root (a
+		public int load; // total number of tiles
+		public int tileDestructions;
+		public int tileCreations;
+		public int tileTransforms; // total number of tile transforms w.r.t. root (a
 							// tile vanishes or transforms into another one,
 							// movement does not count)
-		int tileMovements; // total number of tile movements w.r.t. root (a tile
+		public int tileMovements; // total number of tile movements w.r.t. root (a tile
 							// moves from one pos. to another)
-		int relevantEvents; // not so important; total number of relevant events
+		public int relevantEvents; // not so important; total number of relevant events
 							// w.r.t. root (all except irrelevant events)
-		int irrelevantEvents; // not so important; total number of relevant
+		public int irrelevantEvents; // not so important; total number of relevant
 								// events w.r.t. root (events that involve walls
 								// etc...)
-		int trappedTiles; // TODO: (maybe) if you want the newly trapped tiles
+		public int trappedTiles; // TODO: (maybe) if you want the newly trapped tiles
 							// you have to subtract the root trapped tiles, one
 							// could just calculate them when the root is set,
 							// but I was not sure if you want that.
-		double ResourceValue; // an attractivity weighted (not jet implemented)
+		public double ResourceValue; // an attractivity weighted (not jet implemented)
 								// sum of resources minus the resources that
 								// were already there
 
@@ -300,7 +300,7 @@ public class ObservationTools2 {
 	/*
 	 * this method does the actual analysis
 	 */
-	private static DefaultAnalysis analyze(
+	public static DefaultAnalysis analyze(
 			HashMap<Integer, Integer> rootObsList, StateObservation parentSo,
 			StateObservation so) {
 		DefaultAnalysis analysis = new DefaultAnalysis();
