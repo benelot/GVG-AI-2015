@@ -52,9 +52,16 @@ public class AdjacencyMap {
 	}
 
 	public void print() {
+		System.out.print(" ");
+		for (int i = 0; i < adjacencyMapWidth; i++) {
+			System.out.print(i%10);
+		}
+		System.out.println();
+		
 		for (int j = 0; j < adjacencyMapHeight; j++) {
+			System.out.print(j%10);
 			for (int i = 0; i < adjacencyMapWidth; i++) {
-				System.out.print(adjacencyMap[i][j] ? "1" : "0");
+				System.out.print(adjacencyMap[i][j] ? "#" : " ");
 			}
 			System.out.println();
 		}
@@ -69,17 +76,17 @@ public class AdjacencyMap {
 	public boolean isActionPossible(int X, int Y, ACTIONS action) {
 		switch (action) {
 		case ACTION_DOWN:
-			return getObstacle(X, Y + 1);
+			return isObstacle(X, Y + 1);
 		case ACTION_ESCAPE:
 			return true; // TODO: I think you can always do that? What is escape actually?
 		case ACTION_LEFT:
-			return getObstacle(X - 1, Y);
+			return isObstacle(X - 1, Y);
 		case ACTION_NIL:
 			return true;
 		case ACTION_RIGHT:
-			return getObstacle(X + 1, Y);
+			return isObstacle(X + 1, Y);
 		case ACTION_UP:
-			return getObstacle(X, Y - 1);
+			return isObstacle(X, Y - 1);
 		case ACTION_USE:
 			return true;
 		default:
@@ -101,7 +108,7 @@ public class AdjacencyMap {
 		return isActionPossibleFromWorldPixelPos(pos.x, pos.y, action);
 	}
 
-	public boolean getObstacle(int X, int Y) {
+	public boolean isObstacle(int X, int Y) {
 		if (X < 0 || Y < 0 || X >= adjacencyMapWidth || Y >= adjacencyMapHeight) {
 			return true;
 		}
@@ -111,13 +118,13 @@ public class AdjacencyMap {
 	public boolean getObstaclewithWorldPixelPos(int pixelX, int pixelY) {
 		int X = floorDiv((int) (pixelX + 0.1), blockSize);
 		int Y = floorDiv((int) (pixelY + 0.1), blockSize);
-		return getObstacle(X, Y);
+		return isObstacle(X, Y);
 	}
 
 	public boolean getObstacleAtWorldPosition(Vector2d posVec) {
 		int X = floorDiv((int) (posVec.x + 0.1), blockSize);
 		int Y = floorDiv((int) (posVec.y + 0.1), blockSize);
-		return getObstacle(X, Y);
+		return isObstacle(X, Y);
 	}
 
 	public void setObstacle(int X, int Y, boolean value) {
