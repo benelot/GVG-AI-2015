@@ -48,14 +48,14 @@ public class PathPlannerNode implements Comparable<PathPlannerNode> {
 		switch (causingAction) {
 		case ACTION_DOWN:
 			this.x = parent.x;
-			this.y = parent.y + 1;
+			this.y = parent.y - 1;
 			break;
 		case ACTION_ESCAPE:
 			this.x = parent.x;
 			this.y = parent.y;
 			break;
 		case ACTION_LEFT:
-			this.x = parent.x - 1;
+			this.x = parent.x + 1;
 			this.y = parent.y;
 			break;
 		case ACTION_NIL:
@@ -63,12 +63,12 @@ public class PathPlannerNode implements Comparable<PathPlannerNode> {
 			this.y = parent.y;
 			break;
 		case ACTION_RIGHT:
-			this.x = parent.x + 1;
+			this.x = parent.x - 1;
 			this.y = parent.y;
 			break;
 		case ACTION_UP:
 			this.x = parent.x;
-			this.y = parent.y - 1;
+			this.y = parent.y + 1;
 			break;
 		case ACTION_USE:
 			this.x = parent.x;
@@ -84,20 +84,20 @@ public class PathPlannerNode implements Comparable<PathPlannerNode> {
 		ArrayList<PathPlannerNode> neighbors = new ArrayList<>();
 
 		if (!PersistentStorage.adjacencyMap.isObstacle(x + 1, y)) {
-			neighbors.add(new PathPlannerNode(Types.ACTIONS.ACTION_RIGHT, this, depth + 1));
+			neighbors.add(new PathPlannerNode(Types.ACTIONS.ACTION_LEFT, this, depth + 1));
 		}
 
 		if (!PersistentStorage.adjacencyMap.isObstacle(x, y + 1)) {
-			neighbors.add(new PathPlannerNode(Types.ACTIONS.ACTION_DOWN, this, depth + 1));
+			neighbors.add(new PathPlannerNode(Types.ACTIONS.ACTION_UP, this, depth + 1));
 
 		}
 
 		if (!PersistentStorage.adjacencyMap.isObstacle(x - 1, y)) {
-			neighbors.add(new PathPlannerNode(Types.ACTIONS.ACTION_LEFT, this, depth + 1));
+			neighbors.add(new PathPlannerNode(Types.ACTIONS.ACTION_RIGHT, this, depth + 1));
 		}
 
 		if (!PersistentStorage.adjacencyMap.isObstacle(x, y - 1)) {
-			neighbors.add(new PathPlannerNode(Types.ACTIONS.ACTION_UP, this, depth + 1));
+			neighbors.add(new PathPlannerNode(Types.ACTIONS.ACTION_DOWN, this, depth + 1));
 		}
 		return neighbors;
 	}
