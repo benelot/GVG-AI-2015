@@ -1,8 +1,6 @@
 package agents.misc.pathplanning;
 
 import java.util.ArrayList;
-import java.util.Stack;
-
 import agents.misc.PersistentStorage;
 import bladeRunner.Agent;
 import ontology.Types;
@@ -15,23 +13,30 @@ import ontology.Types.ACTIONS;
  */
 public class PathPlannerNode implements Comparable<PathPlannerNode> {
 
-	public Types.ACTIONS causingAction;
+	/**The action that lead to this position.*/
+	public Types.ACTIONS actionToParent;
+	
+	/**The parent of this node in the shortest path.*/
 	public PathPlannerNode parent;
+	
+	/**The search depth so far.*/
 	public int depth;
 
+	/** X and Y coordinates of the point*/
 	public int x, y;
 
-	private double score = -1;
-	private int hash = -1;
+	/** Accumulated distance so far*/
+	private double distanceFromStart = 0;
 
-	public double distanceFromStart = 0;
-	public double fullDistance = 0;
+	/** Estimated distance from start to goal. */
+	private double totalDistance = 0;
 
-	// Default constructor
+	/** Default constructor */
 	public PathPlannerNode() {
 
 	}
 
+	/**Overloaded constructor*/
 	public PathPlannerNode(int depth, int x, int y) {
 		super();
 		this.depth = 0;
@@ -40,12 +45,13 @@ public class PathPlannerNode implements Comparable<PathPlannerNode> {
 
 	}
 
-	public PathPlannerNode(Types.ACTIONS causingAction, PathPlannerNode parent, int depth) {
+	/**Overloaded constructor*/
+	public PathPlannerNode(Types.ACTIONS actionToParent, PathPlannerNode parent, int depth) {
 		super();
-		this.causingAction = causingAction;
+		this.actionToParent = actionToParent;
 		this.parent = parent;
 		this.depth = depth;
-		switch (causingAction) {
+		switch (actionToParent) {
 		case ACTION_DOWN:
 			this.x = parent.x;
 			this.y = parent.y - 1;
@@ -106,18 +112,13 @@ public class PathPlannerNode implements Comparable<PathPlannerNode> {
 	public PathPlannerNode(PathPlannerNode other) {
 		this.x = other.x;
 		this.y = other.y;
-		this.causingAction = other.causingAction;
+		this.actionToParent = other.actionToParent;
 		this.depth = other.depth;
-		this.hash = other.hash;
-		this.score = other.score;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		PathPlanner.equalCalls++;
-		if (Agent.isVerbose) {
-			// System.out.print(".");
-		}
 		if (hashCode() != obj.hashCode())
 			return false;
 
@@ -127,17 +128,12 @@ public class PathPlannerNode implements Comparable<PathPlannerNode> {
 		return true;
 	}
 
-	double getScore() {
-		return 0;
-
-	}
-
 	public ArrayList<Types.ACTIONS> getActionSequence() {
 		ArrayList<Types.ACTIONS> seq = new ArrayList<Types.ACTIONS>();
 		PathPlannerNode current = this;
 		while (true) {
-			if (current.causingAction != null) {
-				seq.add(current.causingAction);
+			if (current.actionToParent != null) {
+				seq.add(current.actionToParent);
 			}
 			if (current.parent != null) {
 				current = current.parent;
@@ -149,6 +145,7 @@ public class PathPlannerNode implements Comparable<PathPlannerNode> {
 	}
 
 	public void displayActionSequence() {
+		System.out.print("PathHBFS::");
 		ArrayList<ACTIONS> s = getActionSequence();
 		if (Agent.isVerbose) {
 			System.out.print("Actions: ");
@@ -171,6 +168,22 @@ public class PathPlannerNode implements Comparable<PathPlannerNode> {
 
 	@Override
 	public int compareTo(PathPlannerNode o) {
-		return (hashCode() == o.hashCode()) ? 1 : 0;
+		return Double.compare(totalDistance, o.totalDistance);
+	}
+
+	public double getDistanceFromStart() {
+		return distanceFromStart;
+	}
+
+	public void setDistanceFromStart(double distanceFromStart) {
+		this.distanceFromStart = distanceFromStart;
+	}
+
+	public double getTotalDistance() {
+		return totalDistance;
+	}
+
+	public void setTotalDistance(double totalDistance) {
+		this.totalDistance = totalDistance;
 	}
 }

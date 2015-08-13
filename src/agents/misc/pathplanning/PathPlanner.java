@@ -1,12 +1,17 @@
 package agents.misc.pathplanning;
 
 import java.util.ArrayList;
+import java.util.PriorityQueue;
+
 import bladeRunner.Agent;
 import ontology.Types;
 
-// A*
-// @author Benjamin Ellenberger
-
+/**
+ * An implementation of A*
+ * 
+ * @author Benjamin Ellenberger
+ *
+ */
 public class PathPlanner {
 
 	public static int INITIAL_PIPE_LENGTH = 200;
@@ -20,7 +25,7 @@ public class PathPlanner {
 	public static int hashCollisions = 0;
 	public static int hashesEqual = 0;
 	//
-	public static ArrayList<PathPlannerNode> pipe = new ArrayList<PathPlannerNode>(INITIAL_PIPE_LENGTH);;
+	public static PriorityQueue<PathPlannerNode> pipe = new PriorityQueue<PathPlannerNode>(INITIAL_PIPE_LENGTH);;
 	public static ArrayList<PathPlannerNode> visited = new ArrayList<PathPlannerNode>(INITIAL_REJECTION_SET_SIZE);
 	public static PathPlannerNode hbfsRoot = null;
 	//
@@ -59,7 +64,7 @@ public class PathPlanner {
 	public Types.ACTIONS whereToGoNext(int x, int y) {
 		for (PathPlannerNode n : visited) {
 			if (n.x == x && n.y == y) {
-				return n.causingAction;
+				return n.actionToParent;
 			}
 		}
 		return Types.ACTIONS.ACTION_NIL;
@@ -68,9 +73,9 @@ public class PathPlanner {
 	public static double getDistance(int x, int y) {
 		double highestDistance = 0;
 		for (PathPlannerNode n : visited) {
-			highestDistance = (highestDistance < n.distanceFromStart) ? n.distanceFromStart : highestDistance;
+			highestDistance = (highestDistance < n.getDistanceFromStart()) ? n.getDistanceFromStart() : highestDistance;
 			if (n.x == x && n.y == y) {
-				return n.distanceFromStart;
+				return n.getDistanceFromStart();
 			}
 		}
 		return highestDistance + 1;
@@ -95,13 +100,15 @@ public class PathPlanner {
 
 		// get the first Node from non-searched Node list, sorted by lowest
 		// distance from our goal as guessed by our heuristic
-		PathPlannerNode current = pipe.get(0);
-		pipe.remove(current);
+		PathPlannerNode current = pipe.remove();
 
 		// check if our current Node location is the start node. If it is, we
 		// are done.
 		if (current.x == startX && current.y == startY) {
-			System.out.println("Goal found.");
+			if (Agent.isVerbose) {
+				System.out.println();
+				System.out.println("PathHBFS::Goal found.");
+			}
 			startFound = true;
 		}
 		if (stopAtStart && startFound) {
@@ -117,59 +124,69 @@ public class PathPlanner {
 
 			// calculate how long the path is if we chose this neighbor as the
 			// next step in the path
-			double neighborDistanceFromStart = (current.distanceFromStart + 1);
-			double fullDistance = neighborDistanceFromStart + euclidianDistance(neighbor, startX, startY);
+			double neighborDistanceFromStart = current.getDistanceFromStart() + 1;
+			double totalDistance = neighborDistanceFromStart + euclidianDistance(neighbor, startX, startY);
 
 			// if child node has been evaluated and the newer fullDistance is
 			// higher, skip
 			int i = visited.indexOf(neighbor);
 			if (i != -1) {
 				neighbor = visited.get(i);
-				if (fullDistance >= neighbor.fullDistance) {
+				if (totalDistance >= neighbor.getTotalDistance()) {
 					continue;
 				}
 			}
 
-			int j = pipe.indexOf(neighbor);
-			if (j != -1) {
-				neighbor = pipe.get(j);
+			for (PathPlannerNode n : pipe) {
+				if (n.equals(neighbor)) {
+					neighbor = n;
+				}
 			}
 
 			// if child node is not in queue or new fullDistance is lower
-			else if ((!pipe.contains(neighbor)) || (fullDistance < neighbor.fullDistance)) {
+			if ((!pipe.contains(neighbor)) || (totalDistance < neighbor.getTotalDistance())) {
 
 				neighbor.parent = current;
-				neighbor.distanceFromStart = neighborDistanceFromStart;
-				neighbor.fullDistance = fullDistance;
+				neighbor.setDistanceFromStart(neighborDistanceFromStart);
+				neighbor.setTotalDistance(totalDistance);
 
 				if (!pipe.contains(neighbor)) {
 					pipe.add(neighbor);
+					if (Agent.isVerbose) {
+						System.out.print(".");
+					}
 				}
 
 			}
 		}
 
+		if (Agent.isVerbose) {
+			System.out.print("|");
+		}
 		return false;
 
 	}
 
-	public void displayAgentState() {
-		displayAgentState(null);
+	public static void displayPathState() {
+		displayPathState(null);
 	}
 
-	public void displayAgentState(PathPlannerNode node) {
-		if (node == null)
-			// node = pipe.peek();
-			if (node == null) {
-				if (Agent.isVerbose) {
-					System.out.println("HBFS::#Pipe Empty");
-				}
-				return;
+	public static void displayPathState(PathPlannerNode node) {
+		if (node == null) {
+			node = pipe.peek();
+		}
+		if (node == null) {
+			if (Agent.isVerbose) {
+				System.out.println("PathHBFS::#Pipe Empty");
+				System.out.format("PathHBFS::Pipe:%5d|R.Set:%5d|LongestDistance:%3.2f|Speed:%3d", pipe.size(), visited.size(),
+						getDistance(0, 0)-1, turnAroundSpeed);
 			}
+			return;
+		}
 		if (Agent.isVerbose) {
 			System.out.println();
-			System.out.format("HBFS::Pipe:%5d|R.Set:%5d|Rejects:%6d|Depth:%3d|Score:%3.2f|Speed:%3d", pipe.size(), visited.size(),
-					stats_rejects, node.depth, 0, node.getScore(), turnAroundSpeed);
+			System.out.format("PathHBFS::Pipe:%5d|R.Set:%5d|Depth:%3d|TotDistance:%3.2f|Speed:%3d", pipe.size(), visited.size(),
+					node.depth, node.getTotalDistance(), turnAroundSpeed);
 		}
 	}
 
@@ -187,8 +204,8 @@ public class PathPlanner {
 		cleanHbfs();
 
 		hbfsRoot = new PathPlannerNode(0, goalX, goalY);
-		hbfsRoot.distanceFromStart = 0;
-		hbfsRoot.fullDistance = euclidianDistance(hbfsRoot, startX, startY);
+		hbfsRoot.setDistanceFromStart(0);
+		hbfsRoot.setTotalDistance(euclidianDistance(hbfsRoot, startX, startY));
 
 		pipe.add(hbfsRoot);
 
@@ -198,11 +215,15 @@ public class PathPlanner {
 			hasTerminated = performHbfs();
 			turnAroundSpeed += 1;
 		}
+		System.out.println();
+		displayPathState();
+		System.out.println();
 	}
 
 	/**
 	 * Euclidean cost between state a and state b
 	 */
+	@SuppressWarnings("unused")
 	private static double euclidianDistance(PathPlannerNode a, PathPlannerNode b) {
 		float x = a.x - b.x;
 		float y = a.y - b.y;
