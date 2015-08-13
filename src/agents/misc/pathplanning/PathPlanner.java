@@ -11,44 +11,59 @@ import ontology.Types;
  * 
  * @author Benjamin Ellenberger
  *
+ *         //Example use: 
+ *         PathPlanner.updateStart(1, 1); // Not necessary, just if you need a way to that position only.
+ *         PathPlanner.updateGoal(26, 8);
+ *
+ *         PathPlanner.updateWays();
+ *
+ *         ArrayList<Types.ACTIONS> path = PathPlanner.getPath(1, 1);
+ *
+ *         for (Types.ACTIONS action : path) 
+ *              System.out.println("Next action: "+ action); 
+ *         System.out.println(PathPlanner.getDistance(1, 1));
  */
 public class PathPlanner {
 
-	public static int INITIAL_PIPE_LENGTH = 200;
-	public static int INITIAL_REJECTION_SET_SIZE = 200;
+	/**Initial pipe length for quick allocation*/
+	public static int INITIAL_PIPE_LENGTH = 250;
+	
+	/**Initial rejection length for quick allocation*/
+	public static int INITIAL_REJECTION_SET_SIZE = 250;
+	
 	//
-	public static final boolean IS_VERY_VERBOSE = true;
-	public static final boolean TRACK_HASHING = false;
-
-	public static int compareCalls = 0;
-	public static int equalCalls = 0;
-	public static int hashCollisions = 0;
-	public static int hashesEqual = 0;
-	//
-	public static PriorityQueue<PathPlannerNode> pipe = new PriorityQueue<PathPlannerNode>(INITIAL_PIPE_LENGTH);;
+	/**open set*/
+	public static PriorityQueue<PathPlannerNode> pipe = new PriorityQueue<PathPlannerNode>(INITIAL_PIPE_LENGTH);
+	
+	/**visited set*/
 	public static ArrayList<PathPlannerNode> visited = new ArrayList<PathPlannerNode>(INITIAL_REJECTION_SET_SIZE);
+	
+	/**root node of the search*/
 	public static PathPlannerNode hbfsRoot = null;
 	//
-	public int stats_rejects = 0;
-	public int stats_nonUseful = 0;
-	public static int turnAroundSpeed = -1;
-	public int pipeEmptyEvents = 0;
+	/**Number of elements processed*/
+	public static int processedElementsQty = 0;
 
-	public boolean hasTimedOut = false;
-
+	/** goal position*/
 	private static int goalX = 0;
 	private static int goalY = 0;
+	
+	/** start position*/
 	private static int startX = 0;
 	private static int startY = 0;
 
-	public static boolean stopAtStart = false;
+	/**If only a single path instead of a full path gradient is needed*/
+	private static boolean onlySinglePathNeeded = false;
 
-	public static boolean startFound = false;
+	/**If it has found a path at all*/
+	private static boolean pathFound = false;
 
 	private static void cleanHbfs() {
 		pipe.clear();
 		visited.clear();
 		hbfsRoot = null;
+		pathFound = false;
+		processedElementsQty = 0;
 	}
 
 	public static void updateStart(int startX, int startY) {
@@ -109,9 +124,9 @@ public class PathPlanner {
 				System.out.println();
 				System.out.println("PathHBFS::Goal found.");
 			}
-			startFound = true;
+			pathFound = true;
 		}
-		if (stopAtStart && startFound) {
+		if (onlySinglePathNeeded && pathFound) {
 			return true;
 		}
 
@@ -179,14 +194,14 @@ public class PathPlanner {
 			if (Agent.isVerbose) {
 				System.out.println("PathHBFS::#Pipe Empty");
 				System.out.format("PathHBFS::Pipe:%5d|R.Set:%5d|LongestDistance:%3.2f|Speed:%3d", pipe.size(), visited.size(),
-						getDistance(0, 0)-1, turnAroundSpeed);
+						getDistance(0, 0) - 1, processedElementsQty);
 			}
 			return;
 		}
 		if (Agent.isVerbose) {
 			System.out.println();
 			System.out.format("PathHBFS::Pipe:%5d|R.Set:%5d|Depth:%3d|TotDistance:%3.2f|Speed:%3d", pipe.size(), visited.size(),
-					node.depth, node.getTotalDistance(), turnAroundSpeed);
+					node.depth, node.getTotalDistance(), processedElementsQty);
 		}
 	}
 
@@ -201,19 +216,21 @@ public class PathPlanner {
 	 * @return An action for the current state
 	 */
 	public static void updateWays() {
+		// clean up from previous runs
 		cleanHbfs();
 
+		// add goal node to the pipe
 		hbfsRoot = new PathPlannerNode(0, goalX, goalY);
 		hbfsRoot.setDistanceFromStart(0);
 		hbfsRoot.setTotalDistance(euclidianDistance(hbfsRoot, startX, startY));
-
 		pipe.add(hbfsRoot);
 
+		// if the search has terminated
 		boolean hasTerminated = false;
-		turnAroundSpeed = 0;
+
 		while (!hasTerminated) {
 			hasTerminated = performHbfs();
-			turnAroundSpeed += 1;
+			processedElementsQty++;
 		}
 		System.out.println();
 		displayPathState();
@@ -237,5 +254,17 @@ public class PathPlanner {
 		float x = a.x - goalX;
 		float y = a.y - goalY;
 		return Math.sqrt(x * x + y * y);
+	}
+	
+	public static boolean isOnlySinglePathNeeded() {
+		return onlySinglePathNeeded;
+	}
+
+	public static void setOnlySinglePathNeeded(boolean onlySinglePathNeeded) {
+		PathPlanner.onlySinglePathNeeded = onlySinglePathNeeded;
+	}
+	
+	public static boolean hasPathFound() {
+		return pathFound;
 	}
 }

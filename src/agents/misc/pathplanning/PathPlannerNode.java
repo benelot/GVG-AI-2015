@@ -13,19 +13,19 @@ import ontology.Types.ACTIONS;
  */
 public class PathPlannerNode implements Comparable<PathPlannerNode> {
 
-	/**The action that lead to this position.*/
+	/** The action that lead to this position. */
 	public Types.ACTIONS actionToParent;
-	
-	/**The parent of this node in the shortest path.*/
+
+	/** The parent of this node in the shortest path. */
 	public PathPlannerNode parent;
-	
-	/**The search depth so far.*/
+
+	/** The search depth so far. */
 	public int depth;
 
-	/** X and Y coordinates of the point*/
+	/** X and Y coordinates of the point */
 	public int x, y;
 
-	/** Accumulated distance so far*/
+	/** Accumulated distance so far */
 	private double distanceFromStart = 0;
 
 	/** Estimated distance from start to goal. */
@@ -36,16 +36,16 @@ public class PathPlannerNode implements Comparable<PathPlannerNode> {
 
 	}
 
-	/**Overloaded constructor*/
+	/** Overloaded constructor */
 	public PathPlannerNode(int depth, int x, int y) {
 		super();
-		this.depth = 0;
+		this.depth = depth;
 		this.x = x;
 		this.y = y;
 
 	}
 
-	/**Overloaded constructor*/
+	/** Overloaded constructor */
 	public PathPlannerNode(Types.ACTIONS actionToParent, PathPlannerNode parent, int depth) {
 		super();
 		this.actionToParent = actionToParent;
@@ -118,12 +118,9 @@ public class PathPlannerNode implements Comparable<PathPlannerNode> {
 
 	@Override
 	public boolean equals(Object obj) {
-		PathPlanner.equalCalls++;
-		if (hashCode() != obj.hashCode())
+		if (hashCode() != obj.hashCode()) {
 			return false;
-
-		if (PathPlanner.TRACK_HASHING)
-			PathPlanner.hashesEqual++;
+		}
 
 		return true;
 	}

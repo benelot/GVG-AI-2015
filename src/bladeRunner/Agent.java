@@ -12,6 +12,7 @@ import agents.misc.ITypeAttractivity;
 import agents.misc.PersistentStorage;
 import agents.misc.RewardMap;
 import agents.misc.GameClassifier.GameType;
+import agents.misc.pathplanning.PathPlanner;
 import core.game.StateObservation;
 import core.player.AbstractPlayer;
 import ontology.Types;
@@ -70,10 +71,9 @@ public class Agent extends AbstractPlayer {
 
 		// initialize exploration reward map with 1
 		PersistentStorage.rewMap = new RewardMap(so, 1);
-		
+
 		// initialize the adjacency map with the current state observation
 		PersistentStorage.adjacencyMap = new AdjacencyMap(so);
-//		PersistentStorage.adjacencyMap.print();
 
 		// initialize ItypeAttracivity object for starting situation
 		PersistentStorage.iTypeAttractivity = new ITypeAttractivity(so);
@@ -82,8 +82,7 @@ public class Agent extends AbstractPlayer {
 		GameClassifier.determineGameType(so);
 
 		// use time that is left to build a tree or do BFS
-		if ((GameClassifier.getGameType() == GameType.STOCHASTIC || forcedAgentType == AgentType.MCTS)
-				&& forcedAgentType != AgentType.BFS) {
+		if ((GameClassifier.getGameType() == GameType.STOCHASTIC || forcedAgentType == AgentType.MCTS) && forcedAgentType != AgentType.BFS) {
 			// Create the player.
 			mctsAgent = new MCTSAgent(so, elapsedTimer, new Random());
 			currentAgent = mctsAgent;
@@ -104,8 +103,7 @@ public class Agent extends AbstractPlayer {
 	 *            Timer when the action returned is due.
 	 * @return An action for the current state
 	 */
-	public Types.ACTIONS act(StateObservation stateObs,
-			ElapsedCpuTimer elapsedTimer) {
+	public Types.ACTIONS act(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) {
 		Types.ACTIONS action = Types.ACTIONS.ACTION_NIL;
 
 		try {
@@ -139,16 +137,14 @@ public class Agent extends AbstractPlayer {
 			if (hbfsAgent != null) {
 				currentAgent = hbfsAgent;
 			} else {
-				throw new NullPointerException(
-						"HBFS Agent needs to be initialized.");
+				throw new NullPointerException("HBFS Agent needs to be initialized.");
 			}
 			break;
 		case MCTS:
 			if (mctsAgent != null) {
 				currentAgent = mctsAgent;
 			} else {
-				throw new NullPointerException(
-						"MCTS Agent needs to be initialized.");
+				throw new NullPointerException("MCTS Agent needs to be initialized.");
 			}
 			break;
 		case MIXED:
@@ -174,16 +170,14 @@ public class Agent extends AbstractPlayer {
 			if (hbfsAgent != null) {
 				currentAgent = hbfsAgent;
 			} else {
-				throw new NullPointerException(
-						"HBFS Agent needs to be initialized.");
+				throw new NullPointerException("HBFS Agent needs to be initialized.");
 			}
 			break;
 		case MCTS:
 			if (mctsAgent != null) {
 				currentAgent = mctsAgent;
 			} else {
-				throw new NullPointerException(
-						"MCTS Agent needs to be initialized.");
+				throw new NullPointerException("MCTS Agent needs to be initialized.");
 			}
 			break;
 		case MIXED:
