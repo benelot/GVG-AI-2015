@@ -174,7 +174,7 @@ public class MCTSAgent extends GameAgent {
 		 * create a reward gradient.
 		 */
 
-		boolean rewardNPCs = true;
+		boolean rewardNPCs = false;
 		if (rewardNPCs) {
 			ArrayList<Observation>[] npcPositions = null;
 			npcPositions = stateObs.getNPCPositions();
