@@ -26,7 +26,7 @@ public class HBFSRunner {
 //		config.addGameLevel(RunConfig.GamesValidationGECCO2015.ESCAPE, new int[] {0,1,2,3,4}); //*
 //		config.addGameLevel(RunConfig.GamesValidationGECCO2015.LABYRINTH, new int[] {0,1,2,3,4}); //*
 				
-		config.addGameLevel(RunConfig.GamesTraining2015.ZENPUZZLE ,new int[] {0,1,2,3,4}); //* except 3 
+//		config.addGameLevel(RunConfig.GamesTraining2015.ZENPUZZLE ,new int[] {0,1,2,3,4}); //* except 3 
 //		config.addGameLevel(RunConfig.GamesTraining2015.PAINTER, new int[] {0,1,2,3,4}); //* except 1, 2
 //		config.addGameLevel(RunConfig.GamesTraining2015.THECITADEL, new int[] {0,1,2,3,4}); //* except 1, 2
 		// // config.addGameLevel(RunConfig.GamesTraining2015.REALPORTALS ,2 ); // failure. special handling of avatar generated observations (avatar can make portals) might be required.
