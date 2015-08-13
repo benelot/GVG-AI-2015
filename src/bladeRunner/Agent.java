@@ -6,6 +6,7 @@ import java.util.Random;
 import agents.GameAgent;
 import agents.hbfs.HBFSAgent;
 import agents.mcts.MCTSAgent;
+import agents.misc.AdjacencyMap;
 import agents.misc.GameClassifier;
 import agents.misc.ITypeAttractivity;
 import agents.misc.PersistentStorage;
@@ -69,6 +70,10 @@ public class Agent extends AbstractPlayer {
 
 		// initialize exploration reward map with 1
 		PersistentStorage.rewMap = new RewardMap(so, 1);
+		
+		// initialize the adjacency map with the current state observation
+		PersistentStorage.adjacencyMap = new AdjacencyMap(so);
+//		PersistentStorage.adjacencyMap.print();
 
 		// initialize ItypeAttracivity object for starting situation
 		PersistentStorage.iTypeAttractivity = new ITypeAttractivity(so);

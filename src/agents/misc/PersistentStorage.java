@@ -13,7 +13,7 @@ public class PersistentStorage {
 	 */
 	public static ITypeAttractivity iTypeAttractivity = null;
 
-	/*
+	/**
 	 * an exploration reward map that is laid over the game-world to reward
 	 * places that haven't been visited lately
 	 */
@@ -37,4 +37,9 @@ public class PersistentStorage {
 	
 	// ## Parameters
 	public static int ROLLOUT_DEPTH = 0;
+	
+	/**
+	 * The adjacency map is a map containing positions you can move to at the current moment.
+	 */
+	public static AdjacencyMap adjacencyMap = null;
 }
