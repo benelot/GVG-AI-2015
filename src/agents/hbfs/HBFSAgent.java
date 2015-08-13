@@ -3,6 +3,7 @@ package agents.hbfs;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -10,6 +11,7 @@ import java.util.Stack;
 import java.util.TreeSet;
 
 import agents.GameAgent;
+import agents.misc.ObservationTools2;
 import bladeRunner.Agent;
 import core.game.StateObservation;
 import ontology.Types;
@@ -70,6 +72,7 @@ public class HBFSAgent extends GameAgent {
 	public static final double wTileDiversity = -3; // -2
 	public static final double wEvents = -0.1;
 	public static final double wDepth = 1;
+	public static final double wTransforms = -1;
 
 	public static final int INITIALIZATION_REMTIME = 25;
 	public static final int ACTION_REMTIME = 10;
@@ -86,6 +89,7 @@ public class HBFSAgent extends GameAgent {
 	public static int NUM_ACTIONS;
 	public static Types.ACTIONS[] ACTIONS;
 	public static int rootLoad = -1;
+	public static HashMap<Integer, Integer> rootObservationList = null;
 	public static double correspondingScore = Double.NEGATIVE_INFINITY;
 	public static double maxScoreDifference = Double.NEGATIVE_INFINITY;
 	public static int compareCalls = 0;
@@ -135,6 +139,8 @@ public class HBFSAgent extends GameAgent {
 		HBFSAgent.compareCalls = 0;
 
 		hbfsRoot = new HBFSNode(so, null, null, 0);
+		rootObservationList = ObservationTools2.getObsList(so);
+		
 		HBFSNode.setRootLoad(hbfsRoot.getLoad());
 		// HBFSNode.displayStateObservation(so);
 
@@ -191,6 +197,7 @@ public class HBFSAgent extends GameAgent {
 		pipe.clear();
 		visited.clear();
 		hbfsRoot = null;
+		rootObservationList = null;
 		hbfsSolution = null;
 		actionSequence = null;
 		pipe = null;
@@ -357,11 +364,11 @@ public class HBFSAgent extends GameAgent {
 		if (Agent.isVerbose) {
 			System.out.println();
 			System.out
-					.format("HBFS::Pipe:%5d|R.Set:%5d|Rejects:%6d|Depth:%3d|Events:%3d|E.Score:%3.2f|D.Score:%3.2f|L.Score:%3.2f|Score:%3.2f|B.Delta:%3.2f|C.Score:%3.2f|Speed:%3d",
+					.format("HBFS::Pipe:%5d|R.Set:%5d|Rejects:%6d|Depth:%3d|Events:%3d|E.Score:%3.2f|D.Score:%3.2f|L.Score:%3.2f|T.Score:%3.2f|Score:%3.2f|B.Delta:%3.2f|C.Score:%3.2f|Speed:%3d",
 							pipe.size(), visited.size(), stats_rejects,
 							node.depth, node.so.getEventsHistory().size(),
 							node.getEventScore(), node.getTileDiversityScore(),
-							node.getLoadScore(), node.getScore(),
+							node.getLoadScore(), node.getTransformScore(), node.getScore(),
 							HBFSAgent.maxScoreDifference,
 							HBFSAgent.correspondingScore, turnAroundSpeed);
 		}
