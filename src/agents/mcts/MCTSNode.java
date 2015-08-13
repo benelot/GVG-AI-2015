@@ -109,7 +109,8 @@ public class MCTSNode {
 				&& cur.m_depth < PersistentStorage.MCTS_DEPTH_RUN) {
 			if (cur.notFullyExpanded()) {
 				// expand with random actions of the unused actions.
-				return cur.expand();
+//				return cur.expand();
+				 cur.expand();
 
 			} else {
 				cur = cur.uct();
@@ -143,33 +144,7 @@ public class MCTSNode {
 
 	public MCTSNode uct() {
 
-		// TODO: Cleanup these parts if not used
-		// SingleTreeNode selected = null;
-		// double bestValue = -Double.MAX_VALUE;
-		// for (SingleTreeNode child : this.children) {
-		// double hvVal = child.totValue;
-		// double childValue = hvVal / (child.nVisits + this.epsilon);
-		//
-		// // reward + UCT-exploration term. Not clear to me if this is useful
-		// for the size of the tree that we have within our time constraints .
-		// double uctValue = childValue
-		// + Agent.K
-		// * Math.sqrt(Math.log(this.nVisits + 1)
-		// / (child.nVisits + this.epsilon))
-		// + this.m_rnd.nextDouble() * this.epsilon;
-		//
-		// // small sampleRandom numbers: break ties in unexpanded nodes
-		// if (uctValue > bestValue) {
-		// selected = child;
-		// bestValue = uctValue;
-		// }
-		// }
-		//
-		// if (selected == null) {
-		// throw new RuntimeException("Warning! returning null: " + bestValue
-		// + " : " + this.children.length);
-		// }
-		// return selected;
+		
 
 		MCTSNode selectedNode = null;
 		int selected = -1;
@@ -269,31 +244,49 @@ public class MCTSNode {
 //					previousScore);
 //			thisDepth++;
 //		}
-		previousScore = rollerState.getGameScore();
-		int action = MCTSNode.m_rnd.nextInt(PersistentStorage.actions.length);
-		rollerState.advance(PersistentStorage.actions[action]);
+		
+		// why do a random action???
+//		previousScore = rollerState.getGameScore();
+//		int action = MCTSNode.m_rnd.nextInt(PersistentStorage.actions.length);
+//		rollerState.advance(PersistentStorage.actions[action]);
+//		PersistentStorage.iTypeAttractivity.updateAttraction(rollerState,
+//				previousScore);
+		
+		// update our ItypeAttractivity (use the startingreward of the rollout, usefull? )
 		PersistentStorage.iTypeAttractivity.updateAttraction(rollerState,
-				previousScore);
-		thisDepth++;
+						PersistentStorage.startingReward);
+		
+		
 
-		// get current position and reward at that position
+		// get current position and reward at that position due to the exploration map
 		double explRew = PersistentStorage.rewMap
 				.getRewardAtWorldPosition(rollerState.getAvatarPosition());
+		
+		// TODO: get a reward for just moving far, so not making too many jittery moves.
+		Vector2d curPos = rollerState.getAvatarPosition();
+		//System.out.println(PersistentStorage.MCTS_DEPTH_FIX +"   "+ PersistentStorage.MCTS_DEPTH_RUN + "   "+ m_depth);
+		int nSteps =  1+PersistentStorage.MCTS_DEPTH_FIX - (PersistentStorage.MCTS_DEPTH_RUN - m_depth); 
+		// counts the number of Blocks we moved
+		double nonJitterRew = 0;
+		if(curPos.x > 0 ){
+			nonJitterRew = Math.abs((MCTSAgent.startingPos.x - curPos.x) ) + Math.abs((MCTSAgent.startingPos.y - curPos.y) ) ;
+			nonJitterRew /=  (rollerState.getBlockSize() * nSteps );
+		}
+
+		// get a reward based on the distance to the different Itypes. 
+		// this can be closest ones, or only positives.... 
+		double distITypeRew = getNewExplITypeReward(rollerState, nonJitterRew	);
 
 		// use a fraction of "explRew" as an additional reward (Not given by the
-		// Gamestats)
-		double additionalRew = explRew / 2;
+		// Gamestats) the multiplication is just taking care of ignoring this distItype if we are stuck.
+		double additionalRew =(explRew/10 + distITypeRew*nonJitterRew/2 + nonJitterRew/10) / 2;
+		System.out.println("explRew: " + explRew + "   ItypeDistRew: " + distITypeRew + "  NonJitterRew: " + nonJitterRew);
+		System.out.println(": " + curPos.x + "   : " + curPos.y + "  "+ nSteps  );
 
-		// in the old implementation the absolut normalized reward was feed
-		// back, This means that whenever there was no additional
-		// reward, did the system feed back a reward of R/R = 1. If there was an
-		// additional reward "r>0" then (R+r)/R > 1 was fed back.
-		// For children that were tried differently oft is this kind of
-		// comparison later on certainly unfair. Thats why one can consider
-		// sending back the relative reward.
-		int useRelativeRewar = 1;
+		
+		int useRelativeReward = 1;
 		double normDelta = 0;
-		if (useRelativeRewar == 0) {
+		if (useRelativeReward == 0) {
 
 			double delta = value(rollerState) + additionalRew;
 			if (delta < curBounds[0])
@@ -313,6 +306,112 @@ public class MCTSNode {
 		}
 		return normDelta;
 	}
+	
+	public double getNewExplITypeReward(StateObservation state, double nonJitterRew ){
+		double totRew = 0;
+
+		Vector2d pos = state.getAvatarPosition();
+		double maxDist = Math.sqrt(Math.pow(PersistentStorage.rewMap.getDimension().height,2)  +  Math.pow(PersistentStorage.rewMap.getDimension().height,2) );
+
+		int count1 = 0;
+		
+		// TODO: perhaps we should distinguish the cases where we want to kill the enemies
+		// Thus if we have the 5th or 3 actions we can also desire to go close ( or align) with 
+		// the enemies: aligning seems better since it goes closer and is better for shooting. 
+		ArrayList<Observation>[] npcPositions = null;
+		npcPositions = state.getNPCPositions(pos);
+		if (npcPositions != null) {
+			for (ArrayList<Observation> npcs : npcPositions) {
+				if (npcs.size() > 0) {
+					//					for(int i = 0; i< npcs.size(); i++){
+					// only look at the closest rewarding/punishing npc
+					for(int i = 0; i<1; i++){
+						Vector2d npcPos = npcs.get(i).position;
+						double npcAttractionValue = 0;
+						try {
+							npcAttractionValue = PersistentStorage.iTypeAttractivity
+									.get(npcs.get(i).itype);
+						} catch (java.lang.NullPointerException e) {
+							PersistentStorage.iTypeAttractivity
+							.putIfAbsent(npcs.get(i));
+							npcAttractionValue = PersistentStorage.iTypeAttractivity
+									.get(npcs.get(i).itype);
+						}
+
+						//double dist = Math.sqrt(Math.pow(pos.x-npcPos.x,2) + Math.pow(pos.x-npcPos.x,2))/maxDist;
+						double dist = Math.sqrt(Math.abs(pos.x-npcPos.x)) + Math.sqrt(Math.abs(pos.x-npcPos.x))/maxDist;
+						if(npcAttractionValue < 0 && PersistentStorage.actions.length%2 != 0  )
+							totRew += Math.abs(npcAttractionValue)/(dist+1);
+						else
+							totRew += npcAttractionValue/(dist+1);
+						count1++;
+					}
+				}
+			}
+		}
+
+		ArrayList<Observation>[] resPos = null;
+		resPos = state.getResourcesPositions(pos);
+		if (resPos != null) {
+			for (ArrayList<Observation> res : resPos) {
+				if (res.size() > 0) {
+					//for(int i = 0; i< res.size(); i++){
+					//only look at the closest rewarding/punishing npc
+					for(int i = 0; i< 1; i++){
+						double resAttractionValue = 0;
+						try {
+							resAttractionValue = PersistentStorage.iTypeAttractivity
+									.get(res.get(i).itype);
+						} catch (java.lang.NullPointerException e) {
+							PersistentStorage.iTypeAttractivity
+							.putIfAbsent(res.get(i));
+							resAttractionValue = PersistentStorage.iTypeAttractivity
+									.get(res.get(i).itype);
+						}
+						Vector2d resPosition = res.get(i).position;;
+						double dist = Math.sqrt(Math.abs(pos.x-resPosition.x)) + Math.sqrt(Math.abs(pos.x-resPosition.x))/maxDist*nonJitterRew;
+						totRew += resAttractionValue/(dist+1);
+						count1++;
+					}
+				}
+			}
+		}
+		
+		// go towards the closest attracting movable:
+		ArrayList<Observation>[] movPos = null;
+		movPos = state.getResourcesPositions(pos);
+		if (movPos != null) {
+			for (ArrayList<Observation> mov : movPos) {
+				if (mov.size() > 0) {
+					//for(int i = 0; i< res.size(); i++){
+					//only look at the closest rewarding/punishing npc
+					for(int i = 0; i< 1; i++){
+						double movAttractionValue = 0;
+						try {
+							movAttractionValue = PersistentStorage.iTypeAttractivity
+									.get(mov.get(i).itype);
+						} catch (java.lang.NullPointerException e) {
+							PersistentStorage.iTypeAttractivity
+							.putIfAbsent(mov.get(i));
+							movAttractionValue = PersistentStorage.iTypeAttractivity
+									.get(mov.get(i).itype);
+						}
+						Vector2d movPosition = mov.get(i).position;;
+						double dist = Math.sqrt(Math.abs(pos.x-movPosition.x)) + Math.sqrt(Math.abs(pos.x-movPosition.x))/maxDist;
+						totRew += movAttractionValue/(dist+1);
+						count1++;
+					}
+				}
+			}
+		}
+		
+		// normalize this type of reward somehow
+		if(count1 >0)
+			return totRew/count1;
+		else
+			return 0;
+	}
+	
 
 	public double value(StateObservation a_gameState) {
 
@@ -420,7 +519,7 @@ public class MCTSNode {
 				// tried that child ( the sqrt is there just for fun ;) )
 				double disturbedChildRew = (children[i].totValue + (MCTSNode.m_rnd
 						.nextDouble() - 0.5) * epsilon)
-						/ Math.sqrt(children[i].nVisits);
+						/(children[i].nVisits);
 				if (disturbedChildRew > bestValue
 						&& !children[i].isDeadEnd(2)) {
 					bestValue = disturbedChildRew;

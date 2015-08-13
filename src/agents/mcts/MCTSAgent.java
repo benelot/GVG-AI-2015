@@ -23,6 +23,8 @@ public class MCTSAgent extends GameAgent {
 	 * Random generator.
 	 */
 	public Random m_rnd;
+	
+	public static Vector2d startingPos;
 
 	public int nodeQty;
 
@@ -58,6 +60,7 @@ public class MCTSAgent extends GameAgent {
 		// Set the game observation to a newly root node.
 		m_root = new MCTSNode(m_rnd);
 		m_root.state = a_gameState;
+		startingPos = a_gameState.getAvatarPosition();
 
 	}
 
@@ -65,6 +68,7 @@ public class MCTSAgent extends GameAgent {
 		// Set the game observation to a newly root node.
 		m_root = new MCTSNode(m_rnd);
 		m_root.state = a_gameState;
+		startingPos = a_gameState.getAvatarPosition();
 
 	}
 
@@ -76,7 +80,9 @@ public class MCTSAgent extends GameAgent {
 		 * Therefore, the maximal MCTS_Depth also grows
 		 */
 
+		startingPos = a_gameState.getAvatarPosition();
 		if (action == KEEP_COMPLETE_OLD_TREE) {
+			int oldDepth = m_root.m_depth;
 			// Reset the tree
 			m_root = new MCTSNode(m_rnd);
 			// Set all children to UNCACHED if they are not null.
@@ -86,10 +92,12 @@ public class MCTSAgent extends GameAgent {
 			//	}
 			//}
 			m_root.state = a_gameState;
+			m_root.m_depth = oldDepth;
 		} else {
 			if (action == ADD_NEW_ROOT_NODE) {
 				m_root = new MCTSNode(m_rnd);
 				m_root.state = a_gameState;
+				
 			} else {
 				// cut old tree
 				m_root = m_root.children[action];
@@ -117,7 +125,8 @@ public class MCTSAgent extends GameAgent {
 
 		// Determine the best action to take and return it.
 		// int action = m_root.mostVisitedAction();
-
+		
+		
 		int action = m_root.bestAction();
 
 		// for (int i = 1; i<= m_root.children.length ; i++ ){
@@ -148,7 +157,8 @@ public class MCTSAgent extends GameAgent {
 		// Heuristic: change the reward in the exploration reward map of the
 		// visited current position
 		Vector2d avatarPos = stateObs.getAvatarPosition();
-
+		startingPos = avatarPos;
+		
 		// increment reward at all unvisited positions and decrement at
 		// current position
 		PersistentStorage.rewMap.incrementAll(0.001);
@@ -174,7 +184,7 @@ public class MCTSAgent extends GameAgent {
 		 * create a reward gradient.
 		 */
 
-		boolean rewardNPCs = true;
+		boolean rewardNPCs = false;
 		if (rewardNPCs) {
 			ArrayList<Observation>[] npcPositions = null;
 			npcPositions = stateObs.getNPCPositions();
@@ -242,7 +252,7 @@ public class MCTSAgent extends GameAgent {
 		// if (stateObs.getGameTick() % 2 == 0) {
 		// action = KEEP_COMPLETE_TREE;
 		// }
-		if (action > KEEP_COMPLETE_OLD_TREE && useOldTree) {
+		if (action > ADD_NEW_ROOT_NODE && useOldTree) {
 			PersistentStorage.MCTS_DEPTH_RUN += 1;
 		}
 

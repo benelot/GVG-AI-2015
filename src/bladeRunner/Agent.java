@@ -69,6 +69,9 @@ public class Agent extends AbstractPlayer {
 
 		// initialize exploration reward map with 1
 		PersistentStorage.rewMap = new RewardMap(so, 1);
+		
+		// set the MCTS_depth back
+		PersistentStorage.MCTS_DEPTH_RUN = PersistentStorage.MCTS_DEPTH_FIX;
 
 		// initialize ItypeAttracivity object for starting situation
 		PersistentStorage.iTypeAttractivity = new ITypeAttractivity(so);
