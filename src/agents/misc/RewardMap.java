@@ -68,10 +68,7 @@ public class RewardMap {
 	}
 
 	public double getReward(int X, int Y) {
-		if (X < 0 || Y < 0) {
-			return -1;
-		}
-		if (X >= rewMapWidth || Y >= rewMapHeight) {
+		if (X < 0 || Y < 0 || X >= rewMapWidth || Y >= rewMapHeight) {
 			return 0;
 		}
 		return rewMap[X][Y];
@@ -80,45 +77,35 @@ public class RewardMap {
 	public double getRewardwithWorldPixelPos(int pixelX, int pixelY) {
 		int X = floorDiv((int) (pixelX + 0.1), blockSize);
 		int Y = floorDiv((int) (pixelY + 0.1), blockSize);
-		if (X < 0 || Y < 0) {
-			return -1;
-		}
-		if (X >= rewMapWidth || Y >= rewMapHeight) {
-			return 0;
-		}
-		return rewMap[X][Y];
+		return getReward(X, Y);
 	}
 
 	public double getRewardAtWorldPosition(Vector2d posVec) {
 		int X = floorDiv((int) (posVec.x + 0.1), blockSize);
 		int Y = floorDiv((int) (posVec.y + 0.1), blockSize);
-		if (X < 0 || Y < 0) {
-			return -1;
-		}
-		if (X >= rewMapWidth || Y >= rewMapHeight) {
-			return 0;
-		}
-		return rewMap[X][Y];
+		return getReward(X, Y);
 	}
 
 	public void setReward(int X, int Y, double value) {
-		rewMap[X][Y] = value;
-	}
-
-	public void setRewardAtWorldPosition(Vector2d posVec, double value) {
-		int X = floorDiv((int) (posVec.x + 0.1), blockSize);
-		int Y = floorDiv((int) (posVec.y + 0.1), blockSize);
 		if (X >= 0 && Y >= 0 && X < rewMapWidth && Y < rewMapHeight) {
 			rewMap[X][Y] = value;
 		}
 	}
 
+	public void setRewardAtWorldPixelPos(double pixelX, double pixelY, double value) {
+		int X = floorDiv((int) (pixelX + 0.1), blockSize);
+		int Y = floorDiv((int) (pixelY + 0.1), blockSize);
+		setReward(X, Y, value);
+	}
+
+	public void setRewardAtWorldPosition(Vector2d posVec, double value) {
+		setRewardAtWorldPixelPos(posVec.x,posVec.y,value);
+	}
+
 	public void incrementRewardAtWorldPosition(Vector2d posVec, double incValue) {
 		int X = floorDiv((int) (posVec.x + 0.1), blockSize);
 		int Y = floorDiv((int) (posVec.y + 0.1), blockSize);
-		if (X >= 0 && Y >= 0 && X < rewMapWidth && Y < rewMapHeight) {
-			rewMap[X][Y] += incValue;
-		}
+		setReward(X, Y, getReward(X, Y) + incValue);
 	}
 
 	public void addOtherMap(RewardMap MapToAdd) {
