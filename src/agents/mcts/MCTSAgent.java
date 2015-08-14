@@ -40,6 +40,13 @@ public class MCTSAgent extends GameAgent {
 
 	public static HashMap<Integer, PathPlanner> pathPlannerMaps;
 	
+	public static int treePolMode;
+	public static int goalItype;
+	public static int idOfGoal;
+	public static int GoalDrivenTreePolCounter;
+	public static int GoalDrivenTreePolCounter_Max = 10;
+	public static double chanceOfGoalDrivenPlanning = 0.05;
+
 	/**
 	 * Creates the MCTS player with a sampleRandom generator object.
 	 * 
@@ -53,6 +60,10 @@ public class MCTSAgent extends GameAgent {
 		init(so);
 		run(elapsedTimer);
 		nodeQty = 0;
+		treePolMode = 0;
+		idOfGoal = 0;
+		goalItype = 0;
+		GoalDrivenTreePolCounter = 0;
 	}
 
 	/**
@@ -84,7 +95,6 @@ public class MCTSAgent extends GameAgent {
 		 * that tree is not changed such that it grows throughout the game.
 		 * Therefore, the maximal MCTS_Depth also grows
 		 */
-
 		startingPos = a_gameState.getAvatarPosition();
 		if (action == KEEP_COMPLETE_OLD_TREE) {
 			//int oldDepth = m_root.m_depth;
@@ -124,6 +134,22 @@ public class MCTSAgent extends GameAgent {
 		
 		PersistentStorage.previousAvatarRessources = m_root.state.getAvatarResources();
 		
+		
+		// set the counter for the goalDriven way of planning
+		if(GoalDrivenTreePolCounter > 0){
+			GoalDrivenTreePolCounter--;
+			if(GoalDrivenTreePolCounter == 0){
+				treePolMode = 0;
+			}
+		}
+		//decide on a planning strategy
+		if(m_rnd.nextDouble() < GoalDrivenTreePolCounter_Max && treePolMode == 0){
+			treePolMode = 1;
+			GoalDrivenTreePolCounter =  GoalDrivenTreePolCounter_Max;
+			chooseANewGoal();
+		}
+	
+		
 		// Do the search within the available time.
 		m_root.mctsSearch(elapsedTimer);
 
@@ -153,6 +179,8 @@ public class MCTSAgent extends GameAgent {
 
 		return action;
 	}
+	
+	
 
 	@Override
 	public ACTIONS act(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) {
@@ -362,6 +390,23 @@ public class MCTSAgent extends GameAgent {
 		}
 
 	}
+	
+	public static void chooseANewGoal(){
+		int newGoalID = 0;
+		int newGoalItype = 0;
+		
+		
+		// TODO: figgure out a way to make a list of all the itypes we could visit (excluding walls, and empty space)
+		// then set some attractivity for them based on distance / itypeAttractivity
+		// form a probability from that attractivity
+		// take one sample from that probability
+		
+		
+		idOfGoal = newGoalID;
+		goalItype =newGoalItype;
+		
+	}
+	
 	
 	public static int floorDiv(int x, int y) {
 		int r = x / y;
