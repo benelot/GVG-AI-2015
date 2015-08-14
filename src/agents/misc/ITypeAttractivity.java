@@ -33,7 +33,7 @@ public class ITypeAttractivity extends HashMap<Integer, Double> {
 	 * @param StateObs
 	 *            a StateObservation
 	 */
-	public ITypeAttractivity(StateObservation StateObs) {
+	public ITypeAttractivity(StateObservation StateObs, int numActions ) {
 		super();
 
 		ArrayList<Observation>[][] grid = StateObs.getObservationGrid();
@@ -41,9 +41,14 @@ public class ITypeAttractivity extends HashMap<Integer, Double> {
 		// Set prior Attraction values of categories
 		spriteCategoryAttractivityValue = new HashMap<Integer, Double>();
 		spriteCategoryAttractivityValue.put(Types.TYPE_AVATAR, -1.0);
-		spriteCategoryAttractivityValue.put(Types.TYPE_RESOURCE, 0.2);
+		spriteCategoryAttractivityValue.put(Types.TYPE_RESOURCE, 0.4);
 		spriteCategoryAttractivityValue.put(Types.TYPE_PORTAL, 0.1);
-		spriteCategoryAttractivityValue.put(Types.TYPE_NPC, 0.2);
+		if(numActions == 4 || numActions == 2){
+			spriteCategoryAttractivityValue.put(Types.TYPE_NPC, -0.2);
+		}
+		else{
+			spriteCategoryAttractivityValue.put(Types.TYPE_NPC, 0.2);
+		}
 		spriteCategoryAttractivityValue.put(Types.TYPE_STATIC, 0.05);
 		spriteCategoryAttractivityValue.put(Types.TYPE_FROMAVATAR, 0.0);
 		spriteCategoryAttractivityValue.put(Types.TYPE_MOVABLE, 0.1);
@@ -213,7 +218,7 @@ public class ITypeAttractivity extends HashMap<Integer, Double> {
 			if (currEvent.passiveTypeId != 0) { // exclude walls=0
 				double newVal = this.get(currEvent.passiveTypeId) + updateVal
 						* learningrate;
-				if (newVal < -1) {
+				if (newVal < -1 && newVal!=-2) {
 					newVal = -1;
 				}
 				if (newVal > 1) {

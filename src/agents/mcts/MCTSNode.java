@@ -1,5 +1,6 @@
 package agents.mcts;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -23,7 +24,7 @@ public class MCTSNode {
 	private static final double HUGE_NEGATIVE_REWARD = -Double.MAX_VALUE;
 	private static final double HUGE_POSITIVE_REWARD = Double.MAX_VALUE;
 
-	public static double fear_of_unknown = 0.9;
+	public static double fear_of_unknown = 0.99;
 	public static double epsilon = 1e-6;
 	public static double egreedyEpsilon = 0.05;
 	public StateObservation state;
@@ -85,21 +86,45 @@ public class MCTSNode {
 
 		lastBounds[0] = curBounds[0];
 		lastBounds[1] = curBounds[1];
-
-		while (elapsedTimer.remainingTimeMillis() > 10) {
-
-			// form tree with MCTS
-			MCTSNode selected = treePolicy();
-
-			// rollout subsequent steps randomly
-			double delta = selected.rollOut();
-
-			// feedback the reward from rollout along the "selected" branch of
-			// the tree
-			backUp(selected, delta);
-			// backUpBest(selected, delta);
-
+		int firstTry = 0;
+		if(elapsedTimer.remainingTimeMillis() > 300){
+			PersistentStorage.MCTS_DEPTH_RUN = 20;
+			firstTry = 1;
 		}
+		
+
+		if(firstTry == 1){
+			while (elapsedTimer.remainingTimeMillis() > 50) {
+				
+				MCTSNode cur = this;
+				while (!cur.state.isGameOver()
+						&& cur.m_depth < PersistentStorage.MCTS_DEPTH_RUN) {
+					if (cur.notFullyExpanded()) {
+						//form deeper trees
+						 cur = cur.expand();
+
+					} else {
+						cur = cur.uct();
+						// cur = cur.egreedy();
+					}
+				}
+				
+				double delta = cur.rollOut();
+				backUp(cur, delta+1,1);
+				// backUpBest(selected, delta);
+			}
+			PersistentStorage.MCTS_DEPTH_RUN = PersistentStorage.MCTS_DEPTH_FIX;
+		}
+
+		else{
+			while (elapsedTimer.remainingTimeMillis() > 10) {
+				MCTSNode selected = treePolicy();
+				double delta = selected.rollOut();
+				backUp(selected, delta,1);
+				// backUpBest(selected, delta);
+			}
+		}
+
 	}
 
 	public MCTSNode treePolicy() {
@@ -109,8 +134,8 @@ public class MCTSNode {
 				&& cur.m_depth < PersistentStorage.MCTS_DEPTH_RUN) {
 			if (cur.notFullyExpanded()) {
 				// expand with random actions of the unused actions.
-//				return cur.expand();
-				 cur.expand();
+			return cur.expand();
+//				 cur = cur.expand();
 
 			} else {
 				cur = cur.uct();
@@ -141,7 +166,7 @@ public class MCTSNode {
 		return tn;
 
 	}
-
+	
 	public MCTSNode uct() {
 
 		
@@ -235,15 +260,15 @@ public class MCTSNode {
 							// after MCTS/expand is finished
 		double previousScore;
 		// rollout with random actions for "ROLLOUT_DEPTH" times
-//		while (!finishRollout(rollerState, thisDepth)) {
-//			previousScore = rollerState.getGameScore();
-//			int action = MCTSNode.m_rnd
-//					.nextInt(PersistentStorage.actions.length);
-//			rollerState.advance(PersistentStorage.actions[action]);
-//			PersistentStorage.iTypeAttractivity.updateAttraction(rollerState,
-//					previousScore);
-//			thisDepth++;
-//		}
+		while (!finishRollout(rollerState, thisDepth)) {
+			previousScore = rollerState.getGameScore();
+			int action = MCTSNode.m_rnd
+					.nextInt(PersistentStorage.actions.length);
+			rollerState.advance(PersistentStorage.actions[action]);
+			PersistentStorage.iTypeAttractivity.updateAttraction(rollerState,
+					previousScore);
+			thisDepth++;
+		}
 		
 		// why do a random action???
 //		previousScore = rollerState.getGameScore();
@@ -262,6 +287,7 @@ public class MCTSNode {
 		double explRew = PersistentStorage.rewMap
 				.getRewardAtWorldPosition(rollerState.getAvatarPosition());
 		
+		
 		// TODO: get a reward for just moving far, so not making too many jittery moves.
 		Vector2d curPos = rollerState.getAvatarPosition();
 		//System.out.println(PersistentStorage.MCTS_DEPTH_FIX +"   "+ PersistentStorage.MCTS_DEPTH_RUN + "   "+ m_depth);
@@ -272,16 +298,25 @@ public class MCTSNode {
 			nonJitterRew = Math.abs((MCTSAgent.startingPos.x - curPos.x) ) + Math.abs((MCTSAgent.startingPos.y - curPos.y) ) ;
 			nonJitterRew /=  (rollerState.getBlockSize() * nSteps );
 		}
-
+		if(nonJitterRew >= 1)
+			nonJitterRew = 0;
+		
+		// in 2D games is exploration and notJitter movements not that important
+		double multiplierExploration = 1;
+		if(PersistentStorage.actions.length < 4)
+			multiplierExploration = 0.1;
 		// get a reward based on the distance to the different Itypes. 
 		// this can be closest ones, or only positives.... 
 		double distITypeRew = getNewExplITypeReward(rollerState, nonJitterRew	);
 
 		// use a fraction of "explRew" as an additional reward (Not given by the
 		// Gamestats) the multiplication is just taking care of ignoring this distItype if we are stuck.
-		double additionalRew =(explRew/10 + distITypeRew*nonJitterRew/2 + nonJitterRew/10) / 2;
-		System.out.println("explRew: " + explRew + "   ItypeDistRew: " + distITypeRew + "  NonJitterRew: " + nonJitterRew);
-		System.out.println(": " + curPos.x + "   : " + curPos.y + "  "+ nSteps  );
+		double additionalRew =(multiplierExploration*explRew/10 + distITypeRew/2 + multiplierExploration*nonJitterRew/20) / 2;
+		
+		DecimalFormat df = new DecimalFormat("####0.0000");
+		
+		System.out.println("explRew: " + df.format(explRew/10) + "   ItypeDistRew: " + df.format(distITypeRew/2) + "  NonJitterRew: " + df.format(nonJitterRew/20));
+//		System.out.println(": " + curPos.x + "   : " + curPos.y + "  "+ nSteps  );
 
 		
 		int useRelativeReward = 1;
@@ -301,9 +336,21 @@ public class MCTSNode {
 					+ additionalRew;
 		}
 		int useTrappedHeuristics = 1;
-		if (useTrappedHeuristics == 1) {
-			normDelta += 0.1f * (PersistentStorage.numberOfBlockedMovables - trapHeuristic(rollerState));
+//		if (useTrappedHeuristics == 1) {
+//			normDelta += 0.1f * (PersistentStorage.numberOfBlockedMovables - trapHeuristic(rollerState));
+//		}
+		
+		// try to punish positions where we died in some rollouts
+		if(normDelta < -100){
+			if(this.parent != null){
+				Vector2d lastPos = this.parent.state.getAvatarPosition();
+				PersistentStorage.rewMap.setRewardAtWorldPosition(lastPos, -0.4);
+			}
 		}
+	
+			
+		
+		
 		return normDelta;
 	}
 	
@@ -311,8 +358,9 @@ public class MCTSNode {
 		double totRew = 0;
 
 		Vector2d pos = state.getAvatarPosition();
-		double maxDist = Math.sqrt(Math.pow(PersistentStorage.rewMap.getDimension().height,2)  +  Math.pow(PersistentStorage.rewMap.getDimension().height,2) );
-
+		double maxDist = Math.sqrt(Math.pow(PersistentStorage.rewMap.getDimension().height * state.getBlockSize(),2)  +  Math.pow(PersistentStorage.rewMap.getDimension().height* state.getBlockSize(),2) );
+		int blockSize = state.getBlockSize();
+		
 		int count1 = 0;
 		
 		// TODO: perhaps we should distinguish the cases where we want to kill the enemies
@@ -323,7 +371,7 @@ public class MCTSNode {
 		if (npcPositions != null) {
 			for (ArrayList<Observation> npcs : npcPositions) {
 				if (npcs.size() > 0) {
-					//					for(int i = 0; i< npcs.size(); i++){
+//										for(int i = 0; i< npcs.size(); i++){
 					// only look at the closest rewarding/punishing npc
 					for(int i = 0; i<1; i++){
 						Vector2d npcPos = npcs.get(i).position;
@@ -339,11 +387,17 @@ public class MCTSNode {
 						}
 
 						//double dist = Math.sqrt(Math.pow(pos.x-npcPos.x,2) + Math.pow(pos.x-npcPos.x,2))/maxDist;
-						double dist = Math.sqrt(Math.abs(pos.x-npcPos.x)) + Math.sqrt(Math.abs(pos.x-npcPos.x))/maxDist;
-						if(npcAttractionValue < 0 && PersistentStorage.actions.length%2 != 0  )
-							totRew += Math.abs(npcAttractionValue)/(dist+1);
+						double dist = Math.sqrt(Math.pow(pos.x-npcPos.x,2) + Math.pow(pos.y-npcPos.y,2))/maxDist;
+						if(npcAttractionValue < 0 && PersistentStorage.actions.length%2 != 0 && npcAttractionValue > -1.5 )
+							totRew += Math.abs(npcAttractionValue)/(dist*dist+1);
 						else
-							totRew += npcAttractionValue/(dist+1);
+							if(npcAttractionValue < -1){
+								dist = Math.sqrt(Math.abs(pos.x-npcPos.x) + Math.abs(pos.y-npcPos.y))/blockSize;
+								totRew += 5*npcAttractionValue/(dist*dist+1);
+							}
+							else
+								totRew += npcAttractionValue/(dist+1);
+						
 						count1++;
 					}
 				}
@@ -369,8 +423,8 @@ public class MCTSNode {
 									.get(res.get(i).itype);
 						}
 						Vector2d resPosition = res.get(i).position;;
-						double dist = Math.sqrt(Math.abs(pos.x-resPosition.x)) + Math.sqrt(Math.abs(pos.x-resPosition.x))/maxDist*nonJitterRew;
-						totRew += resAttractionValue/(dist+1);
+						double dist = Math.sqrt(Math.pow((pos.x-resPosition.x),2) + Math.pow(pos.y-resPosition.y,2)) /maxDist;
+						totRew += 3*resAttractionValue/(dist*dist+1);
 						count1++;
 					}
 				}
@@ -379,7 +433,7 @@ public class MCTSNode {
 		
 		// go towards the closest attracting movable:
 		ArrayList<Observation>[] movPos = null;
-		movPos = state.getResourcesPositions(pos);
+		movPos = state.getMovablePositions(pos);
 		if (movPos != null) {
 			for (ArrayList<Observation> mov : movPos) {
 				if (mov.size() > 0) {
@@ -397,8 +451,8 @@ public class MCTSNode {
 									.get(mov.get(i).itype);
 						}
 						Vector2d movPosition = mov.get(i).position;;
-						double dist = Math.sqrt(Math.abs(pos.x-movPosition.x)) + Math.sqrt(Math.abs(pos.x-movPosition.x))/maxDist;
-						totRew += movAttractionValue/(dist+1);
+						double dist = Math.sqrt(Math.pow(pos.x-movPosition.x,2) + Math.pow(pos.y-movPosition.y,2) ) /maxDist;
+						totRew += 2*movAttractionValue/(dist*dist+1);
 						count1++;
 					}
 				}
@@ -420,13 +474,14 @@ public class MCTSNode {
 		double rawScore = a_gameState.getGameScore();
 
 		if (gameOver && win == Types.WINNER.PLAYER_LOSES) {
+			//return -Double.MAX_VALUE/10;
 			return HUGE_NEGATIVE_REWARD;
 		}
 
 		if (gameOver && win == Types.WINNER.PLAYER_WINS) {
 			return HUGE_POSITIVE_REWARD;
 		}
-
+		
 		return rawScore;
 	}
 
@@ -444,18 +499,57 @@ public class MCTSNode {
 		return false;
 	}
 
-	public void backUp(MCTSNode node, double result) {
-		// add the rewards and visits the the chosen branch of the tree
-		MCTSNode n = node;
+	public void backUp(MCTSNode node, double result, int leaveNode) {
+//		// add the rewards and visits the the chosen branch of the tree
+//		MCTSNode n = node;
+//		
+//		while (n != null) {
+//			n.nVisits++;
+//			if(result < 0){
+//				if(n.totValue > -Double.MAX_VALUE )
+//					n.totValue += result;
+//				else
+//					n.totValue -= 100;
+//			}
+//			else{
+//				if(n.totValue < Double.MAX_VALUE )
+//					n.totValue += result;
+//				else
+//					n.totValue += 100;
+//			
+//			}
+//				
+//			n = n.parent;
+//			// a little hack to compare deaths which are close by and those that
+//			// are far away
+//			if (result < 0)
+//				result /= 2;
+//		}
+		
+			MCTSNode n = node;
+		
 		while (n != null) {
 			n.nVisits++;
-			n.totValue += result;
-			n = n.parent;
+			if (result < -1000){
+
+				if(leaveNode == 1){
+					n.totValue  = n.totValue/4 -10000;
+				}
+				else{
+					n.totValue  = n.totValue/4 -10;
+				}
+			}
+			else
+				n.totValue += result;
+
+				n = n.parent;
+				leaveNode = 0;
 			// a little hack to compare deaths which are close by and those that
 			// are far away
 			if (result < 0)
 				result /= 2;
 		}
+		
 	}
 
 	public void backUpBest(MCTSNode node, double result) {
@@ -554,9 +648,9 @@ public class MCTSNode {
 					if (MCTSNode.m_rnd.nextDouble() > fear_of_unknown) {
 						// Well, there's an unknown path, and we're not worried
 						// - so let's guess it isn't a dead end!
-						if (Agent.isVerbose) {
-							System.out.println("MCTS::Overcame fear of unknown!");
-						}						
+//						if (Agent.isVerbose) {
+//							System.out.println("MCTS::Overcame fear of unknown!");
+//						}						
 						return false;
 					}
 				}

@@ -27,6 +27,7 @@ public class MCTSAgent extends GameAgent {
 	public static Vector2d startingPos;
 
 	public int nodeQty;
+	
 
 	// additional actions names
 	public final int ADD_NEW_ROOT_NODE = -1;
@@ -82,17 +83,10 @@ public class MCTSAgent extends GameAgent {
 
 		startingPos = a_gameState.getAvatarPosition();
 		if (action == KEEP_COMPLETE_OLD_TREE) {
-			int oldDepth = m_root.m_depth;
-			// Reset the tree
-			m_root = new MCTSNode(m_rnd);
-			// Set all children to UNCACHED if they are not null.
-			//for (MCTSNode child : m_root.children) {
-			//	if (child != null) {
-			//		child.stateType = StateType.UNCACHED;
-			//	}
-			//}
+			//int oldDepth = m_root.m_depth;
+			// This means we want to keep the old tree and just update the state
 			m_root.state = a_gameState;
-			m_root.m_depth = oldDepth;
+			//m_root.m_depth = oldDepth;
 		} else {
 			if (action == ADD_NEW_ROOT_NODE) {
 				m_root = new MCTSNode(m_rnd);
@@ -126,16 +120,16 @@ public class MCTSAgent extends GameAgent {
 		// Determine the best action to take and return it.
 		// int action = m_root.mostVisitedAction();
 		
-		
 		int action = m_root.bestAction();
-
-		// for (int i = 1; i<= m_root.children.length ; i++ ){
-		// if(m_root.children[i-1] != null){
-		// System.out.print("  val"+i+": "+ m_root.children[i-1].totValue);}
-		// }
-		// System.out.println();
-		// System.out.println(" RewOfSys :" + m_root.value(m_root.state));
-		// System.out.println(" action :" + action);
+//			for (int i = 1; i<= m_root.children.length ; i++ ){
+//				if(m_root.children[i-1] != null){
+//					System.out.print("  val"+i+": "+ m_root.children[i-1].totValue);
+//				}
+//			}
+//
+//			System.out.println();
+//		 System.out.println(" RewOfSys :" + m_root.value(m_root.state));
+//		 System.out.println(" action :" + action);
 		// if (action >= 0){
 		// System.out.println(" isdeath? :" +
 		// m_root.children[action].isLoseState());
@@ -163,6 +157,7 @@ public class MCTSAgent extends GameAgent {
 		// current position
 		PersistentStorage.rewMap.incrementAll(0.001);
 		PersistentStorage.rewMap.setRewardAtWorldPosition(avatarPos, -0.3);
+		PersistentStorage.rewMap.decrementAtPos(avatarPos, -0.01);
 
 		// rewMap.print();
 
@@ -267,9 +262,17 @@ public class MCTSAgent extends GameAgent {
 
 		if (action == ADD_NEW_ROOT_NODE)
 			action = KEEP_COMPLETE_OLD_TREE;
-
+		
+		
 		oldAction = action;
+		
+		PersistentStorage.lastGameState = stateObs;
+		if(action >0)
+			PersistentStorage.lastWinLoseExpectation =m_root.children[action].totValue;
+		else
+			PersistentStorage.lastWinLoseExpectation = -1;
 
+		
 		// ... and return it.
 		if (action == KEEP_COMPLETE_OLD_TREE || action == ADD_NEW_ROOT_NODE) {
 			return Types.ACTIONS.ACTION_NIL;

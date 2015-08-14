@@ -93,7 +93,7 @@ public class RewardMap {
 		int X = floorDiv((int) (posVec.x + 0.1), blockSize);
 		int Y = floorDiv((int) (posVec.y + 0.1), blockSize);
 		if (X < 0 || Y < 0) {
-			return -1;
+			return 0;
 		}
 		if (X >= rewMapWidth || Y >= rewMapHeight) {
 			return 0;
@@ -145,6 +145,14 @@ public class RewardMap {
 		}
 	}
 
+	public void decrementAtPos(Vector2d posVec, double incValue) {
+		int X = floorDiv((int) (posVec.x + 0.1), blockSize);
+		int Y = floorDiv((int) (posVec.y + 0.1), blockSize);
+		if (X >= 0 && Y >= 0 && X < rewMapWidth && Y < rewMapHeight) {
+			rewMap[X][Y] += incValue;
+		}
+	}
+	
 	/**
 	 * Returns the largest (closest to positive infinity) long value that is
 	 * less than or equal to the algebraic quotient. There is one special case,

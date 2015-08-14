@@ -3,6 +3,7 @@ package bladeRunner;
 import java.util.ArrayList;
 import java.util.Random;
 
+import tools.Vector2d;
 import agents.GameAgent;
 import agents.hbfs.HBFSAgent;
 import agents.mcts.MCTSAgent;
@@ -11,6 +12,7 @@ import agents.misc.ITypeAttractivity;
 import agents.misc.PersistentStorage;
 import agents.misc.RewardMap;
 import agents.misc.GameClassifier.GameType;
+import core.game.Observation;
 import core.game.StateObservation;
 import core.player.AbstractPlayer;
 import ontology.Types;
@@ -66,18 +68,58 @@ public class Agent extends AbstractPlayer {
 		for (int i = 0; i < PersistentStorage.actions.length; ++i) {
 			PersistentStorage.actions[i] = act.get(i);
 		}
+			
 
 		// initialize exploration reward map with 1
-		PersistentStorage.rewMap = new RewardMap(so, 1);
+		PersistentStorage.rewMap = new RewardMap(so, 0.3);
 		
 		// set the MCTS_depth back
 		PersistentStorage.MCTS_DEPTH_RUN = PersistentStorage.MCTS_DEPTH_FIX;
+		
+		PersistentStorage.startingReward = 0;
 
-		// initialize ItypeAttracivity object for starting situation
-		PersistentStorage.iTypeAttractivity = new ITypeAttractivity(so);
+		
 
 		// Classify game
 		GameClassifier.determineGameType(so);
+
+		// save some information over a set of games
+		PersistentStorage.GameCounter++;
+		
+		if((PersistentStorage.GameCounter-1) % 5 == 0){
+			//initialize new iTypeAttractivities otherwise keep them
+			int numActions = act.size();
+			// initialize ItypeAttracivity object for starting situation
+			PersistentStorage.iTypeAttractivity = new ITypeAttractivity(so,numActions);
+			PersistentStorage.lastGameState = null;
+			PersistentStorage.lastWinLoseExpectation = 0;
+		}
+		else {
+			//Check the last game state for reasons of death or win 
+			if(PersistentStorage.lastGameState != null){
+				StateObservation lastState = PersistentStorage.lastGameState;
+
+				Vector2d avPos = lastState.getAvatarPosition();
+				int blockSize = lastState.getBlockSize();
+
+				// here we assume somehow death
+				ArrayList<Observation>[] npcPositions = null;
+				npcPositions = lastState.getNPCPositions(avPos);
+				if (npcPositions != null) {
+					for (ArrayList<Observation> npcs : npcPositions) {
+						if (npcs.size() > 0) {
+							// only look at the closest rewarding/punishing npc
+							Vector2d npcPos = npcs.get(0).position;
+							//check is NPS was adjacent
+							if(Math.sqrt(Math.pow(npcPos.x -avPos.x,2)+Math.pow(npcPos.y -avPos.y,2))-2 < Math.sqrt(2*blockSize*blockSize) && PersistentStorage.iTypeAttractivity.get(npcs.get(0).itype) < -0.5 && PersistentStorage.lastWinLoseExpectation < 0){
+								// I label the itype attractivy of those enemies as -2, since we died from them.
+								PersistentStorage.iTypeAttractivity.put(npcs.get(0).itype, -2.0);
+							}
+						}
+					}
+				}
+			}
+		}
 
 		// use time that is left to build a tree or do BFS
 		if ((GameClassifier.getGameType() == GameType.STOCHASTIC || forcedAgentType == AgentType.MCTS)
