@@ -422,7 +422,16 @@ public class MCTSNode {
 
 		ArrayList<Observation>[] resPos = null;
 		resPos = state.getResourcesPositions(pos);
+		double numRess = 0;
+		double numRessClasses = 0;
 		if (resPos != null) {
+			for (ArrayList<Observation> res : resPos) {
+				if (res.size() > 0){
+					numRess += res.size();
+					numRessClasses++;
+				}
+			}
+			
 			for (ArrayList<Observation> res : resPos) {
 				if (res.size() > 0) {
 					//for(int i = 0; i< res.size(); i++){
@@ -441,11 +450,14 @@ public class MCTSNode {
 						}
 
 						if( MCTSAgent.pathPlannerMaps.containsKey(res.get(i).itype) ){
-							//compute the current distance to the closest enemy 
+							//compute the current distance to the closest ressource 
 							double distIntSteps = ((MCTSAgent.pathPlannerMaps).get(res.get(i).itype)).getStepsQtyToGoal(avaX,avaY);
 							double maxPath  = MCTSAgent.pathPlannerMaps.get(res.get(i).itype).getMaximumSteps();
 							double dist = distIntSteps / maxPath;
-							totRew += 3*resAttractionValue/(dist*dist+0.05)*1/50;
+							
+							double resourceSparcity = (numRess-res.size())/numRess;
+							
+							totRew += 3*resourceSparcity*resAttractionValue/(dist*dist+0.05)*1/50;
 
 							count1++;
 						}
@@ -476,7 +488,7 @@ public class MCTSNode {
 						}
 
 						if( MCTSAgent.pathPlannerMaps.containsKey(mov.get(i).itype) ){
-							//compute the current distance to the closest enemy 
+							//compute the current distance to the closest movable 
 							if(movAttractionValue > 0){
 								double distIntSteps = MCTSAgent.pathPlannerMaps.get(mov.get(i).itype).getStepsQtyToGoal(avaX,avaY);
 								double maxPath  = MCTSAgent.pathPlannerMaps.get(mov.get(i).itype).getMaximumSteps();
