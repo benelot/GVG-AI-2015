@@ -152,52 +152,45 @@ public class MCTSNode {
 	
 	public MCTSNode goalDrivenTreePolicy(){
 		MCTSNode cur = this;
-		// get all itypes. ObsList = <Obs.ID,Obs.itype>
-		HashMap<Integer, Integer> ObsList = ObservationTools.getObsList(cur.state);
-		// choose goal from the list of itypes. persist for n number of ticks
-		int goalID = chooseGoalFromObsList(ObsList);
-		int goalIType = ObsList.get(goalID);
-		// create distance to this object
-		if(MCTSAgent.pathPlannerMaps.containsKey(goalID)){
-			// use this distance to expand the tree
-			ArrayList<Observation>[][] obsGrid = cur.state.getObservationGrid();
-			Vector2d avatarPos = cur.state.getAvatarPosition();
-			Vector2d goalPos = getGoalPosition(cur.state,avatarPos,goalID,goalIType);
-			
-			int blockSize = cur.state.getBlockSize();
-			int goalX = floorDiv((int) (goalPos.x + 0.1), blockSize);
-			int goalY = floorDiv((int) (goalPos.y + 0.1), blockSize);
-			int avaX = floorDiv((int) (avatarPos.x + 0.1), blockSize);
-			int avaY = floorDiv((int) (avatarPos.y + 0.1), blockSize);
-			
-			PathPlanner ppToGoal = new PathPlanner();
-			ppToGoal.updateStart(avaX,avaY);
-			ppToGoal.updateGoal(goalX,goalY);
-			ppToGoal.updateWays();
-			double distToGoal = ppToGoal.getDistanceToGoal(avaX, avaY);
-			
-			double[] energies = new double[PersistentStorage.actions.length];
-			
-			// handle the 1D game case
-			if(PersistentStorage.actions.length < 4){
-				// 1D games
-				for ( int i = 0; i < 2; i++)
-				if(PersistentStorage.adjacencyMap.isActionPossible(avaX,avaY, PersistentStorage.actions[i]) ){
-					// for left and right
-					energies[i] = ppToGoal.getDistanceToGoal(avaX+(2*i-1),avaY);
+		
+		while (!cur.state.isGameOver()
+				&& cur.m_depth < PersistentStorage.MCTS_DEPTH_RUN) {
+		
+			// get all itypes. ObsList = <Obs.ID,Obs.itype>
+			HashMap<Integer, Integer> ObsList = ObservationTools.getObsList(cur.state);
+			// choose goal from the list of itypes. persist for n number of ticks
+			int goalID = chooseGoalFromObsList(ObsList);
+			int goalIType = ObsList.get(goalID);
+			// create distance to this object
+			if(MCTSAgent.pathPlannerMaps.containsKey(goalID)){
+				// use this distance to expand the tree
+				ArrayList<Observation>[][] obsGrid = cur.state.getObservationGrid();
+				Vector2d avatarPos = cur.state.getAvatarPosition();
+				Vector2d goalPos = getGoalPosition(cur.state,avatarPos,goalID,goalIType);
+				
+				if(goalPos.x<0 || goalPos.y<0 || goalPos.x > PersistentStorage.rewMap.getDimension().getWidth() || goalPos.y > PersistentStorage.rewMap.getDimension().getHeight()){
+					// switch to normal tree policy
+					return treePolicy();
 				}
-				else{
-					energies[i] = distToGoal + 5;
-				}
-				if(PersistentStorage.actions.length == 3){
-					energies[3] = energies[1]+energies[2];
-				}
-			}
-			
-			// handle the 2D game case
-			if(PersistentStorage.actions.length < 4){
-				// 1D games
-				for ( int i = 0; i < 2; i++)
+				
+				int blockSize = cur.state.getBlockSize();
+				int goalX = floorDiv((int) (goalPos.x + 0.1), blockSize);
+				int goalY = floorDiv((int) (goalPos.y + 0.1), blockSize);
+				int avaX = floorDiv((int) (avatarPos.x + 0.1), blockSize);
+				int avaY = floorDiv((int) (avatarPos.y + 0.1), blockSize);
+				
+				PathPlanner ppToGoal = new PathPlanner();
+				ppToGoal.updateStart(avaX,avaY);
+				ppToGoal.updateGoal(goalX,goalY);
+				ppToGoal.updateWays();
+				double distToGoal = ppToGoal.getDistanceToGoal(avaX, avaY);
+				
+				double[] energies = new double[PersistentStorage.actions.length];
+				
+				// handle the 1D game case
+				if(PersistentStorage.actions.length < 4){
+					// 1D games
+					for ( int i = 0; i < 2; i++)
 					if(PersistentStorage.adjacencyMap.isActionPossible(avaX,avaY, PersistentStorage.actions[i]) ){
 						// for left and right
 						energies[i] = ppToGoal.getDistanceToGoal(avaX+(2*i-1),avaY);
@@ -205,19 +198,37 @@ public class MCTSNode {
 					else{
 						energies[i] = distToGoal + 5;
 					}
-				if(PersistentStorage.actions.length == 3){
-					energies[3] = energies[1]+energies[2];
+					if(PersistentStorage.actions.length == 3){
+						energies[3] = energies[1]+energies[2];
+					}
 				}
+				
+				// handle the 2D game case
+				if(PersistentStorage.actions.length < 4){
+					// 1D games
+					for ( int i = 0; i < 2; i++)
+						if(PersistentStorage.adjacencyMap.isActionPossible(avaX,avaY, PersistentStorage.actions[i]) ){
+							// for left and right
+							energies[i] = ppToGoal.getDistanceToGoal(avaX+(2*i-1),avaY);
+						}
+						else{
+							energies[i] = distToGoal + 5;
+						}
+					if(PersistentStorage.actions.length == 3){
+						energies[3] = energies[1]+energies[2];
+					}
+				}
+				
+				cur = 
+	
+			}else {
+				// go back to normal tree policy
+				return treePolicy();
 			}
-
-
-
-		}else {
-			// go back to normal tree policy
-			return treePolicy();
-		}
-			
-			
+				
+				
+			return cur;
+		} 
 		return cur;
 	}
 	
@@ -256,10 +267,54 @@ public class MCTSNode {
 		return goalPos;
 	}
 	
-	public MCTSNode goalDrivenExpand(){
-		MCTSNode next;
-		
-		return next;
+	public MCTSNode goalDrivenExplore(){
+
+		MCTSNode selectedNode = null;
+		int selected = -1;
+		double bestValue = -Double.MAX_VALUE;
+		for (int i = 0; i < children.length; i++) {
+			double hvVal = children[i].totValue;
+			double childValue = hvVal
+					/ (children[i].nVisits + MCTSNode.epsilon);
+
+			// reward + UCT-exploration term. Not clear to me if this is useful
+			// for the size of the tree that we have within our time constraints
+			double uctValue = childValue
+					+ PersistentStorage.K
+					* Math.sqrt(Math.log(nVisits + 1)
+							/ (children[i].nVisits + MCTSNode.epsilon))
+							+ MCTSNode.m_rnd.nextDouble() * MCTSNode.epsilon;
+
+			// small sampleRandom numbers: break ties in unexpanded nodes
+			if (uctValue > bestValue && !children[i].isLoseState()) {
+				selected = i;
+				bestValue = uctValue;
+			}
+		}
+		if (selected == -1 || children[selected].isLoseState()) {
+			if (Agent.isVerbose) {
+				System.out
+				.println("MCTS::##### Oh crap.  Death awaits with choice "
+						+ selected + ".");
+			}
+			selected = 0;
+		}
+		if (selected != -1) {
+			// if we do the uct step it might be worthwhile also to update the
+			// state believe, this way we create a real rollout from a newly
+			// sampled state-pathway and not just from the very first one.
+
+			selectedNode = children[selected];
+			StateObservation nextState = state.copy();
+			nextState.advance(PersistentStorage.actions[selected]);
+			selectedNode.state = nextState;
+
+		}
+		if (selectedNode == null) {
+			throw new RuntimeException("Warning! returning null: " + bestValue
+					+ " : " + children.length);
+		}
+		return selectedNode;
 	}
 
 	int chooseGoalFromObsList(HashMap<Integer,Integer> ObsList){
@@ -289,8 +344,6 @@ public class MCTSNode {
 	}
 
 	public MCTSNode uct() {
-
-
 
 		MCTSNode selectedNode = null;
 		int selected = -1;
