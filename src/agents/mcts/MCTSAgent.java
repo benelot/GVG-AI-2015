@@ -158,6 +158,7 @@ public class MCTSAgent extends GameAgent {
 		PersistentStorage.rewMap.incrementAll(0.001);
 		PersistentStorage.rewMap.setRewardAtWorldPosition(avatarPos, -0.3);
 		PersistentStorage.rewMap.decrementAtPos(avatarPos, -0.01);
+		System.out.println(m_root.nVisits);
 
 		// rewMap.print();
 

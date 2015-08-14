@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import agents.misc.PersistentStorage;
+import agents.misc.pathplanning.PathPlanner;
 import bladeRunner.Agent;
 import core.game.Observation;
 import core.game.StateObservation;
@@ -315,7 +316,7 @@ public class MCTSNode {
 		
 		DecimalFormat df = new DecimalFormat("####0.0000");
 		
-		System.out.println("explRew: " + df.format(explRew/10) + "   ItypeDistRew: " + df.format(distITypeRew/2) + "  NonJitterRew: " + df.format(nonJitterRew/20));
+		//System.out.println("explRew: " + df.format(explRew/10) + "   ItypeDistRew: " + df.format(distITypeRew/2) + "  NonJitterRew: " + df.format(nonJitterRew/20));
 //		System.out.println(": " + curPos.x + "   : " + curPos.y + "  "+ nSteps  );
 
 		
@@ -359,7 +360,15 @@ public class MCTSNode {
 
 		Vector2d pos = state.getAvatarPosition();
 		double maxDist = Math.sqrt(Math.pow(PersistentStorage.rewMap.getDimension().height * state.getBlockSize(),2)  +  Math.pow(PersistentStorage.rewMap.getDimension().height* state.getBlockSize(),2) );
+		
 		int blockSize = state.getBlockSize();
+//		int avaX = floorDiv((int) (pos.x + 0.1), blockSize);
+//		int avaY = floorDiv((int) (pos.y + 0.1), blockSize);
+//		PathPlanner pp = new PathPlanner();
+//		pp.updateStart(avaX,avaY);
+//		
+//		double maxPath  = (PersistentStorage.rewMap.getDimension().height + PersistentStorage.rewMap.getDimension().width);
+		
 		
 		int count1 = 0;
 		
@@ -371,11 +380,22 @@ public class MCTSNode {
 		if (npcPositions != null) {
 			for (ArrayList<Observation> npcs : npcPositions) {
 				if (npcs.size() > 0) {
-//										for(int i = 0; i< npcs.size(); i++){
+//				 for(int i = 0; i< npcs.size(); i++){
 					// only look at the closest rewarding/punishing npc
 					for(int i = 0; i<1; i++){
+						
 						Vector2d npcPos = npcs.get(i).position;
+
+//						int npcX = floorDiv((int) (npcPos.x + 0.1), blockSize);
+//						int npcY = floorDiv((int) (npcPos.y + 0.1), blockSize);
+//						pp.updateGoal(npcX, npcY);
+//						pp.updateWays();
+//						//compute the current distance to the closest enemy 
+//						double distIntSteps = pp.getDistance(avaX,avaY);
+//						double dist = distIntSteps / maxPath;
+						
 						double npcAttractionValue = 0;
+						
 						try {
 							npcAttractionValue = PersistentStorage.iTypeAttractivity
 									.get(npcs.get(i).itype);
@@ -386,18 +406,23 @@ public class MCTSNode {
 									.get(npcs.get(i).itype);
 						}
 
-						//double dist = Math.sqrt(Math.pow(pos.x-npcPos.x,2) + Math.pow(pos.x-npcPos.x,2))/maxDist;
 						double dist = Math.sqrt(Math.pow(pos.x-npcPos.x,2) + Math.pow(pos.y-npcPos.y,2))/maxDist;
+						
 						if(npcAttractionValue < 0 && PersistentStorage.actions.length%2 != 0 && npcAttractionValue > -1.5 )
-							totRew += Math.abs(npcAttractionValue)/(dist*dist+1);
-						else
+							totRew += Math.abs(npcAttractionValue)/(dist*dist+0.1)*1/10;
+						else{
+							// case of an enemy that killed us in a previous game
 							if(npcAttractionValue < -1){
 								dist = Math.sqrt(Math.abs(pos.x-npcPos.x) + Math.abs(pos.y-npcPos.y))/blockSize;
-								totRew += 5*npcAttractionValue/(dist*dist+1);
+//								if ( distIntSteps < 5){
+//									// close repulsion from enemies
+//									totRew += -3;
+//								}
 							}
-							else
-								totRew += npcAttractionValue/(dist+1);
-						
+							else{
+								totRew += npcAttractionValue/(dist*dist+0.1)*1/10;
+							}
+						}
 						count1++;
 					}
 				}
@@ -412,6 +437,17 @@ public class MCTSNode {
 					//for(int i = 0; i< res.size(); i++){
 					//only look at the closest rewarding/punishing npc
 					for(int i = 0; i< 1; i++){
+
+						Vector2d resPosition = res.get(i).position;
+						
+//						int resX = floorDiv((int) (resPosition.x + 0.1), blockSize);
+//						int resY = floorDiv((int) (resPosition.y + 0.1), blockSize);
+//						pp.updateGoal(resX, resY);
+//						pp.updateWays();
+//						//compute the current distance to the closest enemy 
+//						double distIntSteps = pp.getDistance(avaX,avaY);
+//						double dist = distIntSteps /maxPath;
+						
 						double resAttractionValue = 0;
 						try {
 							resAttractionValue = PersistentStorage.iTypeAttractivity
@@ -422,9 +458,8 @@ public class MCTSNode {
 							resAttractionValue = PersistentStorage.iTypeAttractivity
 									.get(res.get(i).itype);
 						}
-						Vector2d resPosition = res.get(i).position;;
 						double dist = Math.sqrt(Math.pow((pos.x-resPosition.x),2) + Math.pow(pos.y-resPosition.y,2)) /maxDist;
-						totRew += 3*resAttractionValue/(dist*dist+1);
+						totRew += 3*resAttractionValue/(dist*dist+0.1)*1/10;
 						count1++;
 					}
 				}
@@ -440,6 +475,17 @@ public class MCTSNode {
 					//for(int i = 0; i< res.size(); i++){
 					//only look at the closest rewarding/punishing npc
 					for(int i = 0; i< 1; i++){
+
+						Vector2d movPosition = mov.get(i).position;
+						
+//						int movX = floorDiv((int) (movPosition.x + 0.1), blockSize);
+//						int movY = floorDiv((int) (movPosition.y + 0.1), blockSize);
+//						pp.updateGoal(movX, movY);
+//						pp.updateWays();
+//						//compute the current distance to the closest enemy 
+//						double distIntSteps = pp.getDistance(avaX,avaY);
+//						double dist = distIntSteps /maxPath;
+						
 						double movAttractionValue = 0;
 						try {
 							movAttractionValue = PersistentStorage.iTypeAttractivity
@@ -450,9 +496,8 @@ public class MCTSNode {
 							movAttractionValue = PersistentStorage.iTypeAttractivity
 									.get(mov.get(i).itype);
 						}
-						Vector2d movPosition = mov.get(i).position;;
 						double dist = Math.sqrt(Math.pow(pos.x-movPosition.x,2) + Math.pow(pos.y-movPosition.y,2) ) /maxDist;
-						totRew += 2*movAttractionValue/(dist*dist+1);
+						totRew += 2*movAttractionValue/(dist*dist+0.1)*1/10;
 						count1++;
 					}
 				}
@@ -786,6 +831,16 @@ public class MCTSNode {
 				root.children[i].correctDepth();
 			}
 		}
+	}
+	
+	
+	public static int floorDiv(int x, int y) {
+		int r = x / y;
+		// if the signs are different and modulo not zero, round down
+		if ((x ^ y) < 0 && (r * y != x)) {
+			r--;
+		}
+		return r;
 	}
 
 }

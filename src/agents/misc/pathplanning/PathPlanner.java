@@ -120,10 +120,10 @@ public class PathPlanner {
 		// check if our current Node location is the start node. If it is, we
 		// are done.
 		if (current.x == startX && current.y == startY) {
-			if (Agent.isVerbose) {
-				System.out.println();
-				System.out.println("PathHBFS::Goal found.");
-			}
+//			if (Agent.isVerbose) {
+//				System.out.println();
+//				System.out.println("PathHBFS::Goal found.");
+//			}
 			pathFound = true;
 		}
 		if (onlySinglePathNeeded && pathFound) {
@@ -167,17 +167,17 @@ public class PathPlanner {
 
 				if (!pipe.contains(neighbor)) {
 					pipe.add(neighbor);
-					if (Agent.isVerbose) {
-						System.out.print(".");
-					}
+//					if (Agent.isVerbose) {
+//						System.out.print(".");
+//					}
 				}
 
 			}
 		}
 
-		if (Agent.isVerbose) {
-			System.out.print("|");
-		}
+//		if (Agent.isVerbose) {
+//			System.out.print("|");
+//		}
 		return false;
 
 	}
@@ -232,9 +232,9 @@ public class PathPlanner {
 			hasTerminated = performHbfs();
 			processedElementsQty++;
 		}
-		System.out.println();
-		displayPathState();
-		System.out.println();
+//		System.out.println();
+//		displayPathState();
+//		System.out.println();
 	}
 
 	/**
