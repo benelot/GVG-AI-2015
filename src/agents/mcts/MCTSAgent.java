@@ -143,7 +143,7 @@ public class MCTSAgent extends GameAgent {
 			}
 		}
 		//decide on a planning strategy
-		if(m_rnd.nextDouble() < GoalDrivenTreePolCounter_Max && treePolMode == 0){
+		if(m_rnd.nextDouble() < chanceOfGoalDrivenPlanning && treePolMode == 0){
 			treePolMode = 1;
 			GoalDrivenTreePolCounter =  GoalDrivenTreePolCounter_Max;
 			chooseANewGoal();
