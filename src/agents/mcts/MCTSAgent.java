@@ -8,10 +8,12 @@ import tools.ElapsedCpuTimer;
 import tools.Vector2d;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 import ontology.Types;
 import ontology.Types.ACTIONS;
+import agents.misc.pathplanning.PathPlanner;
 
 public class MCTSAgent extends GameAgent {
 	/**
@@ -33,8 +35,11 @@ public class MCTSAgent extends GameAgent {
 	public final int ADD_NEW_ROOT_NODE = -1;
 	public final int KEEP_COMPLETE_OLD_TREE = -2;
 
+	
 	public int oldAction = KEEP_COMPLETE_OLD_TREE;
 
+	public static HashMap<Integer, PathPlanner> pathPlannerMaps;
+	
 	/**
 	 * Creates the MCTS player with a sampleRandom generator object.
 	 * 
@@ -47,7 +52,7 @@ public class MCTSAgent extends GameAgent {
 		m_root = new MCTSNode(a_rnd);
 		init(so);
 		run(elapsedTimer);
-
+	//	HashMap<Integer, PathPlanner> pathPlannerMaps = new HashMap<Integer,PathPlanner>();
 		nodeQty = 0;
 	}
 
@@ -114,6 +119,9 @@ public class MCTSAgent extends GameAgent {
 	 * @return the action to execute in the game.
 	 */
 	public int run(ElapsedCpuTimer elapsedTimer) {
+		
+		// create the different PathPlanningMaps for the different itypes that we see at the moment.
+		initPathPlannerMaps(m_root.state);
 		// Do the search within the available time.
 		m_root.mctsSearch(elapsedTimer);
 
@@ -282,6 +290,86 @@ public class MCTSAgent extends GameAgent {
 		}
 
 	}
+	
+	
+	public void initPathPlannerMaps(StateObservation state){
+
+		// add Npc maps
+		updatePPMaps(1,state);
+		// add Ressource maps
+		updatePPMaps(2,state);
+		// add movable maps
+		updatePPMaps(3,state);
+		
+		
+	}
+	
+	public void updatePPMaps(int movNpcOrRes, StateObservation state){
+		
+		Vector2d posAvatar = state.getAvatarPosition();
+		int blockSize = state.getBlockSize();
+		int avaX = floorDiv((int) (posAvatar.x + 0.1), blockSize);
+		int avaY = floorDiv((int) (posAvatar.y + 0.1), blockSize);
+		
+		ArrayList<Observation>[] movPos = null;
+		
+		// decide between NPC, Ressource and Movables
+		if(movNpcOrRes == 1){
+			movPos = state.getNPCPositions(posAvatar);
+		}
+		else{
+			if(movNpcOrRes == 2){
+				movPos = state.getResourcesPositions(posAvatar);
+			}
+			else{
+				if(movNpcOrRes == 3){
+					movPos = state.getMovablePositions(posAvatar);
+				}
+			}
+		}
+		
+		if (movPos != null) {
+			for (ArrayList<Observation> mov : movPos) {
+				if (mov.size() > 0) {
+					//for(int i = 0; i< res.size(); i++){
+					//only look at the closest rewarding/punishing npc
+					for(int i = 0; i< 1; i++){
+
+//						double movAttractionValue = 0;
+//						try {
+//							movAttractionValue = PersistentStorage.iTypeAttractivity
+//									.get(mov.get(i).itype);
+//						} catch (java.lang.NullPointerException e) {
+//							PersistentStorage.iTypeAttractivity
+//							.putIfAbsent(mov.get(i));
+//							movAttractionValue = PersistentStorage.iTypeAttractivity
+//									.get(mov.get(i).itype);
+//						}
+						
+						// update the pathplannerMaps for the closest movables
+						PathPlanner pp = new PathPlanner();
+						Vector2d movPosition = mov.get(i).position;
+						int movX = floorDiv((int) (movPosition.x + 0.1), blockSize);
+						int movY = floorDiv((int) (movPosition.y + 0.1), blockSize);
+						pp.updateStart(avaX,avaY);
+						pp.updateGoal(movX, movY);
+						pathPlannerMaps.put(mov.get(i).itype, pp);
+					}
+				}
+			}
+		}
+
+	}
+	
+	public static int floorDiv(int x, int y) {
+		int r = x / y;
+		// if the signs are different and modulo not zero, round down
+		if ((x ^ y) < 0 && (r * y != x)) {
+			r--;
+		}
+		return r;
+	}
+
 
 	public void clearMemory() {
 		// TODO Implement what to do when we run out of memory.

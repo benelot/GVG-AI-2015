@@ -2,6 +2,7 @@ package agents.mcts;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 import agents.misc.PersistentStorage;
@@ -309,6 +310,7 @@ public class MCTSNode {
 		// get a reward based on the distance to the different Itypes. 
 		// this can be closest ones, or only positives.... 
 		double distITypeRew = getNewExplITypeReward(rollerState, nonJitterRew	);
+//		double distITypeRewNewDist = getNewExplITypeRewardNewDist(rollerState, nonJitterRew	);
 
 		// use a fraction of "explRew" as an additional reward (Not given by the
 		// Gamestats) the multiplication is just taking care of ignoring this distItype if we are stuck.
@@ -354,6 +356,148 @@ public class MCTSNode {
 		
 		return normDelta;
 	}
+	
+	public double getNewExplITypeRewardNewDist(StateObservation state, double nonJitterRew ){
+		// creates a heuristic reward based on the distance of the rolloutstates from to the various abjects
+		double totRew = 0;
+		Vector2d pos = state.getAvatarPosition();
+		
+		int blockSize = state.getBlockSize();
+	
+		int avaX = floorDiv((int) (pos.x + 0.1), blockSize);
+		int avaY = floorDiv((int) (pos.y + 0.1), blockSize);		
+		double maxPath  = (PersistentStorage.rewMap.getDimension().height + PersistentStorage.rewMap.getDimension().width);
+		
+		int count1 = 0;
+		
+		// TODO: perhaps we should distinguish the cases where we want to kill the enemies
+		// Thus if we have the 5th or 3 actions we can also desire to go close ( or align) with 
+		// the enemies: aligning seems better since it goes closer and is better for shooting. 
+		ArrayList<Observation>[] npcPositions = null;
+		npcPositions = state.getNPCPositions(pos);
+		if (npcPositions != null) {
+			for (ArrayList<Observation> npcs : npcPositions) {
+				if (npcs.size() > 0) {
+//				 for(int i = 0; i< npcs.size(); i++){
+					// only look at the closest rewarding/punishing npc
+					for(int i = 0; i<1; i++){
+						
+//						Vector2d npcPos = npcs.get(i).position;
+
+						//compute the current distance to the closest enemy 
+						double distIntSteps = MCTSAgent.pathPlannerMaps.get(npcs.get(i).itype).getDistance(avaX,avaY);
+						double dist = distIntSteps / maxPath;
+						
+						double npcAttractionValue = 0;
+						
+//						try {
+//							npcAttractionValue = PersistentStorage.iTypeAttractivity
+//									.get(npcs.get(i).itype);
+//						} catch (java.lang.NullPointerException e) {
+//							PersistentStorage.iTypeAttractivity
+//							.putIfAbsent(npcs.get(i));
+//							npcAttractionValue = PersistentStorage.iTypeAttractivity
+//									.get(npcs.get(i).itype);
+//						}
+
+//						double dist = Math.sqrt(Math.pow(pos.x-npcPos.x,2) + Math.pow(pos.y-npcPos.y,2))/maxDist;
+						
+						if(npcAttractionValue < 0 && PersistentStorage.actions.length%2 != 0 && npcAttractionValue > -1.5 )
+							totRew += Math.abs(npcAttractionValue)/(dist*dist+0.1)*1/10;
+						else{
+							// case of an enemy that killed us in a previous game
+							if(npcAttractionValue < -1){
+//								dist = Math.sqrt(Math.abs(pos.x-npcPos.x) + Math.abs(pos.y-npcPos.y))/blockSize;
+								if ( distIntSteps < 5){
+									// close repulsion from enemies
+									totRew += -3;
+								}
+							}
+							else{
+								totRew += npcAttractionValue/(dist*dist+0.1)*1/10;
+							}
+						}
+						count1++;
+					}
+				}
+			}
+		}
+
+		ArrayList<Observation>[] resPos = null;
+		resPos = state.getResourcesPositions(pos);
+		if (resPos != null) {
+			for (ArrayList<Observation> res : resPos) {
+				if (res.size() > 0) {
+					//for(int i = 0; i< res.size(); i++){
+					//only look at the closest rewarding/punishing npc
+					for(int i = 0; i< 1; i++){
+
+//						Vector2d resPosition = res.get(i).position;
+						HashMap<Integer, PathPlanner> sdfs = MCTSAgent.pathPlannerMaps;
+						
+//						//compute the current distance to the closest enemy 
+						double distIntSteps = ((MCTSAgent.pathPlannerMaps).get(res.get(i).itype)).getDistance(avaX,avaY);
+						double dist = distIntSteps / maxPath;
+						
+						double resAttractionValue = 0;
+//						try {
+//							resAttractionValue = PersistentStorage.iTypeAttractivity
+//									.get(res.get(i).itype);
+//						} catch (java.lang.NullPointerException e) {
+//							PersistentStorage.iTypeAttractivity
+//							.putIfAbsent(res.get(i));
+//							resAttractionValue = PersistentStorage.iTypeAttractivity
+//									.get(res.get(i).itype);
+//						}
+//						double dist = Math.sqrt(Math.pow((pos.x-resPosition.x),2) + Math.pow(pos.y-resPosition.y,2)) /maxDist;
+						totRew += 3*resAttractionValue/(dist*dist+0.1)*1/10;
+						count1++;
+					}
+				}
+			}
+		}
+		
+		// go towards the closest attracting movable:
+		ArrayList<Observation>[] movPos = null;
+		movPos = state.getMovablePositions(pos);
+		if (movPos != null) {
+			for (ArrayList<Observation> mov : movPos) {
+				if (mov.size() > 0) {
+					//for(int i = 0; i< res.size(); i++){
+					//only look at the closest rewarding/punishing npc
+					for(int i = 0; i< 1; i++){
+
+						Vector2d movPosition = mov.get(i).position;
+						
+//						//compute the current distance to the closest enemy 
+						double distIntSteps = MCTSAgent.pathPlannerMaps.get(mov.get(i).itype).getDistance(avaX,avaY);
+						double dist = distIntSteps / maxPath;
+						
+						double movAttractionValue = 0;
+//						try {
+//							movAttractionValue = PersistentStorage.iTypeAttractivity
+//									.get(mov.get(i).itype);
+//						} catch (java.lang.NullPointerException e) {
+//							PersistentStorage.iTypeAttractivity
+//							.putIfAbsent(mov.get(i));
+//							movAttractionValue = PersistentStorage.iTypeAttractivity
+//									.get(mov.get(i).itype);
+//						}
+//						double dist = Math.sqrt(Math.pow(pos.x-movPosition.x,2) + Math.pow(pos.y-movPosition.y,2) ) /maxDist;
+						totRew += 2*movAttractionValue/(dist*dist+0.1)*1/10;
+						count1++;
+					}
+				}
+			}
+		}
+		
+		// normalize this type of reward somehow
+		if(count1 >0)
+			return totRew/count1;
+		else
+			return 0;
+	}
+	
 	
 	public double getNewExplITypeReward(StateObservation state, double nonJitterRew ){
 		double totRew = 0;
@@ -414,10 +558,9 @@ public class MCTSNode {
 							// case of an enemy that killed us in a previous game
 							if(npcAttractionValue < -1){
 								dist = Math.sqrt(Math.abs(pos.x-npcPos.x) + Math.abs(pos.y-npcPos.y))/blockSize;
-//								if ( distIntSteps < 5){
-//									// close repulsion from enemies
-//									totRew += -3;
-//								}
+								if ( dist < 0.2){
+									totRew += npcAttractionValue/(dist*dist+0.1)*1/10;
+								}
 							}
 							else{
 								totRew += npcAttractionValue/(dist*dist+0.1)*1/10;

@@ -182,7 +182,7 @@ public class PathPlanner {
 
 	}
 
-	public static void displayPathState() {
+	public /*static*/ void displayPathState() {
 		displayPathState(null);
 	}
 
