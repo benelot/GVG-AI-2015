@@ -168,7 +168,7 @@ public class PathPlannerNode implements Comparable<PathPlannerNode> {
 		return Double.compare(totalDistance, o.totalDistance);
 	}
 
-	public double getDistanceFromStart() {
+	public double getDistanceFromGoal() {
 		return distanceFromStart;
 	}
 

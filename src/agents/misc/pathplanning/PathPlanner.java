@@ -11,52 +11,55 @@ import ontology.Types;
  * 
  * @author Benjamin Ellenberger
  *
- *         //Example use: 
- *         PathPlanner.updateStart(1, 1); // Not necessary, just if you need a way to that position only.
- *         PathPlanner.updateGoal(26, 8);
+ *         //Example use: PathPlanner.updateStart(1, 1); // Not necessary, just
+ *         if you need a way to that position only.
+ *         PathPlanner.updateGoal(26,8);
  *
  *         PathPlanner.updateWays();
  *
- *         ArrayList<Types.ACTIONS> path = PathPlanner.getPath(1, 1);
+ *         ArrayList<Types.ACTIONS> path = PathPlanner.getPathToGoal(1, 1);
  *
- *         for (Types.ACTIONS action : path) 
- *              System.out.println("Next action: "+ action); 
- *         System.out.println(PathPlanner.getDistance(1, 1));
+ *         for (Types.ACTIONS action : path) System.out.println("Next action: "
+ *         + action); System.out.println(PathPlanner.getNextStepToGoal(1, 1));
+ *         System.out.println(PathPlanner.getStepsQtyToGoal(1,1));
+ *         System.out.println(PathPlanner.getMaximumSteps());
  */
 public class PathPlanner {
 
-	/**Initial pipe length for quick allocation*/
+	/** Initial pipe length for quick allocation */
 	public static int INITIAL_PIPE_LENGTH = 250;
-	
-	/**Initial rejection length for quick allocation*/
+
+	/** Initial rejection length for quick allocation */
 	public static int INITIAL_REJECTION_SET_SIZE = 250;
-	
+
 	//
-	/**open set*/
+	/** open set */
 	public static PriorityQueue<PathPlannerNode> pipe = new PriorityQueue<PathPlannerNode>(INITIAL_PIPE_LENGTH);
-	
-	/**visited set*/
+
+	/** visited set */
 	public static ArrayList<PathPlannerNode> visited = new ArrayList<PathPlannerNode>(INITIAL_REJECTION_SET_SIZE);
-	
-	/**root node of the search*/
+
+	/** root node of the search */
 	public static PathPlannerNode hbfsRoot = null;
 	//
-	/**Number of elements processed*/
+	/** Number of elements processed */
 	public static int processedElementsQty = 0;
 
-	/** goal position*/
+	/** goal position */
 	private static int goalX = 0;
 	private static int goalY = 0;
-	
-	/** start position*/
+
+	/** start position */
 	private static int startX = 0;
 	private static int startY = 0;
 
-	/**If only a single path instead of a full path gradient is needed*/
+	/** If only a single path instead of a full path gradient is needed */
 	private static boolean onlySinglePathNeeded = false;
 
-	/**If it has found a path at all*/
+	/** If it has found a path at all */
 	private static boolean pathFound = false;
+
+	private static int maximumSteps = -1;
 
 	private static void cleanHbfs() {
 		pipe.clear();
@@ -64,6 +67,7 @@ public class PathPlanner {
 		hbfsRoot = null;
 		pathFound = false;
 		processedElementsQty = 0;
+		maximumSteps = -1;
 	}
 
 	public static void updateStart(int startX, int startY) {
@@ -76,7 +80,7 @@ public class PathPlanner {
 		PathPlanner.goalY = goalY;
 	}
 
-	public Types.ACTIONS whereToGoNext(int x, int y) {
+	public Types.ACTIONS getNextStepToGoal(int x, int y) {
 		for (PathPlannerNode n : visited) {
 			if (n.x == x && n.y == y) {
 				return n.actionToParent;
@@ -85,18 +89,31 @@ public class PathPlanner {
 		return Types.ACTIONS.ACTION_NIL;
 	}
 
-	public static double getDistance(int x, int y) {
+	public static double getStepsQtyToGoal(int x, int y) {
 		double highestDistance = 0;
 		for (PathPlannerNode n : visited) {
-			highestDistance = (highestDistance < n.getDistanceFromStart()) ? n.getDistanceFromStart() : highestDistance;
+			highestDistance = (highestDistance < n.getDistanceFromGoal()) ? n.getDistanceFromGoal() : highestDistance;
 			if (n.x == x && n.y == y) {
-				return n.getDistanceFromStart();
+				return n.getDistanceFromGoal();
 			}
 		}
 		return highestDistance + 1;
 	}
 
-	public static ArrayList<Types.ACTIONS> getPath(int x, int y) {
+	public static double getDistanceToGoal(int x, int y) {
+		return euclidianDistance(goalX, goalY, x, y);
+	}
+
+	public static int getMaximumSteps() {
+		if (maximumSteps == -1) {
+			for (PathPlannerNode n : visited) {
+				maximumSteps = (int) ((maximumSteps < n.getDistanceFromGoal()) ? n.getDistanceFromGoal() : maximumSteps);
+			}
+		}
+		return maximumSteps;
+	}
+
+	public static ArrayList<Types.ACTIONS> getPathToGoal(int x, int y) {
 		ArrayList<Types.ACTIONS> path = new ArrayList<>();
 		for (PathPlannerNode n : visited) {
 			if (n.x == x && n.y == y) {
@@ -139,7 +156,7 @@ public class PathPlanner {
 
 			// calculate how long the path is if we chose this neighbor as the
 			// next step in the path
-			double neighborDistanceFromStart = current.getDistanceFromStart() + 1;
+			double neighborDistanceFromStart = current.getDistanceFromGoal() + 1;
 			double totalDistance = neighborDistanceFromStart + euclidianDistance(neighbor, startX, startY);
 
 			// if child node has been evaluated and the newer fullDistance is
@@ -194,7 +211,7 @@ public class PathPlanner {
 			if (Agent.isVerbose) {
 				System.out.println("PathHBFS::#Pipe Empty");
 				System.out.format("PathHBFS::Pipe:%5d|R.Set:%5d|LongestDistance:%3.2f|Speed:%3d", pipe.size(), visited.size(),
-						getDistance(0, 0) - 1, processedElementsQty);
+						maximumSteps, processedElementsQty);
 			}
 			return;
 		}
@@ -255,7 +272,16 @@ public class PathPlanner {
 		float y = a.y - goalY;
 		return Math.sqrt(x * x + y * y);
 	}
-	
+
+	/**
+	 * Euclidean cost between state a and and a position
+	 */
+	private static double euclidianDistance(int startX, int startY, int goalX, int goalY) {
+		float x = startX - goalX;
+		float y = startY - goalY;
+		return Math.sqrt(x * x + y * y);
+	}
+
 	public static boolean isOnlySinglePathNeeded() {
 		return onlySinglePathNeeded;
 	}
@@ -263,7 +289,7 @@ public class PathPlanner {
 	public static void setOnlySinglePathNeeded(boolean onlySinglePathNeeded) {
 		PathPlanner.onlySinglePathNeeded = onlySinglePathNeeded;
 	}
-	
+
 	public static boolean hasPathFound() {
 		return pathFound;
 	}
