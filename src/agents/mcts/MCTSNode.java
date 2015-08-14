@@ -163,9 +163,55 @@ public class MCTSNode {
 			ArrayList<Observation>[][] obsGrid = cur.state.getObservationGrid();
 			Vector2d avatarPos = cur.state.getAvatarPosition();
 			Vector2d goalPos = getGoalPosition(cur.state,avatarPos,goalID,goalIType);
-			double distToGoal = MCTSAgent.pathPlannerMaps.get(goalIType).getDistanceToGoal(goalX, goalY);
 			
+			int blockSize = cur.state.getBlockSize();
+			int goalX = floorDiv((int) (goalPos.x + 0.1), blockSize);
+			int goalY = floorDiv((int) (goalPos.y + 0.1), blockSize);
+			int avaX = floorDiv((int) (avatarPos.x + 0.1), blockSize);
+			int avaY = floorDiv((int) (avatarPos.y + 0.1), blockSize);
 			
+			PathPlanner ppToGoal = new PathPlanner();
+			ppToGoal.updateStart(avaX,avaY);
+			ppToGoal.updateGoal(goalX,goalY);
+			ppToGoal.updateWays();
+			double distToGoal = ppToGoal.getDistanceToGoal(avaX, avaY);
+			
+			double[] energies = new double[PersistentStorage.actions.length];
+			
+			// handle the 1D game case
+			if(PersistentStorage.actions.length < 4){
+				// 1D games
+				for ( int i = 0; i < 2; i++)
+				if(PersistentStorage.adjacencyMap.isActionPossible(avaX,avaY, PersistentStorage.actions[i]) ){
+					// for left and right
+					energies[i] = ppToGoal.getDistanceToGoal(avaX+(2*i-1),avaY);
+				}
+				else{
+					energies[i] = distToGoal + 5;
+				}
+				if(PersistentStorage.actions.length == 3){
+					energies[3] = energies[1]+energies[2];
+				}
+			}
+			
+			// handle the 2D game case
+			if(PersistentStorage.actions.length < 4){
+				// 1D games
+				for ( int i = 0; i < 2; i++)
+					if(PersistentStorage.adjacencyMap.isActionPossible(avaX,avaY, PersistentStorage.actions[i]) ){
+						// for left and right
+						energies[i] = ppToGoal.getDistanceToGoal(avaX+(2*i-1),avaY);
+					}
+					else{
+						energies[i] = distToGoal + 5;
+					}
+				if(PersistentStorage.actions.length == 3){
+					energies[3] = energies[1]+energies[2];
+				}
+			}
+
+
+
 		}else {
 			// go back to normal tree policy
 			return treePolicy();
