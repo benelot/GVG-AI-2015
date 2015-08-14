@@ -163,7 +163,8 @@ public class MCTSNode {
 			ArrayList<Observation>[][] obsGrid = cur.state.getObservationGrid();
 			Vector2d avatarPos = cur.state.getAvatarPosition();
 			Vector2d goalPos = getGoalPosition(cur.state,avatarPos,goalID,goalIType);
-			double distToGoal = MCTSAgent.pathPlannerMaps.get(goalIType).getDistanceToGoal(goalX, goalY);
+			int goalPosX = floor(goalPos.x);
+			double distToGoal = MCTSAgent.pathPlannerMaps.get(goalIType).getDistanceToGoal(goalPosX, goalPosY);
 			
 			
 		}else {
@@ -177,10 +178,36 @@ public class MCTSNode {
 	
 	
 	Vector2d getGoalPosition(StateObservation state, Vector2d avatarPos,int goalID, int goalIType){
-		Vector2d goalPos;
 		
-		state.get
+		ArrayList<Observation>[] npcPositionsList = state.getNPCPositions(avatarPos);
+		ArrayList<Observation>[] movablesPositionsList = state.getMovablePositions(avatarPos);
 		
+		for (ArrayList<Observation> npcs : npcPositionsList) {
+			if (npcs.size() > 0) {
+				for(int i = 0; i< npcs.size(); i++){
+					Observation obs = npcs.get(i);
+					if (obs.obsID==goalID && obs.itype==goalIType){
+						// correct object found
+						return obs.position;
+					}
+				}
+			}
+		}
+		
+		for (ArrayList<Observation> movables : movablesPositionsList) {
+			if (movables.size() > 0) {
+				for(int i = 0; i< movables.size(); i++){
+					Observation obs = movables.get(i);
+					if (obs.obsID==goalID && obs.itype==goalIType){
+						// correct object found
+						return obs.position;
+					}
+				}
+			}
+		}
+		
+		// not found
+		Vector2d goalPos = new Vector2d(-1,-1);
 		return goalPos;
 	}
 	
