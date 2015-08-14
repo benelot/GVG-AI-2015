@@ -133,6 +133,7 @@ public class MCTSNode {
 	public MCTSNode treePolicy() {
 
 		MCTSNode cur = this;
+		
 		while (!cur.state.isGameOver()
 				&& cur.m_depth < PersistentStorage.MCTS_DEPTH_RUN) {
 			if (cur.notFullyExpanded()) {
@@ -148,7 +149,52 @@ public class MCTSNode {
 
 		return cur;
 	}
+	
+	public MCTSNode goalDrivenTreePolicy(){
+		MCTSNode cur = this;
+		// get all itypes. ObsList = <Obs.ID,Obs.itype>
+		HashMap<Integer, Integer> ObsList = ObservationTools.getObsList(cur.state);
+		// choose goal from the list of itypes. persist for n number of ticks
+		int goalID = chooseGoalFromObsList(ObsList);
+		int goalIType = ObsList.get(goalID);
+		// create distance to this object
+		if(MCTSAgent.pathPlannerMaps.containsKey(goalID)){
+			// use this distance to expand the tree
+			ArrayList<Observation>[][] obsGrid = cur.state.getObservationGrid();
+			Vector2d avatarPos = cur.state.getAvatarPosition();
+			Vector2d goalPos = getGoalPosition(cur.state,avatarPos,goalID,goalIType);
+			double distToGoal = MCTSAgent.pathPlannerMaps.get(goalIType).getDistanceToGoal(goalX, goalY);
+			
+			
+		}else {
+			// go back to normal tree policy
+			return treePolicy();
+		}
+			
+			
+		return cur;
+	}
+	
+	
+	Vector2d getGoalPosition(StateObservation state, Vector2d avatarPos,int goalID, int goalIType){
+		Vector2d goalPos;
+		
+		state.get
+		
+		return goalPos;
+	}
+	
+	public MCTSNode goalDrivenExpand(){
+		MCTSNode next;
+		
+		return next;
+	}
 
+	int chooseGoalFromObsList(HashMap<Integer,Integer> ObsList){
+		int goal = 0;
+		
+		return goal;
+	}
 	public MCTSNode expand() {
 
 		int bestAction = 0;
