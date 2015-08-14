@@ -1,5 +1,6 @@
 package bladeRunner;
 
+import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -9,6 +10,7 @@ import agents.GameAgent;
 import agents.hbfs.HBFSAgent;
 import agents.mcts.MCTSAgent;
 import agents.misc.AdjacencyMap;
+import agents.misc.DrawingTools;
 import agents.misc.GameClassifier;
 import agents.misc.ITypeAttractivity;
 import agents.misc.PersistentStorage;
@@ -16,6 +18,7 @@ import agents.misc.RewardMap;
 import agents.misc.GameClassifier.GameType;
 import core.game.Observation;
 import agents.misc.pathplanning.PathPlanner;
+import core.game.Observation;
 import core.game.StateObservation;
 import core.player.AbstractPlayer;
 import ontology.Types;
@@ -33,7 +36,10 @@ public class Agent extends AbstractPlayer {
 	public enum AgentType {
 		MCTS, BFS, MIXED
 	}
-
+	
+	ArrayList<Observation>[][] grid;
+	protected int blockSize; //only needed for the drawing
+	
 	public static final boolean isVerbose = true;
 
 	/**
@@ -153,7 +159,10 @@ public class Agent extends AbstractPlayer {
 	 */
 	public Types.ACTIONS act(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) {
 		Types.ACTIONS action = Types.ACTIONS.ACTION_NIL;
-
+		
+		//this is just for the drawing. comment it out, if you don't need it
+		// DrawingTools.updateObservation(stateObs);
+		
 		try {
 			action = currentAgent.act(stateObs, elapsedTimer);
 		} catch (OutOfMemoryError e) {
@@ -245,4 +254,24 @@ public class Agent extends AbstractPlayer {
 			previousAgent = null;
 		}
 	}
+	
+	
+	
+	
+	
+	/**
+     * Gets the player the control to draw something on the screen.
+     * It can be used for debug purposes.
+     * The draw method of the agent is called by the framework (VGDLViewer) whenever it runs games visually
+     * Comment this out, when you do not need it
+     * We could draw anything!
+     * @param g Graphics device to draw to.
+     */
+	/*
+    public void draw(Graphics2D g)
+    {
+        DrawingTools.draw(g);
+    }
+    */ //if you want to use that, you also have to uncomment DrawingTools.updateObservation() in the act method
+    
 }

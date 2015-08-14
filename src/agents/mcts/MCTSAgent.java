@@ -52,7 +52,6 @@ public class MCTSAgent extends GameAgent {
 		m_root = new MCTSNode(a_rnd);
 		init(so);
 		run(elapsedTimer);
-	//	HashMap<Integer, PathPlanner> pathPlannerMaps = new HashMap<Integer,PathPlanner>();
 		nodeQty = 0;
 	}
 
@@ -166,7 +165,6 @@ public class MCTSAgent extends GameAgent {
 		PersistentStorage.rewMap.incrementAll(0.001);
 		PersistentStorage.rewMap.setRewardAtWorldPosition(avatarPos, -0.3);
 		PersistentStorage.rewMap.decrementAtPos(avatarPos, -0.01);
-		System.out.println(m_root.nVisits);
 
 		// rewMap.print();
 
@@ -294,6 +292,7 @@ public class MCTSAgent extends GameAgent {
 	
 	public void initPathPlannerMaps(StateObservation state){
 
+		pathPlannerMaps = new HashMap<Integer,PathPlanner>();
 		// add Npc maps
 		updatePPMaps(1,state);
 		// add Ressource maps
@@ -335,17 +334,18 @@ public class MCTSAgent extends GameAgent {
 					//only look at the closest rewarding/punishing npc
 					for(int i = 0; i< 1; i++){
 
-//						double movAttractionValue = 0;
-//						try {
-//							movAttractionValue = PersistentStorage.iTypeAttractivity
-//									.get(mov.get(i).itype);
-//						} catch (java.lang.NullPointerException e) {
-//							PersistentStorage.iTypeAttractivity
-//							.putIfAbsent(mov.get(i));
-//							movAttractionValue = PersistentStorage.iTypeAttractivity
-//									.get(mov.get(i).itype);
-//						}
-						
+						double movAttractionValue = 0;
+						try {
+							movAttractionValue = PersistentStorage.iTypeAttractivity
+									.get(mov.get(i).itype);
+						} catch (java.lang.NullPointerException e) {
+							PersistentStorage.iTypeAttractivity
+							.putIfAbsent(mov.get(i));
+							movAttractionValue = PersistentStorage.iTypeAttractivity
+									.get(mov.get(i).itype);
+						}
+						movAttractionValue = PersistentStorage.iTypeAttractivity
+								.get(mov.get(i).itype);
 						// update the pathplannerMaps for the closest movables
 						PathPlanner pp = new PathPlanner();
 						Vector2d movPosition = mov.get(i).position;
@@ -353,6 +353,7 @@ public class MCTSAgent extends GameAgent {
 						int movY = floorDiv((int) (movPosition.y + 0.1), blockSize);
 						pp.updateStart(avaX,avaY);
 						pp.updateGoal(movX, movY);
+						pp.updateWays();
 						pathPlannerMaps.put(mov.get(i).itype, pp);
 					}
 				}
