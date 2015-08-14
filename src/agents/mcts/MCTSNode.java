@@ -337,7 +337,6 @@ public class MCTSNode {
 				.getRewardAtWorldPosition(rollerState.getAvatarPosition());
 
 
-		// TODO: get a reward for just moving far, so not making too many jittery moves.
 		Vector2d curPos = rollerState.getAvatarPosition();
 		//System.out.println(PersistentStorage.MCTS_DEPTH_FIX +"   "+ PersistentStorage.MCTS_DEPTH_RUN + "   "+ m_depth);
 		int nSteps =  1+PersistentStorage.MCTS_DEPTH_FIX - (PersistentStorage.MCTS_DEPTH_RUN - m_depth); 
@@ -356,22 +355,18 @@ public class MCTSNode {
 			multiplierExploration = 0.1;
 		// get a reward based on the distance to the different Itypes. 
 		// this can be closest ones, or only positives.... 
-		//		double distITypeRew = getNewExplITypeReward(rollerState, nonJitterRew	);
 		double distITypeRewNewDist = getNewExplITypeRewardNewDist(rollerState, nonJitterRew	);
 		
 		// get a heuristic for wasting resources
-		double ressourceReward = ObservationTools.getRessourceDifferenceIndicator(rollerState)*0.01;
+		double ressourceReward = ObservationTools.getRessourceDifferenceIndicator(rollerState)*0.05;
 
-		if(ressourceReward != 0)
-			System.out.println(ressourceReward);
 		// use a fraction of "explRew" as an additional reward (Not given by the
 		// Gamestats) the multiplication is just taking care of ignoring this distItype if we are stuck.
-		//double additionalRew =(multiplierExploration*explRew/10 + distITypeRew/2 + multiplierExploration*nonJitterRew/20) / 2;
 		double additionalRew =(multiplierExploration*explRew/10 + distITypeRewNewDist/3 + multiplierExploration*nonJitterRew/20 + ressourceReward) / 2;
 
-		DecimalFormat df = new DecimalFormat("####0.0000");
+//		DecimalFormat df = new DecimalFormat("####0.0000");
 
-		System.out.println("explRew: " + df.format(explRew/10) + "   ItypeDistRew: " + df.format(distITypeRewNewDist/3) + "  NonJitterRew: " + df.format(nonJitterRew/20) + " res: "+ df.format(ressourceReward));
+//		System.out.println("explRew: " + df.format(explRew/10) + "   ItypeDistRew: " + df.format(distITypeRewNewDist/3) + "  NonJitterRew: " + df.format(nonJitterRew/20) + " res: "+ df.format(ressourceReward));
 		//		System.out.println(": " + curPos.x + "   : " + curPos.y + "  "+ nSteps  );
 
 
@@ -404,14 +399,13 @@ public class MCTSNode {
 			}
 		}
 
-
-
-
 		return normDelta;
 	}
 
 	public double getNewExplITypeRewardNewDist(StateObservation state, double nonJitterRew ){
 		// creates a heuristic reward based on the distance of the rolloutstates from to the various abjects
+		
+		// THIS IS REALLY UGLY BUT IM TO LAZY TO CLEAN THAT UP NOW AND IT WORKS OK ;)
 		double totRew = 0;
 		Vector2d pos = state.getAvatarPosition();
 
@@ -423,9 +417,6 @@ public class MCTSNode {
 
 		int count1 = 0;
 
-		// TODO: perhaps we should distinguish the cases where we want to kill the enemies
-		// Thus if we have the 5th or 3 actions we can also desire to go close ( or align) with 
-		// the enemies: aligning seems better since it goes closer and is better for shooting. 
 		ArrayList<Observation>[] npcPositions = null;
 		npcPositions = state.getNPCPositions(pos);
 		if (npcPositions != null) {
@@ -477,7 +468,16 @@ public class MCTSNode {
 
 		ArrayList<Observation>[] resPos = null;
 		resPos = state.getResourcesPositions(pos);
+		double numRess = 0;
+		double numRessClasses = 0;
 		if (resPos != null) {
+			for (ArrayList<Observation> res : resPos) {
+				if (res.size() > 0){
+					numRess += res.size();
+					numRessClasses++;
+				}
+			}
+			
 			for (ArrayList<Observation> res : resPos) {
 				if (res.size() > 0) {
 					//for(int i = 0; i< res.size(); i++){
@@ -496,11 +496,14 @@ public class MCTSNode {
 						}
 
 						if( MCTSAgent.pathPlannerMaps.containsKey(res.get(i).itype) ){
-							//compute the current distance to the closest enemy 
+							//compute the current distance to the closest ressource 
 							double distIntSteps = ((MCTSAgent.pathPlannerMaps).get(res.get(i).itype)).getStepsQtyToGoal(avaX,avaY);
 							double maxPath  = MCTSAgent.pathPlannerMaps.get(res.get(i).itype).getMaximumSteps();
 							double dist = distIntSteps / maxPath;
-							totRew += 3*resAttractionValue/(dist*dist+0.05)*1/50;
+							
+							double resourceSparcity = (numRess-res.size())/numRess;
+							
+							totRew += 3*resourceSparcity*resAttractionValue/(dist*dist+0.05)*1/50;
 
 							count1++;
 						}
@@ -531,13 +534,15 @@ public class MCTSNode {
 						}
 
 						if( MCTSAgent.pathPlannerMaps.containsKey(mov.get(i).itype) ){
-							//compute the current distance to the closest enemy 
-							double distIntSteps = MCTSAgent.pathPlannerMaps.get(mov.get(i).itype).getStepsQtyToGoal(avaX,avaY);
-							double maxPath  = MCTSAgent.pathPlannerMaps.get(mov.get(i).itype).getMaximumSteps();
-							double dist = distIntSteps / maxPath;
-
-							totRew += 2*movAttractionValue/(dist*dist+0.05)*1/50;
-							count1++;
+							//compute the current distance to the closest movable 
+							if(movAttractionValue > 0){
+								double distIntSteps = MCTSAgent.pathPlannerMaps.get(mov.get(i).itype).getStepsQtyToGoal(avaX,avaY);
+								double maxPath  = MCTSAgent.pathPlannerMaps.get(mov.get(i).itype).getMaximumSteps();
+								double dist = distIntSteps / maxPath;
+	
+								totRew += 2*movAttractionValue/(dist*dist+0.05)*1/50;
+								count1++;
+							}
 						}
 
 					}
@@ -552,7 +557,7 @@ public class MCTSNode {
 			return 0;
 	}
 
-
+	// old way to get an ItypeReward based on simple distance measure
 	public double getNewExplITypeReward(StateObservation state, double nonJitterRew ){
 		double totRew = 0;
 
