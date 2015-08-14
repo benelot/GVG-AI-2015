@@ -403,12 +403,12 @@ public class ObservationTools {
 			}
 		}
 
-		PersistentStorage.previousAvatarRessources = so.getAvatarResources();
+		//PersistentStorage.previousAvatarRessources = so.getAvatarResources();
 
 		return ressourceDifference;
 	}
 
-	int getRessourceDifferenceIndicator(StateObservation so) {
+	public static int getRessourceDifferenceIndicator(StateObservation so) {
 		int indicator = 0;
 		for (int k : so.getAvatarResources().keySet()) {
 			if (PersistentStorage.previousAvatarRessources.containsKey(k)) {
@@ -418,7 +418,7 @@ public class ObservationTools {
 			}
 		}
 
-		PersistentStorage.previousAvatarRessources = so.getAvatarResources();
+		//PersistentStorage.previousAvatarRessources = so.getAvatarResources();
 
 		return indicator;
 	}
