@@ -11,8 +11,8 @@ import ontology.Types;
  * 
  * @author Benjamin Ellenberger
  *
- *         //Example use: PathPlanner.updateStart(1, 1); // Not necessary, just
- *         if you need a way to that position only.
+ *         //Example use: 
+ *         PathPlanner.updateStart(1, 1); // Not necessary, just if you need a way to that position only.
  *         PathPlanner.updateGoal(26,8);
  *
  *         PathPlanner.updateWays();
