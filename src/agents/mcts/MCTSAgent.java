@@ -121,6 +121,9 @@ public class MCTSAgent extends GameAgent {
 		
 		// create the different PathPlanningMaps for the different itypes that we see at the moment.
 		initPathPlannerMaps(m_root.state);
+		
+		PersistentStorage.previousAvatarRessources = m_root.state.getAvatarResources();
+		
 		// Do the search within the available time.
 		m_root.mctsSearch(elapsedTimer);
 

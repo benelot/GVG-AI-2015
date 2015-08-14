@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
+import agents.misc.ObservationTools;
 import agents.misc.PersistentStorage;
 import agents.misc.pathplanning.PathPlanner;
 import bladeRunner.Agent;
@@ -311,15 +312,20 @@ public class MCTSNode {
 		// this can be closest ones, or only positives.... 
 		//		double distITypeRew = getNewExplITypeReward(rollerState, nonJitterRew	);
 		double distITypeRewNewDist = getNewExplITypeRewardNewDist(rollerState, nonJitterRew	);
+		
+		// get a heuristic for wasting resources
+		double ressourceReward = ObservationTools.getRessourceDifferenceIndicator(rollerState)*0.01;
 
+		if(ressourceReward != 0)
+			System.out.println(ressourceReward);
 		// use a fraction of "explRew" as an additional reward (Not given by the
 		// Gamestats) the multiplication is just taking care of ignoring this distItype if we are stuck.
 		//double additionalRew =(multiplierExploration*explRew/10 + distITypeRew/2 + multiplierExploration*nonJitterRew/20) / 2;
-		double additionalRew =(multiplierExploration*explRew/10 + distITypeRewNewDist/2 + multiplierExploration*nonJitterRew/20) / 2;
+		double additionalRew =(multiplierExploration*explRew/10 + distITypeRewNewDist/3 + multiplierExploration*nonJitterRew/20 + ressourceReward) / 2;
 
 		DecimalFormat df = new DecimalFormat("####0.0000");
 
-		//System.out.println("explRew: " + df.format(explRew/10) + "   ItypeDistRew: " + df.format(distITypeRew/2) + "  NonJitterRew: " + df.format(nonJitterRew/20));
+		System.out.println("explRew: " + df.format(explRew/10) + "   ItypeDistRew: " + df.format(distITypeRewNewDist/3) + "  NonJitterRew: " + df.format(nonJitterRew/20) + " res: "+ df.format(ressourceReward));
 		//		System.out.println(": " + curPos.x + "   : " + curPos.y + "  "+ nSteps  );
 
 
@@ -402,7 +408,7 @@ public class MCTSNode {
 							double dist = distIntSteps / maxPath;
 
 							if(npcAttractionValue < 0 && PersistentStorage.actions.length%2 != 0 && npcAttractionValue > -1.5 )
-								totRew += Math.abs(npcAttractionValue)/(dist*dist+0.1)*1/10;
+								totRew += Math.abs(npcAttractionValue)/(dist*dist+0.05)*1/50;
 							else{
 								// case of an enemy that killed us in a previous game
 								if(npcAttractionValue < -1){
@@ -413,7 +419,7 @@ public class MCTSNode {
 									}
 								}
 								else{
-									totRew += npcAttractionValue/(dist*dist+0.1)*1/10;
+									totRew += npcAttractionValue/(dist*dist+0.05)*1/50;
 								}
 							}
 							count1++;
@@ -448,7 +454,7 @@ public class MCTSNode {
 							double distIntSteps = ((MCTSAgent.pathPlannerMaps).get(res.get(i).itype)).getStepsQtyToGoal(avaX,avaY);
 							double maxPath  = MCTSAgent.pathPlannerMaps.get(res.get(i).itype).getMaximumSteps();
 							double dist = distIntSteps / maxPath;
-							totRew += 3*resAttractionValue/(dist*dist+0.1)*1/10;
+							totRew += 3*resAttractionValue/(dist*dist+0.05)*1/50;
 
 							count1++;
 						}
@@ -484,7 +490,7 @@ public class MCTSNode {
 							double maxPath  = MCTSAgent.pathPlannerMaps.get(mov.get(i).itype).getMaximumSteps();
 							double dist = distIntSteps / maxPath;
 
-							totRew += 2*movAttractionValue/(dist*dist+0.1)*1/10;
+							totRew += 2*movAttractionValue/(dist*dist+0.05)*1/50;
 							count1++;
 						}
 
