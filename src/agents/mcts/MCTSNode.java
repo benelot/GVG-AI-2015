@@ -121,7 +121,14 @@ public class MCTSNode {
 
 		else{
 			while (elapsedTimer.remainingTimeMillis() > 10) {
-				MCTSNode selected = treePolicy();
+				
+				MCTSNode  selected = null;
+				if(MCTSAgent.treePolMode == 0){
+					selected = treePolicy();
+				}
+				else{
+					selected = goalDrivenTreePolicy();
+				}
 				double delta = selected.rollOut();
 				backUp(selected, delta,1);
 				// backUpBest(selected, delta);
@@ -176,6 +183,13 @@ public class MCTSNode {
 			ppToGoal.updateWays();
 			double distToGoal = ppToGoal.getDistanceToGoal(avaX, avaY);
 			
+			// if we are really close to the goal just do normal mcts no point in overplanning then
+			if(distToGoal < 2){
+				MCTSAgent.treePolMode = 0;
+				MCTSAgent.GoalDrivenTreePolCounter = 0;
+				return treePolicy();
+			}
+			
 			double[] energies = new double[PersistentStorage.actions.length];
 			
 			// handle the 1D game case
@@ -193,25 +207,26 @@ public class MCTSNode {
 					energies[3] = energies[1]+energies[2];
 				}
 			}
-			
-			// handle the 2D game case
-			if(PersistentStorage.actions.length < 4){
-				// 1D games
-				for ( int i = 0; i < 2; i++)
-					if(PersistentStorage.adjacencyMap.isActionPossible(avaX,avaY, PersistentStorage.actions[i]) ){
-						// for left and right
-						energies[i] = ppToGoal.getDistanceToGoal(avaX+(2*i-1),avaY);
+			else{
+				// handle the 2D game case
+				if(PersistentStorage.actions.length < 4){
+					// 1D games
+					for ( int i = 0; i < 2; i++)
+						if(PersistentStorage.adjacencyMap.isActionPossible(avaX,avaY, PersistentStorage.actions[i]) ){
+							// for left and right
+							energies[i] = ppToGoal.getDistanceToGoal(avaX+(2*i-1),avaY);
+						}
+						else{
+							energies[i] = distToGoal + 5;
+						}
+					if(PersistentStorage.actions.length == 5){
+						energies[3] = energies[1]+energies[2];
 					}
-					else{
-						energies[i] = distToGoal + 5;
-					}
-				if(PersistentStorage.actions.length == 3){
-					energies[3] = energies[1]+energies[2];
 				}
 			}
-
-
-
+			
+			// from the energies we create probabilities of choosing our children
+			
 		}else {
 			// go back to normal tree policy
 			return treePolicy();
