@@ -27,41 +27,45 @@ import ontology.Types;
 public class PathPlanner {
 
 	/** Initial pipe length for quick allocation */
-	public static int INITIAL_PIPE_LENGTH = 250;
+	public int INITIAL_PIPE_LENGTH = 250;
 
 	/** Initial rejection length for quick allocation */
-	public static int INITIAL_REJECTION_SET_SIZE = 250;
+	public int INITIAL_REJECTION_SET_SIZE = 250;
 
 	//
 	/** open set */
-	public static PriorityQueue<PathPlannerNode> pipe = new PriorityQueue<PathPlannerNode>(INITIAL_PIPE_LENGTH);
+	public PriorityQueue<PathPlannerNode> pipe = new PriorityQueue<PathPlannerNode>(INITIAL_PIPE_LENGTH);
 
 	/** visited set */
-	public static ArrayList<PathPlannerNode> visited = new ArrayList<PathPlannerNode>(INITIAL_REJECTION_SET_SIZE);
+	public ArrayList<PathPlannerNode> visited = new ArrayList<PathPlannerNode>(INITIAL_REJECTION_SET_SIZE);
 
 	/** root node of the search */
-	public static PathPlannerNode hbfsRoot = null;
+	public PathPlannerNode hbfsRoot = null;
 	//
 	/** Number of elements processed */
-	public static int processedElementsQty = 0;
+	public int processedElementsQty = 0;
 
 	/** goal position */
-	private static int goalX = 0;
-	private static int goalY = 0;
+	private int goalX = 0;
+	private int goalY = 0;
 
 	/** start position */
-	private static int startX = 0;
-	private static int startY = 0;
+	private int startX = 0;
+	private int startY = 0;
 
 	/** If only a single path instead of a full path gradient is needed */
-	private static boolean onlySinglePathNeeded = false;
+	private boolean onlySinglePathNeeded = false;
 
 	/** If it has found a path at all */
-	private static boolean pathFound = false;
+	private boolean pathFound = false;
 
-	private static int maximumSteps = -1;
+	private int maximumSteps = -1;
+	
+	public PathPlanner() {
+		cleanHbfs();
+	}
 
-	private static void cleanHbfs() {
+	private void cleanHbfs() {
 		pipe.clear();
 		visited.clear();
 		hbfsRoot = null;
@@ -70,14 +74,14 @@ public class PathPlanner {
 		maximumSteps = -1;
 	}
 
-	public static void updateStart(int startX, int startY) {
-		PathPlanner.startX = startX;
-		PathPlanner.startY = startY;
+	public void updateStart(int startX, int startY) {
+		this.startX = startX;
+		this.startY = startY;
 	}
 
-	public static void updateGoal(int goalX, int goalY) {
-		PathPlanner.goalX = goalX;
-		PathPlanner.goalY = goalY;
+	public void updateGoal(int goalX, int goalY) {
+		this.goalX = goalX;
+		this.goalY = goalY;
 	}
 
 	public Types.ACTIONS getNextStepToGoal(int x, int y) {
@@ -89,7 +93,7 @@ public class PathPlanner {
 		return Types.ACTIONS.ACTION_NIL;
 	}
 
-	public static double getStepsQtyToGoal(int x, int y) {
+	public double getStepsQtyToGoal(int x, int y) {
 		double highestDistance = 0;
 		for (PathPlannerNode n : visited) {
 			highestDistance = (highestDistance < n.getDistanceFromGoal()) ? n.getDistanceFromGoal() : highestDistance;
@@ -100,11 +104,11 @@ public class PathPlanner {
 		return highestDistance + 1;
 	}
 
-	public static double getDistanceToGoal(int x, int y) {
+	public double getDistanceToGoal(int x, int y) {
 		return euclidianDistance(goalX, goalY, x, y);
 	}
 
-	public static int getMaximumSteps() {
+	public int getMaximumSteps() {
 		if (maximumSteps == -1) {
 			for (PathPlannerNode n : visited) {
 				maximumSteps = (int) ((maximumSteps < n.getDistanceFromGoal()) ? n.getDistanceFromGoal() : maximumSteps);
@@ -113,7 +117,7 @@ public class PathPlanner {
 		return maximumSteps;
 	}
 
-	public static ArrayList<Types.ACTIONS> getPathToGoal(int x, int y) {
+	public ArrayList<Types.ACTIONS> getPathToGoal(int x, int y) {
 		ArrayList<Types.ACTIONS> path = new ArrayList<>();
 		for (PathPlannerNode n : visited) {
 			if (n.x == x && n.y == y) {
@@ -124,7 +128,7 @@ public class PathPlanner {
 		return path;
 	}
 
-	private static boolean performHbfs() {
+	private boolean performHbfs() {
 
 		if (pipe.isEmpty()) {
 			return true;
@@ -199,11 +203,11 @@ public class PathPlanner {
 
 	}
 
-	public static void displayPathState() {
+	public void displayPathState() {
 		displayPathState(null);
 	}
 
-	public static void displayPathState(PathPlannerNode node) {
+	public void displayPathState(PathPlannerNode node) {
 		if (node == null) {
 			node = pipe.peek();
 		}
@@ -232,7 +236,7 @@ public class PathPlanner {
 	 *            Timer when the action returned is due.
 	 * @return An action for the current state
 	 */
-	public static void updateWays() {
+	public void updateWays() {
 		// clean up from previous runs
 		cleanHbfs();
 
@@ -258,7 +262,7 @@ public class PathPlanner {
 	 * Euclidean cost between state a and state b
 	 */
 	@SuppressWarnings("unused")
-	private static double euclidianDistance(PathPlannerNode a, PathPlannerNode b) {
+	private double euclidianDistance(PathPlannerNode a, PathPlannerNode b) {
 		float x = a.x - b.x;
 		float y = a.y - b.y;
 		return Math.sqrt(x * x + y * y);
@@ -267,7 +271,7 @@ public class PathPlanner {
 	/**
 	 * Euclidean cost between state a and and a position
 	 */
-	private static double euclidianDistance(PathPlannerNode a, int goalX, int goalY) {
+	private double euclidianDistance(PathPlannerNode a, int goalX, int goalY) {
 		float x = a.x - goalX;
 		float y = a.y - goalY;
 		return Math.sqrt(x * x + y * y);
@@ -276,21 +280,21 @@ public class PathPlanner {
 	/**
 	 * Euclidean cost between state a and and a position
 	 */
-	private static double euclidianDistance(int startX, int startY, int goalX, int goalY) {
+	private double euclidianDistance(int startX, int startY, int goalX, int goalY) {
 		float x = startX - goalX;
 		float y = startY - goalY;
 		return Math.sqrt(x * x + y * y);
 	}
 
-	public static boolean isOnlySinglePathNeeded() {
+	public boolean isOnlySinglePathNeeded() {
 		return onlySinglePathNeeded;
 	}
 
-	public static void setOnlySinglePathNeeded(boolean onlySinglePathNeeded) {
-		PathPlanner.onlySinglePathNeeded = onlySinglePathNeeded;
+	public void setOnlySinglePathNeeded(boolean onlySinglePathNeeded) {
+		this.onlySinglePathNeeded = onlySinglePathNeeded;
 	}
 
-	public static boolean hasPathFound() {
+	public boolean hasPathFound() {
 		return pathFound;
 	}
 }

@@ -6,6 +6,7 @@ import java.util.HashSet;
 
 import tools.Vector2d;
 import agents.hbfs.HBFSAgent;
+import agents.misc.pathplanning.PathPlanner;
 import core.game.Event;
 import core.game.Observation;
 import core.game.StateObservation;
@@ -18,23 +19,30 @@ public class ObservationTools {
 		public int load; // total number of tiles
 		public int tileDestructions;
 		public int tileCreations;
-		public int tileTransforms; // total number of tile transforms w.r.t. root (a
-							// tile vanishes or transforms into another one,
-							// movement does not count)
-		public int tileMovements; // total number of tile movements w.r.t. root (a tile
-							// moves from one pos. to another)
-		public int relevantEvents; // not so important; total number of relevant events
-							// w.r.t. root (all except irrelevant events)
-		public int irrelevantEvents; // not so important; total number of relevant
-								// events w.r.t. root (events that involve walls
-								// etc...)
-		public int trappedTiles; // TODO: (maybe) if you want the newly trapped tiles
-							// you have to subtract the root trapped tiles, one
-							// could just calculate them when the root is set,
-							// but I was not sure if you want that.
-		public double ResourceValue; // an attractivity weighted (not jet implemented)
-								// sum of resources minus the resources that
-								// were already there
+		public int tileTransforms; // total number of tile transforms w.r.t.
+									// root (a
+		// tile vanishes or transforms into another one,
+		// movement does not count)
+		public int tileMovements; // total number of tile movements w.r.t. root
+									// (a tile
+		// moves from one pos. to another)
+		public int relevantEvents; // not so important; total number of relevant
+									// events
+		// w.r.t. root (all except irrelevant events)
+		public int irrelevantEvents; // not so important; total number of
+										// relevant
+		// events w.r.t. root (events that involve walls
+		// etc...)
+		public int trappedTiles; // TODO: (maybe) if you want the newly trapped
+									// tiles
+		// you have to subtract the root trapped tiles, one
+		// could just calculate them when the root is set,
+		// but I was not sure if you want that.
+		public double ResourceValue; // an attractivity weighted (not jet
+										// implemented)
+
+		// sum of resources minus the resources that
+		// were already there
 
 		// double transformationScore; //If we somehow find out if a
 		// transformation is good (maybe with a more sophisticated
@@ -66,8 +74,7 @@ public class ObservationTools {
 	// Rotating hash for sequences of small values:
 	// http://burtleburtle.net/bob/hash/doobs.html
 	public static int getHash(StateObservation so) {
-		int sequenceLength = so.getWorldDimension().height
-				* so.getWorldDimension().width + 2;
+		int sequenceLength = so.getWorldDimension().height * so.getWorldDimension().width + 2;
 		if (HBFSAgent.RESPECT_AGENT_ORIENTATION)
 			sequenceLength += 2;
 		if (HBFSAgent.REPSECT_AGENT_SPEED)
@@ -85,10 +92,8 @@ public class ObservationTools {
 		hash = (hash << 4) ^ (hash >> 28) ^ ((int) so.getAvatarPosition().y);
 
 		if (HBFSAgent.RESPECT_AGENT_ORIENTATION) {
-			hash = (hash << 4) ^ (hash >> 28)
-					^ ((int) so.getAvatarOrientation().x);
-			hash = (hash << 4) ^ (hash >> 28)
-					^ ((int) so.getAvatarOrientation().y);
+			hash = (hash << 4) ^ (hash >> 28) ^ ((int) so.getAvatarOrientation().x);
+			hash = (hash << 4) ^ (hash >> 28) ^ ((int) so.getAvatarOrientation().y);
 		}
 
 		if (HBFSAgent.REPSECT_AGENT_SPEED) {
@@ -135,8 +140,7 @@ public class ObservationTools {
 	 * getAnalysis with two observation as parameter compares the two
 	 * observations
 	 */
-	public static DefaultAnalysis getAnalysis(StateObservation so,
-			StateObservation parent) {
+	public static DefaultAnalysis getAnalysis(StateObservation so, StateObservation parent) {
 		DefaultAnalysis analysis;
 		analysis = analyze(getObsList(parent), parent, so);
 		return analysis;
@@ -179,21 +183,17 @@ public class ObservationTools {
 		movePos = a_gameState.getMovablePositions();
 		int isTrapped = 0;
 		int isCompletelyFree = 0;
-		double blockSquare = a_gameState.getBlockSize()
-				* a_gameState.getBlockSize();
+		double blockSquare = a_gameState.getBlockSize() * a_gameState.getBlockSize();
 		if (movePos != null) {
 			for (int j = 0; j < movePos.length; j++) {
 				for (int i = 0; i < movePos[j].size(); i++) {
 					Vector2d mPPos = movePos[j].get(i).position;
 
-					ArrayList<Observation>[] trappedByImmovables = a_gameState
-							.getImmovablePositions(mPPos);
+					ArrayList<Observation>[] trappedByImmovables = a_gameState.getImmovablePositions(mPPos);
 
-					ArrayList<Observation>[] trappedByMovables = a_gameState
-							.getMovablePositions(mPPos);
+					ArrayList<Observation>[] trappedByMovables = a_gameState.getMovablePositions(mPPos);
 
-					if (trappedByImmovables != null
-							&& trappedByImmovables.length > 0) {
+					if (trappedByImmovables != null && trappedByImmovables.length > 0) {
 						// if surrounded by 3 objects, its trapped
 						if (trappedByImmovables[0].size() >= 3) {
 							if ((trappedByImmovables[0].get(0).sqDist - blockSquare) < 1
@@ -206,20 +206,16 @@ public class ObservationTools {
 						if (trappedByImmovables[0].size() >= 2) {
 							if ((trappedByImmovables[0].get(0).sqDist - blockSquare) < 1
 									&& (trappedByImmovables[0].get(1).sqDist - blockSquare) < 1
-									&& Math.abs((trappedByImmovables[0].get(1).position.x - trappedByImmovables[0]
-											.get(0).position.x)
-											* (trappedByImmovables[0].get(1).position.y - trappedByImmovables[0]
-													.get(0).position.y)) > 1) {
+									&& Math.abs((trappedByImmovables[0].get(1).position.x - trappedByImmovables[0].get(0).position.x)
+											* (trappedByImmovables[0].get(1).position.y - trappedByImmovables[0].get(0).position.y)) > 1) {
 								isTrapped++;
 							} else {
 								// if surrounded by two immovable objects and a
 								// movable object its trapped
-								if (trappedByMovables != null
-										&& trappedByMovables.length > 0) {
+								if (trappedByMovables != null && trappedByMovables.length > 0) {
 									if (trappedByMovables[0].size() > 1) {
 										if ((trappedByImmovables[0].get(0).sqDist - blockSquare) < 1
-												&& (trappedByImmovables[0]
-														.get(1).sqDist - blockSquare) < 1
+												&& (trappedByImmovables[0].get(1).sqDist - blockSquare) < 1
 												&& (trappedByMovables[0].get(1).sqDist - blockSquare) < 1) {
 											isTrapped++;
 										}
@@ -229,9 +225,7 @@ public class ObservationTools {
 						}
 					}
 
-					if (trappedByImmovables != null
-							&& trappedByImmovables.length > 0
-							&& trappedByMovables != null
+					if (trappedByImmovables != null && trappedByImmovables.length > 0 && trappedByMovables != null
 							&& trappedByMovables.length > 0) {
 						// reward movable objects that are not surrounded by
 						// anything
@@ -242,8 +236,7 @@ public class ObservationTools {
 									isCompletelyFree++;
 								}
 							} else {
-								if (trappedByImmovables[0].get(0).sqDist
-										- blockSquare > 1) {
+								if (trappedByImmovables[0].get(0).sqDist - blockSquare > 1) {
 									isCompletelyFree++;
 								}
 
@@ -261,8 +254,7 @@ public class ObservationTools {
 	 * potential TODO: The movements are only calculated for the movables, not
 	 * for npcs or resources, if you think that it is necessary please add this
 	 */
-	private static int getMovements(StateObservation parentSo,
-			StateObservation so) {
+	private static int getMovements(StateObservation parentSo, StateObservation so) {
 		int nMov = 0;
 
 		HashMap<Integer, Vector2d> obsList = new HashMap<Integer, Vector2d>();
@@ -275,8 +267,7 @@ public class ObservationTools {
 			}
 		}
 		HashMap<Integer, Vector2d> parentObsList = new HashMap<Integer, Vector2d>();
-		ArrayList<Observation>[] parentMovPositions = parentSo
-				.getMovablePositions();
+		ArrayList<Observation>[] parentMovPositions = parentSo.getMovablePositions();
 		if (parentMovPositions != null) {
 			for (ArrayList<Observation> movPos : parentMovPositions) {
 				for (Observation obs : movPos) {
@@ -300,9 +291,7 @@ public class ObservationTools {
 	/*
 	 * this method does the actual analysis
 	 */
-	public static DefaultAnalysis analyze(
-			HashMap<Integer, Integer> rootObsList, StateObservation parentSo,
-			StateObservation so) {
+	public static DefaultAnalysis analyze(HashMap<Integer, Integer> rootObsList, StateObservation parentSo, StateObservation so) {
 		DefaultAnalysis analysis = new DefaultAnalysis();
 		HashMap<Integer, Integer> obsList = getObsList(so);
 		int currObsNumber = obsList.size();
@@ -380,11 +369,21 @@ public class ObservationTools {
 																// except
 																// irrelevant
 																// events)
-		analysis.irrelevantEvents = (nEvents - nRelEvents)
-				- (nParEvents - nRelParEvents); // not so important; total
-												// number of relevant events
-												// w.r.t. root (events that
-												// involve walls etc...)
+		analysis.irrelevantEvents = (nEvents - nRelEvents) - (nParEvents - nRelParEvents); // not
+																							// so
+																							// important;
+																							// total
+																							// number
+																							// of
+																							// relevant
+																							// events
+																							// w.r.t.
+																							// root
+																							// (events
+																							// that
+																							// involve
+																							// walls
+																							// etc...)
 		analysis.trappedTiles = ObservationTools.getnTrapped(so);
 		analysis.ResourceValue = weightedResValue;
 		// analysis.transformationScore; //if we can use that, I can try to
@@ -392,38 +391,45 @@ public class ObservationTools {
 
 		return analysis;
 	}
-	
-	HashMap<Integer, Integer> getRessourceDifference(StateObservation so){
+
+	HashMap<Integer, Integer> getRessourceDifference(StateObservation so) {
 		HashMap<Integer, Integer> ressourceDifference = new HashMap<>();
-		
-		for(int k:so.getAvatarResources().keySet()){
-			if(PersistentStorage.previousAvatarRessources.containsKey(k)){
-				ressourceDifference.put(k, so.getAvatarResources().get(k)-PersistentStorage.previousAvatarRessources.get(k));
-			}
-			else{
+
+		for (int k : so.getAvatarResources().keySet()) {
+			if (PersistentStorage.previousAvatarRessources.containsKey(k)) {
+				ressourceDifference.put(k, so.getAvatarResources().get(k) - PersistentStorage.previousAvatarRessources.get(k));
+			} else {
 				ressourceDifference.put(k, so.getAvatarResources().get(k));
 			}
 		}
-		
+
 		PersistentStorage.previousAvatarRessources = so.getAvatarResources();
-		
+
 		return ressourceDifference;
 	}
-	
-	int getRessourceDifferenceIndicator(StateObservation so){
+
+	int getRessourceDifferenceIndicator(StateObservation so) {
 		int indicator = 0;
-		for(int k:so.getAvatarResources().keySet()){
-			if(PersistentStorage.previousAvatarRessources.containsKey(k)){
-				indicator += so.getAvatarResources().get(k)-PersistentStorage.previousAvatarRessources.get(k);
-			}
-			else{
+		for (int k : so.getAvatarResources().keySet()) {
+			if (PersistentStorage.previousAvatarRessources.containsKey(k)) {
+				indicator += so.getAvatarResources().get(k) - PersistentStorage.previousAvatarRessources.get(k);
+			} else {
 				indicator += so.getAvatarResources().get(k);
 			}
 		}
-		
+
 		PersistentStorage.previousAvatarRessources = so.getAvatarResources();
-		
+
 		return indicator;
 	}
 
+	private static PathPlanner pathPlanner = null;
+
+	public static PathPlanner getPathPlanner() {
+		if (pathPlanner == null) {
+			pathPlanner = new PathPlanner();
+		}
+		return pathPlanner;
+
+	}
 }
