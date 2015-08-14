@@ -1,5 +1,7 @@
 package agents.misc;
 
+import java.util.HashMap;
+
 import ontology.Types.ACTIONS;
 
 public class PersistentStorage {
@@ -42,4 +44,6 @@ public class PersistentStorage {
 	 * The adjacency map is a map containing positions you can move to at the current moment.
 	 */
 	public static AdjacencyMap adjacencyMap = null;
+	
+	public static HashMap<Integer, Integer> previousAvatarRessources = null;
 }

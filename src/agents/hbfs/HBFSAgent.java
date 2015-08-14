@@ -11,7 +11,7 @@ import java.util.Stack;
 import java.util.TreeSet;
 
 import agents.GameAgent;
-import agents.misc.ObservationTools2;
+import agents.misc.ObservationTools;
 import bladeRunner.Agent;
 import core.game.StateObservation;
 import ontology.Types;
@@ -139,7 +139,7 @@ public class HBFSAgent extends GameAgent {
 		HBFSAgent.compareCalls = 0;
 
 		hbfsRoot = new HBFSNode(so, null, null, 0);
-		rootObservationList = ObservationTools2.getObsList(so);
+		rootObservationList = ObservationTools.getObsList(so);
 		
 		HBFSNode.setRootLoad(hbfsRoot.getLoad());
 		// HBFSNode.displayStateObservation(so);

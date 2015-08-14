@@ -5,8 +5,8 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
 
-import agents.misc.ObservationTools2;
-import agents.misc.ObservationTools2.DefaultAnalysis;
+import agents.misc.ObservationTools;
+import agents.misc.ObservationTools.DefaultAnalysis;
 import bladeRunner.Agent;
 import core.game.Event;
 import core.game.Observation;
@@ -84,7 +84,7 @@ public class HBFSNode implements Comparable<HBFSNode> {
 			return 0;
 		}
 		
-		DefaultAnalysis a = ObservationTools2.analyze(HBFSAgent.rootObservationList, arg0.parent.so,
+		DefaultAnalysis a = ObservationTools.analyze(HBFSAgent.rootObservationList, arg0.parent.so,
 				arg0.so);
 		
 		loadScore = Math.abs(HBFSAgent.rootLoad - arg0.getLoad());

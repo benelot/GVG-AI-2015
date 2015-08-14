@@ -1,6 +1,7 @@
 package bladeRunner;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 import agents.GameAgent;
@@ -77,6 +78,8 @@ public class Agent extends AbstractPlayer {
 
 		// initialize ItypeAttracivity object for starting situation
 		PersistentStorage.iTypeAttractivity = new ITypeAttractivity(so);
+		
+		PersistentStorage.previousAvatarRessources = new HashMap<>();
 
 		// Classify game
 		GameClassifier.determineGameType(so);
