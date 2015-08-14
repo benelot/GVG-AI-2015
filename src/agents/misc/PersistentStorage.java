@@ -1,6 +1,7 @@
 package agents.misc;
 
 import ontology.Types.ACTIONS;
+import core.game.StateObservation;
 
 public class PersistentStorage {
 
@@ -25,6 +26,11 @@ public class PersistentStorage {
 	public static ACTIONS[] actions;
 	public static double K = Math.sqrt(2);
 	public static int MCTS_AVOID_DEATH_DEPTH = 2;
+	
+	public static int GameCounter = 0;
+	
+	public static StateObservation lastGameState= null;
+	public static double lastWinLoseExpectation=0;
 
 	// fix the MCTS_DEPTH to the starting DEPTH
 	public static int MCTS_DEPTH_RUN = PersistentStorage.MCTS_DEPTH_FIX;

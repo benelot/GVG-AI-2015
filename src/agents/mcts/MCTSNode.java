@@ -1,5 +1,6 @@
 package agents.mcts;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -87,12 +88,10 @@ public class MCTSNode {
 		lastBounds[1] = curBounds[1];
 		int firstTry = 0;
 		if(elapsedTimer.remainingTimeMillis() > 300){
-			PersistentStorage.MCTS_DEPTH_RUN = 60;
+			PersistentStorage.MCTS_DEPTH_RUN = 20;
 			firstTry = 1;
 		}
-		if(this.state.getGameTick() < 100){
-			System.out.println(this.state.getGameTick());
-		}
+		
 
 		if(firstTry == 1){
 			while (elapsedTimer.remainingTimeMillis() > 50) {
@@ -111,7 +110,7 @@ public class MCTSNode {
 				}
 				
 				double delta = cur.rollOut();
-				backUp(cur, delta+100,1);
+				backUp(cur, delta+1,1);
 				// backUpBest(selected, delta);
 			}
 			PersistentStorage.MCTS_DEPTH_RUN = PersistentStorage.MCTS_DEPTH_FIX;
@@ -302,17 +301,21 @@ public class MCTSNode {
 		if(nonJitterRew >= 1)
 			nonJitterRew = 0;
 		
-		
-
+		// in 2D games is exploration and notJitter movements not that important
+		double multiplierExploration = 1;
+		if(PersistentStorage.actions.length < 4)
+			multiplierExploration = 0.1;
 		// get a reward based on the distance to the different Itypes. 
 		// this can be closest ones, or only positives.... 
 		double distITypeRew = getNewExplITypeReward(rollerState, nonJitterRew	);
 
 		// use a fraction of "explRew" as an additional reward (Not given by the
 		// Gamestats) the multiplication is just taking care of ignoring this distItype if we are stuck.
-		double additionalRew =(explRew/2 + distITypeRew/2 + nonJitterRew/20) / 2;
-		if(rollerState.getGameTick() == 61)
-		System.out.println("explRew: " + explRew/2 + "   ItypeDistRew: " + distITypeRew/2 + "  NonJitterRew: " + nonJitterRew/30);
+		double additionalRew =(multiplierExploration*explRew/10 + distITypeRew/2 + multiplierExploration*nonJitterRew/20) / 2;
+		
+		DecimalFormat df = new DecimalFormat("####0.0000");
+		
+		System.out.println("explRew: " + df.format(explRew/10) + "   ItypeDistRew: " + df.format(distITypeRew/2) + "  NonJitterRew: " + df.format(nonJitterRew/20));
 //		System.out.println(": " + curPos.x + "   : " + curPos.y + "  "+ nSteps  );
 
 		
@@ -336,9 +339,6 @@ public class MCTSNode {
 //		if (useTrappedHeuristics == 1) {
 //			normDelta += 0.1f * (PersistentStorage.numberOfBlockedMovables - trapHeuristic(rollerState));
 //		}
-		if( rollerState.getGameTick() == 61)
-			System.out.println(normDelta);
-		
 		
 		// try to punish positions where we died in some rollouts
 		if(normDelta < -100){
@@ -359,7 +359,8 @@ public class MCTSNode {
 
 		Vector2d pos = state.getAvatarPosition();
 		double maxDist = Math.sqrt(Math.pow(PersistentStorage.rewMap.getDimension().height * state.getBlockSize(),2)  +  Math.pow(PersistentStorage.rewMap.getDimension().height* state.getBlockSize(),2) );
-
+		int blockSize = state.getBlockSize();
+		
 		int count1 = 0;
 		
 		// TODO: perhaps we should distinguish the cases where we want to kill the enemies
@@ -370,7 +371,7 @@ public class MCTSNode {
 		if (npcPositions != null) {
 			for (ArrayList<Observation> npcs : npcPositions) {
 				if (npcs.size() > 0) {
-					//					for(int i = 0; i< npcs.size(); i++){
+//										for(int i = 0; i< npcs.size(); i++){
 					// only look at the closest rewarding/punishing npc
 					for(int i = 0; i<1; i++){
 						Vector2d npcPos = npcs.get(i).position;
@@ -387,10 +388,16 @@ public class MCTSNode {
 
 						//double dist = Math.sqrt(Math.pow(pos.x-npcPos.x,2) + Math.pow(pos.x-npcPos.x,2))/maxDist;
 						double dist = Math.sqrt(Math.pow(pos.x-npcPos.x,2) + Math.pow(pos.y-npcPos.y,2))/maxDist;
-						if(npcAttractionValue < 0 && PersistentStorage.actions.length%2 != 0  )
+						if(npcAttractionValue < 0 && PersistentStorage.actions.length%2 != 0 && npcAttractionValue > -1.5 )
 							totRew += Math.abs(npcAttractionValue)/(dist*dist+1);
 						else
-							totRew += npcAttractionValue/(dist+1);
+							if(npcAttractionValue < -1){
+								dist = Math.sqrt(Math.abs(pos.x-npcPos.x) + Math.abs(pos.y-npcPos.y))/blockSize;
+								totRew += 5*npcAttractionValue/(dist*dist+1);
+							}
+							else
+								totRew += npcAttractionValue/(dist+1);
+						
 						count1++;
 					}
 				}
@@ -445,7 +452,7 @@ public class MCTSNode {
 						}
 						Vector2d movPosition = mov.get(i).position;;
 						double dist = Math.sqrt(Math.pow(pos.x-movPosition.x,2) + Math.pow(pos.y-movPosition.y,2) ) /maxDist;
-						totRew += movAttractionValue/(dist*dist+1);
+						totRew += 2*movAttractionValue/(dist*dist+1);
 						count1++;
 					}
 				}
@@ -474,8 +481,7 @@ public class MCTSNode {
 		if (gameOver && win == Types.WINNER.PLAYER_WINS) {
 			return HUGE_POSITIVE_REWARD;
 		}
-		if(a_gameState.getGameTick() == 61)
-System.out.println(rawScore +"= rawScore");
+		
 		return rawScore;
 	}
 

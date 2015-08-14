@@ -218,7 +218,7 @@ public class ITypeAttractivity extends HashMap<Integer, Double> {
 			if (currEvent.passiveTypeId != 0) { // exclude walls=0
 				double newVal = this.get(currEvent.passiveTypeId) + updateVal
 						* learningrate;
-				if (newVal < -1) {
+				if (newVal < -1 && newVal!=-2) {
 					newVal = -1;
 				}
 				if (newVal > 1) {

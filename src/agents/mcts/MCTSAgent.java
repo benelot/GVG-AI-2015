@@ -121,16 +121,15 @@ public class MCTSAgent extends GameAgent {
 		// int action = m_root.mostVisitedAction();
 		
 		int action = m_root.bestAction();
-		if(m_root.state.getGameTick() < 100){
-			for (int i = 1; i<= m_root.children.length ; i++ ){
-				if(m_root.children[i-1] != null){
-					System.out.print("  val"+i+": "+ m_root.children[i-1].totValue);
-				}
-			}
-
-			System.out.println();}
+//			for (int i = 1; i<= m_root.children.length ; i++ ){
+//				if(m_root.children[i-1] != null){
+//					System.out.print("  val"+i+": "+ m_root.children[i-1].totValue);
+//				}
+//			}
+//
+//			System.out.println();
 //		 System.out.println(" RewOfSys :" + m_root.value(m_root.state));
-		 System.out.println(" action :" + action);
+//		 System.out.println(" action :" + action);
 		// if (action >= 0){
 		// System.out.println(" isdeath? :" +
 		// m_root.children[action].isLoseState());
@@ -263,9 +262,17 @@ public class MCTSAgent extends GameAgent {
 
 		if (action == ADD_NEW_ROOT_NODE)
 			action = KEEP_COMPLETE_OLD_TREE;
-
+		
+		
 		oldAction = action;
+		
+		PersistentStorage.lastGameState = stateObs;
+		if(action >0)
+			PersistentStorage.lastWinLoseExpectation =m_root.children[action].totValue;
+		else
+			PersistentStorage.lastWinLoseExpectation = -1;
 
+		
 		// ... and return it.
 		if (action == KEEP_COMPLETE_OLD_TREE || action == ADD_NEW_ROOT_NODE) {
 			return Types.ACTIONS.ACTION_NIL;
