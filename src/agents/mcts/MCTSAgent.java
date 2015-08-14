@@ -146,10 +146,8 @@ public class MCTSAgent extends GameAgent {
 		// System.out.println(" isdeadend? :" +
 		// m_root.children[action].isDeadEnd(2, true));
 		// }
-		// if (action >= 0)
-		// System.out.println(" mroot :" + m_root.nVisits +
-		// " visits and the choosen child has "+
-		// m_root.children[action].nVisits);
+//		// if (action >= 0)
+//		 System.out.println(" mroot :" + m_root.nVisits +" visits and the choosen child has "+ m_root.children[action].nVisits);
 
 		// System.out.println("Number of nodes: " + m_root.countNodes());
 

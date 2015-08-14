@@ -17,7 +17,7 @@ public class AgentRunner {
 //		config.addGameLevel(RunConfig.GamesTraining2014.FROGS,new int[] {0,1,2,3,4} );
 //		config.addGameLevel(RunConfig.GamesTraining2014.MISSILECOMMAND,new int[] {0,1,2,3,4} );
 ////		config.addGameLevel(RunConfig.GamesTraining2014.PORTALS,new int[] {1,2,3,4} );
-////		config.addGameLevel(RunConfig.GamesTraining2014.SOKOBAN,new int[] {1,2,3,4} );
+//		config.addGameLevel(RunConfig.GamesTraining2014.SOKOBAN,new int[] {1,2,3,4} );
 //		config.addGameLevel(RunConfig.GamesTraining2014.SURVIVEZOMBIES,new int[] {0,1,2,3,4} );
 //		config.addGameLevel(RunConfig.GamesTraining2014.ZELDA,new int[] {0,1,2,3,4} );
 		
@@ -25,7 +25,7 @@ public class AgentRunner {
 		// GamesValidation2014
 //		config.addGameLevel(RunConfig.GamesValidation2014.CAMELRACE, new int[] {0,1,2,3,4});
 //		config.addGameLevel(RunConfig.GamesValidation2014.DIGDUG, new int[] {1,2,3,4});
-	config.addGameLevel(RunConfig.GamesValidation2014.EGGOMANIA, new int[] {0,1,2,3,4});
+//	config.addGameLevel(RunConfig.GamesValidation2014.EGGOMANIA, new int[] {0,1,2,3,4});
 //		config.addGameLevel(RunConfig.GamesValidation2014.FIRECASTER, new int[] {2,3,4});
 //		config.addGameLevel(RunConfig.GamesValidation2014.FIRESTORMS, new int[] {0,1,2,3,4});
 //		config.addGameLevel(RunConfig.GamesValidation2014.INFECTION, new int[] {0,1,2,3,4});
@@ -47,7 +47,7 @@ public class AgentRunner {
 //		config.addGameLevel(RunConfig.GamesTraining2015.ZENPUZZLE ,new int[] {0,1,2,3,4} );
 //		
 //		config.addGameLevel(RunConfig.GamesValidationGECCO2015.BOULDERCHASE, new int[] {0,1,2,3,4});
-//		config.addGameLevel(RunConfig.GamesValidationGECCO2015.JAWS, new int[] {0,1,2,3,4});
+		config.addGameLevel(RunConfig.GamesValidationGECCO2015.JAWS, new int[] {0,1,2,3,4});
 //		config.addGameLevel(RunConfig.GamesValidationGECCO2015.ROGUELIKE, new int[] {0,1,2,3,4});
 //		config.addGameLevel(RunConfig.GamesValidationGECCO2015.PLAQUEATTACK, new int[] {0,1,2,3,4});
 //		config.addGameLevel(RunConfig.GamesValidationGECCO2015.PLANTS, new int[] {0,1,2,3,4});
