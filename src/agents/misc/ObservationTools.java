@@ -12,55 +12,29 @@ import core.game.StateObservation;
 
 public class ObservationTools {
 
-	/*
-	 * Analysis of either the root node or the node2 of the node transition
-	 * root->...->node1->node2
-	 */
+	// Analysis of either the root node or the node2 of the node transition
+	// root->...->node1->node2
 	public static class DefaultAnalysis {
-
-		/**
-		 * total number of tiles
-		 */
-		int load;
-		int tileDestructions;
-		int tileCreations;
-
-		/**
-		 * total number of tile transforms w.r.t. root (a tile vanishes or
-		 * transforms into another one, movement does not count)
-		 */
-		int tileTransforms;
-
-		/**
-		 * total number of tile movements w.r.t. root (a tile moves from one
-		 * pos. to another)
-		 */
-		int tileMovements;
-
-		/**
-		 * not so important; total number of relevant events w.r.t. root (all
-		 * except irrelevant events)
-		 */
-		int relevantEvents;
-
-		/**
-		 * not so important; total number of relevant events w.r.t. root (events
-		 * that involve walls etc...)
-		 */
-		int irrelevantEvents;
-
-		/**
-		 * TODO: (maybe) if you want the newly trapped tiles you have to
-		 * subtract the root trapped tiles, one could just calculate them when
-		 * the root is set, but I was not sure if you want that.
-		 */
-		int trappedTiles;
-
-		/**
-		 * an attractivity weighted (not yet implemented) sum of resources minus
-		 * the resources that were already there
-		 */
-		double ResourceValue;
+		public int load; // total number of tiles
+		public int tileDestructions;
+		public int tileCreations;
+		public int tileTransforms; // total number of tile transforms w.r.t. root (a
+							// tile vanishes or transforms into another one,
+							// movement does not count)
+		public int tileMovements; // total number of tile movements w.r.t. root (a tile
+							// moves from one pos. to another)
+		public int relevantEvents; // not so important; total number of relevant events
+							// w.r.t. root (all except irrelevant events)
+		public int irrelevantEvents; // not so important; total number of relevant
+								// events w.r.t. root (events that involve walls
+								// etc...)
+		public int trappedTiles; // TODO: (maybe) if you want the newly trapped tiles
+							// you have to subtract the root trapped tiles, one
+							// could just calculate them when the root is set,
+							// but I was not sure if you want that.
+		public double ResourceValue; // an attractivity weighted (not jet implemented)
+								// sum of resources minus the resources that
+								// were already there
 
 		// double transformationScore; //If we somehow find out if a
 		// transformation is good (maybe with a more sophisticated
@@ -87,15 +61,10 @@ public class ObservationTools {
 	private static HashMap<Integer, Integer> rootObsList;
 	private static StateObservation rootso;
 
-	/**
-	 * Computes hash code for the StateObservation. Used to organize the list of
-	 * visited states. Rotating hash for sequences of small values:
-	 * http://burtleburtle.net/bob/hash/doobs.html
-	 * 
-	 * @param so
-	 *            State observation we want to get the hash of.
-	 * @return The hash of the state observation.
-	 */
+	// Computes hash code for the StateObservation. Used to organize the list of
+	// visited states.
+	// Rotating hash for sequences of small values:
+	// http://burtleburtle.net/bob/hash/doobs.html
 	public static int getHash(StateObservation so) {
 		int sequenceLength = so.getWorldDimension().height
 				* so.getWorldDimension().width + 2;
@@ -130,14 +99,6 @@ public class ObservationTools {
 		return hash;
 	}
 
-	/**
-	 * Get the load of the state = How many tiles are left (not vanished or
-	 * transformed.)
-	 * 
-	 * @param so
-	 *            The state observation we analyze.
-	 * @return The number of tiles left.
-	 */
 	public static int getLoad(StateObservation so) {
 		int load = 0;
 		ArrayList<Observation>[][] grid = so.getObservationGrid();
@@ -160,12 +121,9 @@ public class ObservationTools {
 	// without an (official history) event (e.g. Block or Lemming in Portal )
 	// So tile transformations is more general than events.
 
-	/**
+	/*
 	 * getAnalysis with only one observation as parameter automatically compares
-	 * to the root
-	 * 
-	 * @note please set root before you use this (TODO: Potential
-	 *       NullPointerException)
+	 * to the root please set root before you use this
 	 */
 	public static DefaultAnalysis getAnalysis(StateObservation so) {
 		DefaultAnalysis analysis;
@@ -184,7 +142,7 @@ public class ObservationTools {
 		return analysis;
 	}
 
-	/**
+	/*
 	 * sets the root observation
 	 */
 	public static void setRoot(StateObservation so) {
@@ -192,7 +150,7 @@ public class ObservationTools {
 		rootso = so;
 	}
 
-	/**
+	/*
 	 * returns a HashMap of non wall ObservationIDs and the corresponding iTypes
 	 */
 	public static HashMap<Integer, Integer> getObsList(StateObservation so) {
@@ -210,7 +168,7 @@ public class ObservationTools {
 		return ObsList;
 	}
 
-	/**
+	/*
 	 * This is Jakob's Trap Heuristic from the MCTS Node
 	 */
 	public static int getnTrapped(StateObservation a_gameState) {
@@ -299,89 +257,50 @@ public class ObservationTools {
 		return isTrapped;
 	}
 
-	/**
+	/*
 	 * potential TODO: The movements are only calculated for the movables, not
 	 * for npcs or resources, if you think that it is necessary please add this
 	 */
 	private static int getMovements(StateObservation parentSo,
 			StateObservation so) {
-		int movementQty = 0;
+		int nMov = 0;
 
-		// compare movables
-		HashMap<Integer, Vector2d> movablesObsList = new HashMap<Integer, Vector2d>();
+		HashMap<Integer, Vector2d> obsList = new HashMap<Integer, Vector2d>();
 		ArrayList<Observation>[] movPositions = so.getMovablePositions();
 		if (movPositions != null) {
 			for (ArrayList<Observation> movPos : movPositions) {
 				for (Observation obs : movPos) {
-					movablesObsList.put(obs.obsID, obs.position);
+					obsList.put(obs.obsID, obs.position);
 				}
 			}
 		}
-		HashMap<Integer, Vector2d> parentMovablesObsList = new HashMap<Integer, Vector2d>();
+		HashMap<Integer, Vector2d> parentObsList = new HashMap<Integer, Vector2d>();
 		ArrayList<Observation>[] parentMovPositions = parentSo
 				.getMovablePositions();
 		if (parentMovPositions != null) {
-			for (ArrayList<Observation> movablePosition : parentMovPositions) {
-				for (Observation obs : movablePosition) {
-					parentMovablesObsList.put(obs.obsID, obs.position);
+			for (ArrayList<Observation> movPos : parentMovPositions) {
+				for (Observation obs : movPos) {
+					parentObsList.put(obs.obsID, obs.position);
 				}
 			}
 		}
 
-		for (int key : movablesObsList.keySet()) {
-			if (parentMovablesObsList.containsKey(key)) {
-				if (movablesObsList.get(key) != parentMovablesObsList.get(key)) {
-					movementQty += 1;
-				}
-			}
-
-		}
-
-		// compare npcs
-		HashMap<Integer, Vector2d> npcObsList = new HashMap<Integer, Vector2d>();
-		ArrayList<Observation>[] npcPositions = so.getNPCPositions();
-		if (npcPositions != null) {
-			for (ArrayList<Observation> npcPosition : npcPositions) {
-				for (Observation obs : npcPosition) {
-					npcObsList.put(obs.obsID, obs.position);
-				}
-			}
-		}
-		HashMap<Integer, Vector2d> parentNpcObsList = new HashMap<Integer, Vector2d>();
-		ArrayList<Observation>[] parentNpcPositions = parentSo
-				.getNPCPositions();
-		if (parentNpcPositions != null) {
-			for (ArrayList<Observation> parentNpcPosition : parentNpcPositions) {
-				for (Observation obs : parentNpcPosition) {
-					parentNpcObsList.put(obs.obsID, obs.position);
-				}
-			}
-		}
-
-		for (int key : npcObsList.keySet()) {
-			if (parentNpcObsList.containsKey(key)) {
-				if (npcObsList.get(key) != parentNpcObsList.get(key)) {
-					movementQty += 1;
+		for (int key : obsList.keySet()) {
+			if (parentObsList.containsKey(key)) {
+				if (obsList.get(key) != parentObsList.get(key)) {
+					nMov += 1;
 				}
 			}
 
 		}
 
-		return movementQty;
+		return nMov;
 	}
 
-	/**
-	 * Analysis of the state.
-	 * 
-	 * @param rootObsList
-	 *            The root observation list.
-	 * @param parentSo
-	 *            The parent state observation.
-	 * @param so
-	 *            The state observation to compare to.
-	 * @return
+	/*
+	 * this method does the actual analysis
 	 */
-	private static DefaultAnalysis analyze(
+	public static DefaultAnalysis analyze(
 			HashMap<Integer, Integer> rootObsList, StateObservation parentSo,
 			StateObservation so) {
 		DefaultAnalysis analysis = new DefaultAnalysis();
@@ -420,46 +339,52 @@ public class ObservationTools {
 		// check the resources
 		double weightedResValue = 0;
 		for (int res : so.getAvatarResources().keySet()) {
-			// ResAttractivity.get(res) can be weighted by a resource
-			weightedResValue += so.getAvatarResources().get(res);
+			weightedResValue += so.getAvatarResources().get(res); // *ResAttractivity.get(res)
+																	// //it can
+																	// be
+																	// weighted
+																	// by a
+																	// resource
 		}
 		for (int res : parentSo.getAvatarResources().keySet()) {
-
-			// ResAttractivity.get(res) can be weighted by a resource
-			weightedResValue = -so.getAvatarResources().get(res);
+			weightedResValue = -so.getAvatarResources().get(res); // *ResAttractivity.get(res)
+																	// //it can
+																	// be
+																	// weighted
+																	// by a
+																	// resource
 		}
 
 		analysis.load = obsList.size(); // total number of tiles
 		analysis.tileCreations = currObsNumber - commonObsNumber;
 		analysis.tileDestructions = rootObsNumber - commonObsNumber;
-
-		/*
-		 * total number of tile transforms w.r.t. root (a tile vanishes or
-		 * transforms into another one, movement does not count)
-		 * 
-		 * @note TODO: these are only real itype transforms, be aware, that they
-		 * do not always happen when you expect them to
-		 */
-		analysis.tileTransforms = transforms;
-
-		/*
-		 * total number of tile movements w.r.t. root (a tile moves from one
-		 * pos. to another)
-		 */
-		analysis.tileMovements = getMovements(parentSo, so);
-
-		/*
-		 * not so important; total number of relevant events w.r.t. root (all
-		 * except irrelevant events)
-		 */
-		analysis.relevantEvents = nRelEvents - nRelParEvents;
-
-		/*
-		 * not so important; total number of irrelevant events w.r.t. root
-		 * (events that involve walls etc...)
-		 */
+		analysis.tileTransforms = transforms; // TODO: these are only real itype
+												// transforms, be aware, that
+												// they do not always happen
+												// when you expect them to
+		// total number of tile transforms w.r.t. root (a tile vanishes or
+		// transforms into another one, movement does not count)
+		analysis.tileMovements = getMovements(parentSo, so); // total number of
+																// tile
+																// movements
+																// w.r.t. root
+																// (a tile moves
+																// from one pos.
+																// to another)
+		analysis.relevantEvents = nRelEvents - nRelParEvents; // not so
+																// important;
+																// total number
+																// of relevant
+																// events w.r.t.
+																// root (all
+																// except
+																// irrelevant
+																// events)
 		analysis.irrelevantEvents = (nEvents - nRelEvents)
-				- (nParEvents - nRelParEvents);
+				- (nParEvents - nRelParEvents); // not so important; total
+												// number of relevant events
+												// w.r.t. root (events that
+												// involve walls etc...)
 		analysis.trappedTiles = ObservationTools.getnTrapped(so);
 		analysis.ResourceValue = weightedResValue;
 		// analysis.transformationScore; //if we can use that, I can try to
@@ -467,4 +392,38 @@ public class ObservationTools {
 
 		return analysis;
 	}
+	
+	HashMap<Integer, Integer> getRessourceDifference(StateObservation so){
+		HashMap<Integer, Integer> ressourceDifference = new HashMap<>();
+		
+		for(int k:so.getAvatarResources().keySet()){
+			if(PersistentStorage.previousAvatarRessources.containsKey(k)){
+				ressourceDifference.put(k, so.getAvatarResources().get(k)-PersistentStorage.previousAvatarRessources.get(k));
+			}
+			else{
+				ressourceDifference.put(k, so.getAvatarResources().get(k));
+			}
+		}
+		
+		PersistentStorage.previousAvatarRessources = so.getAvatarResources();
+		
+		return ressourceDifference;
+	}
+	
+	int getRessourceDifferenceIndicator(StateObservation so){
+		int indicator = 0;
+		for(int k:so.getAvatarResources().keySet()){
+			if(PersistentStorage.previousAvatarRessources.containsKey(k)){
+				indicator += so.getAvatarResources().get(k)-PersistentStorage.previousAvatarRessources.get(k);
+			}
+			else{
+				indicator += so.getAvatarResources().get(k);
+			}
+		}
+		
+		PersistentStorage.previousAvatarRessources = so.getAvatarResources();
+		
+		return indicator;
+	}
+
 }

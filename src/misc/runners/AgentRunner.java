@@ -25,7 +25,7 @@ public class AgentRunner {
 		// GamesValidation2014
 //		config.addGameLevel(RunConfig.GamesValidation2014.CAMELRACE, new int[] {0,1,2,3,4});
 //		config.addGameLevel(RunConfig.GamesValidation2014.DIGDUG, new int[] {1,2,3,4});
-//		config.addGameLevel(RunConfig.GamesValidation2014.EGGOMANIA, new int[] {0,1,2,3,4});
+	config.addGameLevel(RunConfig.GamesValidation2014.EGGOMANIA, new int[] {0,1,2,3,4});
 //		config.addGameLevel(RunConfig.GamesValidation2014.FIRECASTER, new int[] {1,2,3,4});
 //		config.addGameLevel(RunConfig.GamesValidation2014.FIRESTORMS, new int[] {0,1,2,3,4});
 //		config.addGameLevel(RunConfig.GamesValidation2014.INFECTION, new int[] {0,1,2,3,4});
