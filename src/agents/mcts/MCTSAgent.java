@@ -40,7 +40,7 @@ public class MCTSAgent extends GameAgent {
 
 	public static HashMap<Integer, PathPlanner> pathPlannerMaps;
 	
-	public static int treePolMode;
+	public static int treePolMode; // 0: old mode with MCTS, 1: goaldriven mode
 	public static int goalItype;
 	public static int idOfGoal;
 	public static int GoalDrivenTreePolCounter;
@@ -143,7 +143,7 @@ public class MCTSAgent extends GameAgent {
 			}
 		}
 		//decide on a planning strategy
-		if(m_rnd.nextDouble() < GoalDrivenTreePolCounter_Max && treePolMode == 0){
+		if(m_rnd.nextDouble() < chanceOfGoalDrivenPlanning && treePolMode == 0){
 			treePolMode = 1;
 			GoalDrivenTreePolCounter =  GoalDrivenTreePolCounter_Max;
 			chooseANewGoal();
