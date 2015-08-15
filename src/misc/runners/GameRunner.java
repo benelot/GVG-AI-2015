@@ -5,6 +5,7 @@ import java.util.Random;
 import java.util.TreeMap;
 
 import benchmarking.GameStats;
+import bladeRunner.Agent;
 import core.ArcadeMachine;
 import core.game.StateObservation;
 import ontology.Types;
@@ -121,7 +122,7 @@ public class GameRunner {
 					}
 				}
 			}
-			writeGameStatistics();
+			if (Agent.isVerbose) writeGameStatistics();
 		} else {
 			for (GameLevelPair<String, String[]> gameLevelPair : config
 					.getGameLevels()) {

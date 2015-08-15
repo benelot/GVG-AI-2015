@@ -34,15 +34,11 @@ public class GameClassifier {
 		}
 
 		if (gameType == GameType.MOVING) {
-			if (Agent.isVerbose) {
-				System.out.println("CLASSIFIER::Movement detected");
-			}
+			System.out.println("CLASSIFIER::Movement Detected.");
 		} else if (gameType == GameType.STATIC) {
 			PersistentStorage.MCTS_DEPTH_RUN += 20;
-			if (Agent.isVerbose) {
-				System.out
-						.println("CLASSIFIER::Static game");
-			}
+			System.out.println("CLASSIFIER::Static Game.");
+
 		}
 		return gameType;
 
@@ -88,7 +84,7 @@ public class GameClassifier {
 	// }
 	// gameType = GameType.DETERMINISTIC;
 
-	
+
 	/**
 	 * Test if the game has movement in it.
 	 * 
@@ -99,31 +95,34 @@ public class GameClassifier {
 	 * @return If the game has movement or not.
 	 */
 	public static boolean hasMovement(StateObservation so, int testingSteps) {
-		// get initial hash
-		int initialHash = ObservationTools.getHash(so);
 
-		// second hash
-		int advancedHash = 0;
-		if (Agent.isVerbose) {
-			System.out.println("Initial hash: " + initialHash);
-		}
+		// advance twice as a workaround for some bugs
+		so = so.copy(); 
+		so.advance(Types.ACTIONS.ACTION_NIL); 
+		so.advance(Types.ACTIONS.ACTION_NIL); 
 
-		// check if hash changes as we advance the forward model
+		int hash0 = ObservationTools.getHash(so);
+		StateObservation obs0 = so.copy();
+		int hash1;
+		int nDifferences = 0;
+
 		for (int k = 0; k < testingSteps; k++) {
 
-			// advance the forward model
 			so.advance(Types.ACTIONS.ACTION_NIL);
 
-			// get the hash and compare
-			advancedHash = ObservationTools.getHash(so);
-			if (initialHash != advancedHash) {
-				if (Agent.isVerbose) {
-					System.out.println("Hash difference after " + k + " steps. (" + initialHash + " vs. " + advancedHash + ")");
-				}
-				return true;
+			hash1 = ObservationTools.getHash(so);
+			if (hash0 != hash1) {
+				System.out.println("CLASSIFIER::Hash difference after " + k + " steps. (hash@t-1:" + hash0 + " vs. hash@t:" + hash1 + ")");
+				ObservationTools.DefaultAnalysis a = ObservationTools.getAnalysis(so, obs0);
+				int changes = a.tileCreations + a.tileDestructions + a.tileMovements + a.tileTransforms;
+				System.out.println("CLASSIFIER::Counted changes: " + changes);
+				nDifferences += 1;
 			}
+			if (nDifferences > 2) break;
+			
+			hash0 = hash1;
 		}
-		return false;
+		return nDifferences > 0;
 
 	}
 

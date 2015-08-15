@@ -814,7 +814,7 @@ public class MCTSNode {
 
 		if (selected == -1) {
 			if (Agent.isVerbose) {
-				System.out.println("MCTS::Best action is no action!");
+				//System.out.println("MCTS::Best action is no action!");
 			}
 		}
 		return selected;

@@ -20,16 +20,16 @@ public class HBFSRunner {
 		// 
 		
 		// Validation Set 3:
-//		config.addGameLevel(RunConfig.GamesTraining2015.BOLOADVENTURES , new int[] {0,1,2,3,4}); // too hard
+		//config.addGameLevel(RunConfig.GamesTraining2015.BOLOADVENTURES , new int[] {0,1,2,3,4}); // too hard
 		config.addGameLevel(RunConfig.GamesTraining2015.BAIT, new int[] {0,1,2,3,4}); //* except 3
-//		config.addGameLevel(RunConfig.GamesTraining2015.BRAINMAN, new int[] {0, 1,2,3,4}); //* except 0, 2, 3
-//		config.addGameLevel(RunConfig.GamesTraining2015.CHIPSCHALLENGE ,new int[] {0,1,2,3,4}); //* except 4
-//		config.addGameLevel(RunConfig.GamesTraining2015.MODALITY, new int[] {0,1,2,3,4}); //*
-//		config.addGameLevel(RunConfig.GamesTraining2015.PAINTER, new int[] {0,1,2,3,4}); //* except 1, 2
-//		config.addGameLevel(RunConfig.GamesTraining2015.REALPORTALS ,2 ); // too hard
-//		config.addGameLevel(RunConfig.GamesTraining2015.REALSOKOBAN, new int[] {0,1,2,3,4}); // * except 1, 2
-//		config.addGameLevel(RunConfig.GamesTraining2015.THECITADEL, new int[] {0,1,2,3,4}); //* except 1, 2
-//		config.addGameLevel(RunConfig.GamesTraining2015.ZENPUZZLE ,new int[] {0,1,2,3,4}); //* except 3 
+		config.addGameLevel(RunConfig.GamesTraining2015.BRAINMAN, new int[] {0, 1,2,3,4}); //* except 0, 2, 3
+		config.addGameLevel(RunConfig.GamesTraining2015.CHIPSCHALLENGE ,new int[] {0,1,2,3,4}); //* except 4
+		config.addGameLevel(RunConfig.GamesTraining2015.MODALITY, new int[] {0,1,2,3,4}); //*
+		config.addGameLevel(RunConfig.GamesTraining2015.PAINTER, new int[] {0,1,2,3,4}); //* except 1, 2
+		config.addGameLevel(RunConfig.GamesTraining2015.REALPORTALS ,2 ); // too hard
+		config.addGameLevel(RunConfig.GamesTraining2015.REALSOKOBAN, new int[] {0,1,2,3,4}); // * except 1, 2
+		config.addGameLevel(RunConfig.GamesTraining2015.THECITADEL, new int[] {0,1,2,3,4}); //* except 1, 2
+		config.addGameLevel(RunConfig.GamesTraining2015.ZENPUZZLE ,new int[] {0,1,2,3,4}); //* except 3 
 		
 		// Other Puzzles
 		//config.addGameLevel(RunConfig.GamesTraining2014.SOKOBAN, new int[] {0,1,2,3,4}); //*
