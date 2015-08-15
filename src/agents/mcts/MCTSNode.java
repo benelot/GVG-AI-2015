@@ -164,16 +164,21 @@ public class MCTSNode {
 		while (!cur.state.isGameOver()
 				&& cur.m_depth < PersistentStorage.MCTS_DEPTH_RUN) {
 		
-			
-		// get all itypes. ObsList = <Obs.ID,Obs.itype>
+		// hashmap of all non-wall type observations	
+		// get all itypes. ObsList = <Obs.ID,Obs.itype>=			
 		HashMap<Integer, Integer> ObsList = ObservationTools.getObsList(cur.state);
 		// choose goal from the list of itypes. persist for n number of ticks
-		int goalID = chooseGoalFromObsList(ObsList);
+		int goalID = chooseGoalFromObsList(ObsList,cur.state);
+		if(goalID < 0){
+			// go back to normal tree policy
+			return treePolicy();
+		}
+			
 		int goalIType = ObsList.get(goalID);
 		// create distance to this object
 		if(MCTSAgent.pathPlannerMaps.containsKey(goalID)){
 			// use this distance to expand the tree
-			ArrayList<Observation>[][] obsGrid = cur.state.getObservationGrid();
+			
 			Vector2d avatarPos = cur.state.getAvatarPosition();
 			Vector2d goalPos = getGoalPosition(cur.state,avatarPos,goalID,goalIType);
 			
@@ -333,8 +338,37 @@ public class MCTSNode {
 		return selectedNode;
 	}
 
-	int chooseGoalFromObsList(HashMap<Integer,Integer> ObsList){
-		int goal = 0;
+	int chooseGoalFromObsList(HashMap<Integer,Integer> ObsList, StateObservation currentState){
+		int goal = -1;
+		Vector2d pos = currentState.getAvatarPosition();
+		// to choose the object (goal) to pursue
+		// get up to 10 closest objects based on Euclidean distance
+		// get closest 3 npc s
+		
+		// get most attractive npc		
+		ArrayList<Observation>[] npcPositions = null;
+		npcPositions = currentState.getNPCPositions(pos);
+		int attractiveNPCid = getMostAttractiveID(npcPositions);
+		
+		// get most attractive resource
+		ArrayList<Observation>[] resPositions = null;
+		resPositions = currentState.getResourcesPositions(pos);
+		int attractiveResid = getMostAttractiveID(resPositions);
+		
+		// get most attractive movable
+		ArrayList<Observation>[] movablePositions = null;
+		movablePositions = currentState.getMovablePositions(pos);
+		int attractiveMovableid = getMostAttractiveID(movablePositions);
+		
+		// go towards the one with the highest attractivity out of the above (=goal)
+		// TODO pick one in random. May be, first take 2 of each type and pick one of 6 in random?
+		int randomInt = (int )(Math.random() * 3);
+		
+		switch (randomInt) {
+			case 0: 	goal = attractiveMovableid;
+			case 1: 	goal = attractiveNPCid;
+			default:	goal = attractiveResid;
+		}
 		
 		return goal;
 	}
@@ -449,6 +483,43 @@ public class MCTSNode {
 		}
 
 		return selected;
+	}
+	
+	int getMostAttractiveID(ArrayList<Observation>[] obsPositions){
+		// return the id of the most attractive object in the given list of observations
+		int attractiveID = -1;
+		
+		for (ArrayList<Observation> npcs : obsPositions) {
+			if (npcs.size() > 0) {
+				//				 for(int i = 0; i< npcs.size(); i++){
+				// look at the most rewarding/punishing npc
+				for(int i = 0; i<npcs.size(); i++){
+
+					double npcAttractionValue = 0;
+					double bestNpcAttractionValue = 0;
+
+					try {
+						npcAttractionValue = PersistentStorage.iTypeAttractivity
+								.get(npcs.get(i).itype);
+					} catch (java.lang.NullPointerException e) {
+						PersistentStorage.iTypeAttractivity
+						.putIfAbsent(npcs.get(i));
+						npcAttractionValue = PersistentStorage.iTypeAttractivity
+								.get(npcs.get(i).itype);
+					}
+					
+					// update best attration value
+					if(npcAttractionValue > bestNpcAttractionValue){
+						bestNpcAttractionValue = npcAttractionValue;
+						attractiveID = i;
+					}
+						
+				}
+			}
+		}
+		
+		
+		return attractiveID;
 	}
 
 	public double rollOut() {
