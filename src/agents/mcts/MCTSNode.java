@@ -159,6 +159,12 @@ public class MCTSNode {
 	
 	public MCTSNode goalDrivenTreePolicy(){
 		MCTSNode cur = this;
+
+		
+		while (!cur.state.isGameOver()
+				&& cur.m_depth < PersistentStorage.MCTS_DEPTH_RUN) {
+		
+			
 		// get all itypes. ObsList = <Obs.ID,Obs.itype>
 		HashMap<Integer, Integer> ObsList = ObservationTools.getObsList(cur.state);
 		// choose goal from the list of itypes. persist for n number of ticks
@@ -205,7 +211,7 @@ public class MCTSNode {
 				}
 				if(PersistentStorage.actions.length == 3){
 					energies[3] = energies[1]+energies[2];
-				}
+				}				
 			}
 			else{
 				// handle the 2D game case
@@ -222,16 +228,23 @@ public class MCTSNode {
 					if(PersistentStorage.actions.length == 5){
 						energies[3] = energies[1]+energies[2];
 					}
+
 				}
 			}
-			
+			double totEnergy = 0.0;
+			for(int j=0; j<energies.length; j++){
+				totEnergy += energies[j];
+			}
+				
 			// from the energies we create probabilities of choosing our children
+			cur = cur.goalDrivenExplore(energies, totEnergy);
+			return cur;
 			
 		}else {
 			// go back to normal tree policy
 			return treePolicy();
 		}
-			
+		}
 			
 		return cur;
 	}
@@ -271,10 +284,53 @@ public class MCTSNode {
 		return goalPos;
 	}
 	
-	public MCTSNode goalDrivenExpand(){
-		MCTSNode next;
-		
-		return next;
+	public MCTSNode goalDrivenExplore(double[] energies, double totEnergy){
+
+		MCTSNode selectedNode = null;
+		int selected = -1;
+		double bestValue = -Double.MAX_VALUE;
+		for (int i = 0; i < children.length; i++) {
+			double hvVal = children[i].totValue;
+			double childValue = hvVal
+					/ (children[i].nVisits + MCTSNode.epsilon);
+			
+			double goalExploreValue = childValue
+					+ PersistentStorage.K
+					* Math.sqrt(Math.log(nVisits + 1)
+							/ (children[i].nVisits + MCTSNode.epsilon))
+							+ MCTSNode.m_rnd.nextDouble() * MCTSNode.epsilon
+							+ goalRewardProbability(i, energies, totEnergy);
+
+			// small sampleRandom numbers: break ties in unexpanded nodes
+			if (goalExploreValue > bestValue && !children[i].isLoseState()) {
+				selected = i;
+				bestValue = goalExploreValue;
+			}
+		}
+		if (selected == -1 || children[selected].isLoseState()) {
+			if (Agent.isVerbose) {
+				System.out
+				.println("MCTS::##### Oh crap.  Death awaits with choice "
+						+ selected + ".");
+			}
+			selected = 0;
+		}
+		if (selected != -1) {
+			// if we do the uct step it might be worthwhile also to update the
+			// state believe, this way we create a real rollout from a newly
+			// sampled state-pathway and not just from the very first one.
+
+			selectedNode = children[selected];
+			StateObservation nextState = state.copy();
+			nextState.advance(PersistentStorage.actions[selected]);
+			selectedNode.state = nextState;
+
+		}
+		if (selectedNode == null) {
+			throw new RuntimeException("Warning! returning null: " + bestValue
+					+ " : " + children.length);
+		}
+		return selectedNode;
 	}
 
 	int chooseGoalFromObsList(HashMap<Integer,Integer> ObsList){
@@ -302,10 +358,17 @@ public class MCTSNode {
 		return tn;
 
 	}
+	
+	double goalRewardProbability(int actionID, double[] energies, double totEnergy){
+		// calculate the probability (based on the precalculated energy) of reaching the goal using this action
+		double rewardProb = 0;
+		
+		rewardProb = Math.exp(-1*energies[actionID]/totEnergy);
+		
+		return rewardProb;
+	}
 
 	public MCTSNode uct() {
-
-
 
 		MCTSNode selectedNode = null;
 		int selected = -1;
