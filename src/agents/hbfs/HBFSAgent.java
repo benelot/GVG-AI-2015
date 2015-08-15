@@ -59,20 +59,21 @@ public class HBFSAgent extends GameAgent {
 	public static final int prime = 179426549; //4583; // 4583; 7927; 13163; 18097;
 	
 	public static int MAX_PIPE_LENGTH = 3000;
-	public static int MAX_REJECTION_SET_SIZE = 10000;
+	public static int MAX_REJECTION_SET_SIZE = 25000;
 	//public static int INITIAL_REJECTION_SET_CAPACITY = 4000;
-	public static int CARRY_OVER_PIPE_LENGTH_HEAD = (int) Math.round(MAX_PIPE_LENGTH*0.06);
-	public static int CARRY_OVER_PIPE_LENGTH_BODY = (int) Math.round(MAX_PIPE_LENGTH*0.04);;
+	public static int CARRY_OVER_PIPE_LENGTH_HEAD = (int) Math.round(MAX_PIPE_LENGTH*0.1);
+	public static int CARRY_OVER_PIPE_LENGTH_BODY = (int) Math.round(MAX_PIPE_LENGTH*0.1);;
 	
 
 	public static final int callReportFrequency = 10000;
 
-	public static final double wLoad = -2; //-2; // -4
+	public static final double wLoad = 0; //-2; // -4
 	public static final double wPosition = 0;
 	public static final double wTileDiversity = -3; // -2
-	public static final double wEvents = -0.1;
+	public static final double wEvents = -0.01;
 	public static final double wDepth = 1;
-	public static final double wTransforms = -1;
+	public static final double wTransforms = -2;
+	public static final double wGamescore = -0.1;
 
 	public static final int INITIALIZATION_REMTIME = 25;
 	public static final int ACTION_REMTIME = 10;
@@ -364,11 +365,11 @@ public class HBFSAgent extends GameAgent {
 		if (Agent.isVerbose) {
 			System.out.println();
 			System.out
-					.format("HBFS::Pipe:%5d|R.Set:%5d|Rejects:%6d|Depth:%3d|Events:%3d|E.Score:%3.2f|D.Score:%3.2f|L.Score:%3.2f|T.Score:%3.2f|Score:%3.2f|B.Delta:%3.2f|C.Score:%3.2f|Speed:%3d",
+					.format("HBFS::Pipe:%5d|R.Set:%5d|Rejects:%6d|Depth:%3d|Events:%3d|E.Score:%3.2f|D.Score:%3.2f|G.Score:%3.2f|T.Score:%3.2f|Score:%3.2f|B.Delta:%3.2f|C.Score:%3.2f|Speed:%3d",
 							pipe.size(), visited.size(), stats_rejects,
 							node.depth, node.so.getEventsHistory().size(),
 							node.getEventScore(), node.getTileDiversityScore(),
-							node.getLoadScore(), node.getTransformScore(), node.getScore(),
+							node.getGameScore(), node.getTransformScore(), node.getScore(),
 							HBFSAgent.maxScoreDifference,
 							HBFSAgent.correspondingScore, turnAroundSpeed);
 		}

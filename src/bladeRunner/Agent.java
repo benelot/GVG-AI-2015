@@ -136,7 +136,7 @@ public class Agent extends AbstractPlayer {
 		}
 
 		// use time that is left to build a tree or do BFS
-		if ((GameClassifier.getGameType() == GameType.STOCHASTIC || forcedAgentType == AgentType.MCTS) && forcedAgentType != AgentType.BFS) {
+		if ((GameClassifier.getGameType() == GameType.MOVING || forcedAgentType == AgentType.MCTS) && forcedAgentType != AgentType.BFS) {
 			// Create the player.
 			mctsAgent = new MCTSAgent(so, elapsedTimer, new Random());
 			currentAgent = mctsAgent;

@@ -16,7 +16,7 @@ public class GameClassifier {
 	 *
 	 */
 	public enum GameType {
-		STOCHASTIC, DETERMINISTIC, NOT_DETERMINED
+		MOVING, STATIC, NOT_DETERMINED
 	}
 
 	/**
@@ -27,58 +27,21 @@ public class GameClassifier {
 	public static GameType determineGameType(StateObservation so) {
 		gameType = GameType.NOT_DETERMINED;
 
-		// // Stochasticity 1
-		// // Main problems: Some movement does not happend during the first 10
-		// // steps.
-		// // Advance a bit to check if stochastic
-		// StateObservation testState1 = so.copy();
-		// StateObservation testState2 = so.copy();
-		// for (int ii = 0; ii < 10; ii++) {
-		// testState1.advance(Types.ACTIONS.ACTION_NIL);
-		// testState2.advance(Types.ACTIONS.ACTION_NIL);
-		//
-		// // I believe the advance method is more costly than the equiv
-		// // method.
-		// if (!testState1.equiv(testState2)) {
-		// gameType = GameType.STOCHASTIC;
-		// break;
-		// }
-		// }
-		// gameType = GameType.DETERMINISTIC;
-
-		// // Stochasticity 2
-		// // Main problems: Some moving objects are not NPCs.
-		// // Checks if there are Non player characters
-		// StateObservation testState2 = so.copy();
-		// for (int ii = 0; ii < 10; ii++) {
-		// testState2.advance(Types.ACTIONS.ACTION_NIL);
-		//
-		// // I believe the advance method is more costly than the equiv
-		// // method.
-		// if (testState2.getNPCPositions() != null
-		// && testState2.getNPCPositions().length > 0) {
-		// gameType = GameType.STOCHASTIC;
-		// break;
-		// }
-		// }
-		// gameType = GameType.DETERMINISTIC;
-
-		// Stochasticity 3
 		if (hasMovement(so, testingSteps)) {
-			gameType = GameType.STOCHASTIC;
+			gameType = GameType.MOVING;
 		} else {
-			gameType = GameType.DETERMINISTIC;
+			gameType = GameType.STATIC;
 		}
 
-		if (gameType == GameType.STOCHASTIC) {
+		if (gameType == GameType.MOVING) {
 			if (Agent.isVerbose) {
-				System.out.println("CLASSIFIER::Game seems to be stochastic");
+				System.out.println("CLASSIFIER::Movement detected");
 			}
-		} else if (gameType == GameType.DETERMINISTIC) {
+		} else if (gameType == GameType.STATIC) {
 			PersistentStorage.MCTS_DEPTH_RUN += 20;
 			if (Agent.isVerbose) {
 				System.out
-						.println("CLASSIFIER::Game seems to be deterministic");
+						.println("CLASSIFIER::Static game");
 			}
 		}
 		return gameType;
@@ -89,6 +52,43 @@ public class GameClassifier {
 		return gameType;
 	}
 
+	// // Stochasticity 1
+	// // Main problems: Some movement does not happend during the first 10
+	// // steps.
+	// // Advance a bit to check if stochastic
+	// StateObservation testState1 = so.copy();
+	// StateObservation testState2 = so.copy();
+	// for (int ii = 0; ii < 10; ii++) {
+	// testState1.advance(Types.ACTIONS.ACTION_NIL);
+	// testState2.advance(Types.ACTIONS.ACTION_NIL);
+	//
+	// // I believe the advance method is more costly than the equiv
+	// // method.
+	// if (!testState1.equiv(testState2)) {
+	// gameType = GameType.STOCHASTIC;
+	// break;
+	// }
+	// }
+	// gameType = GameType.DETERMINISTIC;
+
+	// // Stochasticity 2
+	// // Main problems: Some moving objects are not NPCs.
+	// // Checks if there are Non player characters
+	// StateObservation testState2 = so.copy();
+	// for (int ii = 0; ii < 10; ii++) {
+	// testState2.advance(Types.ACTIONS.ACTION_NIL);
+	//
+	// // I believe the advance method is more costly than the equiv
+	// // method.
+	// if (testState2.getNPCPositions() != null
+	// && testState2.getNPCPositions().length > 0) {
+	// gameType = GameType.STOCHASTIC;
+	// break;
+	// }
+	// }
+	// gameType = GameType.DETERMINISTIC;
+
+	
 	/**
 	 * Test if the game has movement in it.
 	 * 
@@ -118,7 +118,7 @@ public class GameClassifier {
 			advancedHash = ObservationTools.getHash(so);
 			if (initialHash != advancedHash) {
 				if (Agent.isVerbose) {
-					System.out.println(advancedHash + " is different.");
+					System.out.println("Hash difference after " + k + " steps. (" + initialHash + " vs. " + advancedHash + ")");
 				}
 				return true;
 			}
