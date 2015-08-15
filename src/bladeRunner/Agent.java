@@ -40,7 +40,7 @@ public class Agent extends AbstractPlayer {
 	ArrayList<Observation>[][] grid;
 	protected int blockSize; //only needed for the drawing
 	
-	public static final boolean isVerbose = true;
+	public static final boolean isVerbose = false;
 
 	/**
 	 * The agent type we force the agent into.
