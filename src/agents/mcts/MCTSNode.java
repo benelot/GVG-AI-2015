@@ -211,7 +211,7 @@ public class MCTSNode {
 				}
 				if(PersistentStorage.actions.length == 3){
 					energies[3] = energies[1]+energies[2];
-				}
+				}				
 			}
 			else{
 				// handle the 2D game case
@@ -231,8 +231,14 @@ public class MCTSNode {
 
 				}
 			}
+			double totEnergy = 0.0;
+			for(int j=0; j<energies.length; j++){
+				totEnergy += energies[j];
+			}
 				
 			// from the energies we create probabilities of choosing our children
+			cur = cur.goalDrivenExplore(energies, totEnergy);
+			return cur;
 			
 		}else {
 			// go back to normal tree policy
@@ -278,7 +284,7 @@ public class MCTSNode {
 		return goalPos;
 	}
 	
-	public MCTSNode goalDrivenExplore(){
+	public MCTSNode goalDrivenExplore(double[] energies, double totEnergy){
 
 		MCTSNode selectedNode = null;
 		int selected = -1;
@@ -287,19 +293,18 @@ public class MCTSNode {
 			double hvVal = children[i].totValue;
 			double childValue = hvVal
 					/ (children[i].nVisits + MCTSNode.epsilon);
-
-			// reward + UCT-exploration term. Not clear to me if this is useful
-			// for the size of the tree that we have within our time constraints
-			double uctValue = childValue
+			
+			double goalExploreValue = childValue
 					+ PersistentStorage.K
 					* Math.sqrt(Math.log(nVisits + 1)
 							/ (children[i].nVisits + MCTSNode.epsilon))
-							+ MCTSNode.m_rnd.nextDouble() * MCTSNode.epsilon;
+							+ MCTSNode.m_rnd.nextDouble() * MCTSNode.epsilon
+							+ goalRewardProbability(i, energies, totEnergy);
 
 			// small sampleRandom numbers: break ties in unexpanded nodes
-			if (uctValue > bestValue && !children[i].isLoseState()) {
+			if (goalExploreValue > bestValue && !children[i].isLoseState()) {
 				selected = i;
-				bestValue = uctValue;
+				bestValue = goalExploreValue;
 			}
 		}
 		if (selected == -1 || children[selected].isLoseState()) {
@@ -352,6 +357,15 @@ public class MCTSNode {
 		children[bestAction] = tn;
 		return tn;
 
+	}
+	
+	double goalRewardProbability(int actionID, double[] energies, double totEnergy){
+		// calculate the probability (based on the precalculated energy) of reaching the goal using this action
+		double rewardProb = 0;
+		
+		rewardProb = Math.exp(-1*energies[actionID]/totEnergy);
+		
+		return rewardProb;
 	}
 
 	public MCTSNode uct() {
