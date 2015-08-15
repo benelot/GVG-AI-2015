@@ -112,7 +112,7 @@ public class GameClassifier {
 
 			hash1 = ObservationTools.getHash(so);
 			if (hash0 != hash1) {
-				System.out.println("CLASSIFIER::Hash difference after " + k + " steps. (hash@t-1:" + hash0 + " vs. hash@t:" + hash1 + ")");
+				System.out.println("CLASSIFIER::Hash difference after " + k + " step(s). (hash@t-1:" + hash0 + " vs. hash@t:" + hash1 + ")");
 				ObservationTools.DefaultAnalysis a = ObservationTools.getAnalysis(so, obs0);
 				int changes = a.tileCreations + a.tileDestructions + a.tileMovements + a.tileTransforms;
 				System.out.println("CLASSIFIER::Counted changes: " + changes);

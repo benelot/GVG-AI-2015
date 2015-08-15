@@ -59,7 +59,7 @@ public class HBFSAgent extends GameAgent {
 	public static final int prime = 179426549; //4583; // 4583; 7927; 13163; 18097;
 	
 	public static int MAX_PIPE_LENGTH = 3000;
-	public static int MAX_REJECTION_SET_SIZE = 25000;
+	public static int MAX_REJECTION_SET_SIZE = 50000;
 	//public static int INITIAL_REJECTION_SET_CAPACITY = 4000;
 	public static int CARRY_OVER_PIPE_LENGTH_HEAD = (int) Math.round(MAX_PIPE_LENGTH*0.1);
 	public static int CARRY_OVER_PIPE_LENGTH_BODY = (int) Math.round(MAX_PIPE_LENGTH*0.1);;
@@ -68,14 +68,14 @@ public class HBFSAgent extends GameAgent {
 	public static final int callReportFrequency = 10000;
 
 	
-	// Values are reset in the constructor.
-	public static double wLoad = 0; //-2; // -4
-	public static double wPosition = 0;
-	public static double wTileDiversity = -3; // -2
-	public static double wEvents = -0.01;
-	public static double wDepth = 1;
-	public static double wTransforms = -2;
-	public static double wGamescore = -0.1;
+	// Values are set in the constructor.
+	public static double wLoad = Double.NaN; //0; //-2; // -4
+	public static double wPosition = Double.NaN; //
+	public static double wTileDiversity = Double.NaN; //-3; // -2
+	public static double wEvents = Double.NaN; //-0.01;
+	public static double wDepth = Double.NaN; //1;
+	public static double wTransforms = Double.NaN; //-2;
+	public static double wGamescore = Double.NaN; //-0.1;
 
 	public static final int INITIALIZATION_REMTIME = 25;
 	public static final int ACTION_REMTIME = 10;
@@ -86,8 +86,8 @@ public class HBFSAgent extends GameAgent {
 	public static final boolean RESPECT_AGENT_ORIENTATION = true; // true works better for brain man
 	public static final boolean REPSECT_AGENT_SPEED = false;
 	public static final int reportFrequency = 100;
-	public static final int MAX_TICKS = 1800;
-	public static final int MAX_TICKS_2nd_TIMEOUT = 1950;
+	public static final int MAX_TICKS = 1750;
+	public static final int MAX_TICKS_2nd_TIMEOUT = 1925;
 	
 	public static int NUM_ACTIONS;
 	public static Types.ACTIONS[] ACTIONS;
@@ -332,7 +332,7 @@ public class HBFSAgent extends GameAgent {
 		wEvents = -0.01;
 		wDepth = 1;
 		wTransforms = -2;
-		wGamescore = -0.1;
+		wGamescore = -0.01;
 		
 		// Get the actions in a static array.
 		if (Agent.isVerbose) {

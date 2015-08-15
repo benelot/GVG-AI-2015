@@ -77,7 +77,7 @@ public class GameRunner {
 				}
 			}
 		}
-		if (config.isCalculateStatistics()) {
+		if (config.isCalculateStatistics() && Agent.isVerbose) {
 			writeGameStatistics();
 		}
 	}
@@ -209,7 +209,7 @@ public class GameRunner {
 		} else {
 			gameStatistics.put(gamePath, new GameStats(win, score, time));
 		}
-		writeGameStatistic(gamePath);
+		if (Agent.isVerbose) writeGameStatistic(gamePath);
 	}
 
 	public static void writeGameStatistic(String gamePath) {
