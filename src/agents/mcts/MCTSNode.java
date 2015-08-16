@@ -173,8 +173,14 @@ public class MCTSNode {
 			// go back to normal tree policy
 			return treePolicy();
 		}
-			
-		int goalIType = ObsList.get(goalID);
+		
+		int goalIType = -1;
+		try {
+		goalIType = ObsList.get(goalID);
+		} catch (Exception e){
+			System.out.println(e.getMessage());
+			return treePolicy();
+		}
 		// create distance to this object
 		if(MCTSAgent.pathPlannerMaps.containsKey(goalID)){
 			// use this distance to expand the tree
@@ -488,7 +494,10 @@ public class MCTSNode {
 	int getMostAttractiveID(ArrayList<Observation>[] obsPositions){
 		// return the id of the most attractive object in the given list of observations
 		int attractiveID = -1;
-		
+		if (obsPositions==null){
+			return attractiveID;
+		}
+		double bestNpcAttractionValue = 0;
 		for (ArrayList<Observation> npcs : obsPositions) {
 			if (npcs.size() > 0) {
 				//				 for(int i = 0; i< npcs.size(); i++){
@@ -496,7 +505,7 @@ public class MCTSNode {
 				for(int i = 0; i<npcs.size(); i++){
 
 					double npcAttractionValue = 0;
-					double bestNpcAttractionValue = 0;
+					
 
 					try {
 						npcAttractionValue = PersistentStorage.iTypeAttractivity
