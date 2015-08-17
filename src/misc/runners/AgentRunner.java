@@ -16,7 +16,7 @@ public class AgentRunner {
 //		config.addGameLevel(RunConfig.GamesTraining2014.CHASE,new int[] {0,1,2,3,4} );
 //		config.addGameLevel(RunConfig.GamesTraining2014.FROGS,new int[] {0,1,2,3,4} );
 //		config.addGameLevel(RunConfig.GamesTraining2014.MISSILECOMMAND,new int[] {0,1,2,3,4} );
-////		config.addGameLevel(RunConfig.GamesTraining2014.PORTALS,new int[] {1,2,3,4} );
+//		config.addGameLevel(RunConfig.GamesTraining2014.PORTALS,new int[] {1,2,3,4} );
 //		config.addGameLevel(RunConfig.GamesTraining2014.SOKOBAN,new int[] {1,2,3,4} );
 //		config.addGameLevel(RunConfig.GamesTraining2014.SURVIVEZOMBIES,new int[] {0,1,2,3,4} );
 //		config.addGameLevel(RunConfig.GamesTraining2014.ZELDA,new int[] {0,1,2,3,4} );
@@ -25,7 +25,7 @@ public class AgentRunner {
 		// GamesValidation2014
 //		config.addGameLevel(RunConfig.GamesValidation2014.CAMELRACE, new int[] {0,1,2,3,4});
 //		config.addGameLevel(RunConfig.GamesValidation2014.DIGDUG, new int[] {1,2,3,4});
-//	config.addGameLevel(RunConfig.GamesValidation2014.EGGOMANIA, new int[] {0,1,2,3,4});
+//		config.addGameLevel(RunConfig.GamesValidation2014.EGGOMANIA, new int[] {0,1,2,3,4});
 //		config.addGameLevel(RunConfig.GamesValidation2014.FIRECASTER, new int[] {2,3,4});
 //		config.addGameLevel(RunConfig.GamesValidation2014.FIRESTORMS, new int[] {0,1,2,3,4});
 //		config.addGameLevel(RunConfig.GamesValidation2014.INFECTION, new int[] {0,1,2,3,4});
@@ -70,12 +70,23 @@ public class AgentRunner {
 
 		// ############
 		// == Run against some of our benchmarks (Uncomment one of the next
-		// three lines and at least the lowest two.)
-		// RunConfig runconfig = RunConfig.getRunAllEasyLevelsRunConfig();
-		// RunConfig runconfig = RunConfig.getRunAllHardLevelsRunConfig();
-//		 RunConfig runconfig = RunConfig.getRunAllGameLevelsRunConfig();
+		// nine commented lines and at least the lowest two.)
+		 //All games
+//		 RunConfig runconfig = RunConfig.getEasyLevelsRunConfig();
+//		 RunConfig runconfig = RunConfig.getHardLevelsRunConfig();
+//		 RunConfig runconfig = RunConfig.getAllLevelsRunConfig();
+		 
+		 //HBFS games
+//		 RunConfig runconfig = RunConfig.getEasyHBFSLevelsRunConfig();
+//		 RunConfig runconfig = RunConfig.getHardHBFSLevelsRunConfig();
+//		 RunConfig runconfig = RunConfig.getHBFSLevelsRunConfig();
+		 
+		 //MCTS games
+//		 RunConfig runconfig = RunConfig.getEasyMCTSLevelsRunConfig();
+//		 RunConfig runconfig = RunConfig.getHardMCTSLevelsRunConfig();
+//		 RunConfig runconfig = RunConfig.getMCTSLevelsRunConfig();
+		 
 
-//		 RunConfig runconfig = config;
 //		 runconfig.setController(controller);
 //		 runconfig.setRepetitions(5);
 //		 runconfig.setCalculateStatistics(true);

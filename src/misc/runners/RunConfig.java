@@ -4,9 +4,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import benchmarking.RunAllEasyHBFSLevelsRunConfig;
 import benchmarking.RunAllEasyLevelsRunConfig;
+import benchmarking.RunAllEasyMCTSLevelsRunConfig;
 import benchmarking.RunAllGameLevelsRunConfig;
 import benchmarking.RunAllHardLevelsRunConfig;
+import benchmarking.RunAllHardMCTSLevelsRunConfig;
+import benchmarking.RunAllMCTSLevelsRunConfig;
 
 public class RunConfig {
 
@@ -1018,15 +1022,39 @@ public class RunConfig {
 		return new PlayAllGamesRunConfig();
 	}
 
-	public static RunAllEasyLevelsRunConfig getRunAllEasyLevelsRunConfig() {
+	public static RunAllEasyLevelsRunConfig getEasyLevelsRunConfig() {
 		return new RunAllEasyLevelsRunConfig();
 	}
 
-	public static RunAllGameLevelsRunConfig getRunAllGameLevelsRunConfig() {
+	public static RunAllGameLevelsRunConfig getAllLevelsRunConfig() {
 		return new RunAllGameLevelsRunConfig();
 	}
 
-	public static RunAllHardLevelsRunConfig getRunAllHardLevelsRunConfig() {
+	public static RunAllHardLevelsRunConfig getHardLevelsRunConfig() {
 		return new RunAllHardLevelsRunConfig();
+	}
+	
+	public static RunAllEasyHBFSLevelsRunConfig getEasyHBFSLevelsRunConfig() {
+		return new RunAllEasyHBFSLevelsRunConfig();
+	}
+
+	public static RunAllGameLevelsRunConfig getHBFSLevelsRunConfig() {
+		return new RunAllGameLevelsRunConfig();
+	}
+
+	public static RunAllHardLevelsRunConfig getHardHBFSLevelsRunConfig() {
+		return new RunAllHardLevelsRunConfig();
+	}
+	
+	public static RunAllEasyMCTSLevelsRunConfig getEasyMCTSLevelsRunConfig() {
+		return new RunAllEasyMCTSLevelsRunConfig();
+	}
+
+	public static RunAllMCTSLevelsRunConfig getMCTSLevelsRunConfig() {
+		return new RunAllMCTSLevelsRunConfig();
+	}
+
+	public static RunAllHardMCTSLevelsRunConfig getHardMCTSLevelsRunConfig() {
+		return new RunAllHardMCTSLevelsRunConfig();
 	}
 }
