@@ -5,6 +5,7 @@ import java.util.Random;
 import java.util.TreeMap;
 
 import benchmarking.GameStats;
+import bladeRunner.Agent;
 import core.ArcadeMachine;
 import core.game.StateObservation;
 import ontology.Types;
@@ -76,7 +77,7 @@ public class GameRunner {
 				}
 			}
 		}
-		if (config.isCalculateStatistics()) {
+		if (config.isCalculateStatistics() && Agent.isVerbose) {
 			writeGameStatistics();
 		}
 	}
@@ -121,7 +122,7 @@ public class GameRunner {
 					}
 				}
 			}
-			writeGameStatistics();
+			if (Agent.isVerbose) writeGameStatistics();
 		} else {
 			for (GameLevelPair<String, String[]> gameLevelPair : config
 					.getGameLevels()) {
@@ -208,7 +209,7 @@ public class GameRunner {
 		} else {
 			gameStatistics.put(gamePath, new GameStats(win, score, time));
 		}
-		writeGameStatistic(gamePath);
+		if (Agent.isVerbose) writeGameStatistic(gamePath);
 	}
 
 	public static void writeGameStatistic(String gamePath) {

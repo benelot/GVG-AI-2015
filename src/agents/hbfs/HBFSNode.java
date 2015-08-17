@@ -37,6 +37,7 @@ public class HBFSNode implements Comparable<HBFSNode> {
 	private double tileDiversityScore = -1;
 	private double loadScore = -1;
 	private double transformScore = -1;
+	private double gameScore = -1;
 	private int totalLoad = -1;
 	private int hash = -1;
 
@@ -100,12 +101,12 @@ public class HBFSNode implements Comparable<HBFSNode> {
 
 		transformScore = a.tileTransforms;
 		transformScore = a.tileCreations + a.tileDestructions;
-		
+		gameScore = so.getGameScore();
 		
 		return HBFSAgent.wDepth * arg0.depth + HBFSAgent.wEvents * eventScore
 				+ +HBFSAgent.wTileDiversity * tileDiversityScore
 				+ HBFSAgent.wPosition * positionScore + HBFSAgent.wLoad
-				* loadScore + HBFSAgent.wTransforms * transformScore;
+				* loadScore + HBFSAgent.wTransforms * transformScore + HBFSAgent.wGamescore;
 		
 	}
 
@@ -175,6 +176,10 @@ public class HBFSNode implements Comparable<HBFSNode> {
 		return score;
 	}
 
+	public double getGameScore() {
+		return gameScore;
+	}
+	
 	public double getTileDiversityScore() {
 		if (tileDiversityScore != -1) {
 			return tileDiversityScore;

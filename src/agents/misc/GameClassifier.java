@@ -16,7 +16,7 @@ public class GameClassifier {
 	 *
 	 */
 	public enum GameType {
-		STOCHASTIC, DETERMINISTIC, NOT_DETERMINED
+		MOVING, STATIC, NOT_DETERMINED
 	}
 
 	/**
@@ -27,59 +27,18 @@ public class GameClassifier {
 	public static GameType determineGameType(StateObservation so) {
 		gameType = GameType.NOT_DETERMINED;
 
-		// // Stochasticity 1
-		// // Main problems: Some movement does not happend during the first 10
-		// // steps.
-		// // Advance a bit to check if stochastic
-		// StateObservation testState1 = so.copy();
-		// StateObservation testState2 = so.copy();
-		// for (int ii = 0; ii < 10; ii++) {
-		// testState1.advance(Types.ACTIONS.ACTION_NIL);
-		// testState2.advance(Types.ACTIONS.ACTION_NIL);
-		//
-		// // I believe the advance method is more costly than the equiv
-		// // method.
-		// if (!testState1.equiv(testState2)) {
-		// gameType = GameType.STOCHASTIC;
-		// break;
-		// }
-		// }
-		// gameType = GameType.DETERMINISTIC;
-
-		// // Stochasticity 2
-		// // Main problems: Some moving objects are not NPCs.
-		// // Checks if there are Non player characters
-		// StateObservation testState2 = so.copy();
-		// for (int ii = 0; ii < 10; ii++) {
-		// testState2.advance(Types.ACTIONS.ACTION_NIL);
-		//
-		// // I believe the advance method is more costly than the equiv
-		// // method.
-		// if (testState2.getNPCPositions() != null
-		// && testState2.getNPCPositions().length > 0) {
-		// gameType = GameType.STOCHASTIC;
-		// break;
-		// }
-		// }
-		// gameType = GameType.DETERMINISTIC;
-
-		// Stochasticity 3
 		if (hasMovement(so, testingSteps)) {
-			gameType = GameType.STOCHASTIC;
+			gameType = GameType.MOVING;
 		} else {
-			gameType = GameType.DETERMINISTIC;
+			gameType = GameType.STATIC;
 		}
 
-		if (gameType == GameType.STOCHASTIC) {
-			if (Agent.isVerbose) {
-				System.out.println("CLASSIFIER::Game seems to be stochastic");
-			}
-		} else if (gameType == GameType.DETERMINISTIC) {
+		if (gameType == GameType.MOVING) {
+			System.out.println("CLASSIFIER::Movement Detected.");
+		} else if (gameType == GameType.STATIC) {
 			PersistentStorage.MCTS_DEPTH_RUN += 20;
-			if (Agent.isVerbose) {
-				System.out
-						.println("CLASSIFIER::Game seems to be deterministic");
-			}
+			System.out.println("CLASSIFIER::Static Game.");
+
 		}
 		return gameType;
 
@@ -88,6 +47,43 @@ public class GameClassifier {
 	public static GameType getGameType() {
 		return gameType;
 	}
+
+	// // Stochasticity 1
+	// // Main problems: Some movement does not happend during the first 10
+	// // steps.
+	// // Advance a bit to check if stochastic
+	// StateObservation testState1 = so.copy();
+	// StateObservation testState2 = so.copy();
+	// for (int ii = 0; ii < 10; ii++) {
+	// testState1.advance(Types.ACTIONS.ACTION_NIL);
+	// testState2.advance(Types.ACTIONS.ACTION_NIL);
+	//
+	// // I believe the advance method is more costly than the equiv
+	// // method.
+	// if (!testState1.equiv(testState2)) {
+	// gameType = GameType.STOCHASTIC;
+	// break;
+	// }
+	// }
+	// gameType = GameType.DETERMINISTIC;
+
+	// // Stochasticity 2
+	// // Main problems: Some moving objects are not NPCs.
+	// // Checks if there are Non player characters
+	// StateObservation testState2 = so.copy();
+	// for (int ii = 0; ii < 10; ii++) {
+	// testState2.advance(Types.ACTIONS.ACTION_NIL);
+	//
+	// // I believe the advance method is more costly than the equiv
+	// // method.
+	// if (testState2.getNPCPositions() != null
+	// && testState2.getNPCPositions().length > 0) {
+	// gameType = GameType.STOCHASTIC;
+	// break;
+	// }
+	// }
+	// gameType = GameType.DETERMINISTIC;
+
 
 	/**
 	 * Test if the game has movement in it.
@@ -99,31 +95,34 @@ public class GameClassifier {
 	 * @return If the game has movement or not.
 	 */
 	public static boolean hasMovement(StateObservation so, int testingSteps) {
-		// get initial hash
-		int initialHash = ObservationTools.getHash(so);
 
-		// second hash
-		int advancedHash = 0;
-		if (Agent.isVerbose) {
-			System.out.println("Initial hash: " + initialHash);
-		}
+		// advance twice as a workaround for some bugs
+		so = so.copy(); 
+		so.advance(Types.ACTIONS.ACTION_NIL); 
+		so.advance(Types.ACTIONS.ACTION_NIL); 
 
-		// check if hash changes as we advance the forward model
+		int hash0 = ObservationTools.getHash(so);
+		StateObservation obs0 = so.copy();
+		int hash1;
+		int nDifferences = 0;
+
 		for (int k = 0; k < testingSteps; k++) {
 
-			// advance the forward model
 			so.advance(Types.ACTIONS.ACTION_NIL);
 
-			// get the hash and compare
-			advancedHash = ObservationTools.getHash(so);
-			if (initialHash != advancedHash) {
-				if (Agent.isVerbose) {
-					System.out.println(advancedHash + " is different.");
-				}
-				return true;
+			hash1 = ObservationTools.getHash(so);
+			if (hash0 != hash1) {
+				System.out.println("CLASSIFIER::Hash difference after " + k + " step(s). (hash@t-1:" + hash0 + " vs. hash@t:" + hash1 + ")");
+				ObservationTools.DefaultAnalysis a = ObservationTools.getAnalysis(so, obs0);
+				int changes = a.tileCreations + a.tileDestructions + a.tileMovements + a.tileTransforms;
+				System.out.println("CLASSIFIER::Counted changes: " + changes);
+				nDifferences += 1;
 			}
+			if (nDifferences > 2) break;
+			
+			hash0 = hash1;
 		}
-		return false;
+		return nDifferences > 0;
 
 	}
 

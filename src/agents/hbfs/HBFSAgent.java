@@ -59,20 +59,23 @@ public class HBFSAgent extends GameAgent {
 	public static final int prime = 179426549; //4583; // 4583; 7927; 13163; 18097;
 	
 	public static int MAX_PIPE_LENGTH = 3000;
-	public static int MAX_REJECTION_SET_SIZE = 10000;
+	public static int MAX_REJECTION_SET_SIZE = 50000;
 	//public static int INITIAL_REJECTION_SET_CAPACITY = 4000;
-	public static int CARRY_OVER_PIPE_LENGTH_HEAD = (int) Math.round(MAX_PIPE_LENGTH*0.06);
-	public static int CARRY_OVER_PIPE_LENGTH_BODY = (int) Math.round(MAX_PIPE_LENGTH*0.04);;
+	public static int CARRY_OVER_PIPE_LENGTH_HEAD = (int) Math.round(MAX_PIPE_LENGTH*0.1);
+	public static int CARRY_OVER_PIPE_LENGTH_BODY = (int) Math.round(MAX_PIPE_LENGTH*0.1);;
 	
 
 	public static final int callReportFrequency = 10000;
 
-	public static final double wLoad = -2; //-2; // -4
-	public static final double wPosition = 0;
-	public static final double wTileDiversity = -3; // -2
-	public static final double wEvents = -0.1;
-	public static final double wDepth = 1;
-	public static final double wTransforms = -1;
+	
+	// Values are set in the constructor.
+	public static double wLoad = Double.NaN; //0; //-2; // -4
+	public static double wPosition = Double.NaN; //
+	public static double wTileDiversity = Double.NaN; //-3; // -2
+	public static double wEvents = Double.NaN; //-0.01;
+	public static double wDepth = Double.NaN; //1;
+	public static double wTransforms = Double.NaN; //-2;
+	public static double wGamescore = Double.NaN; //-0.1;
 
 	public static final int INITIALIZATION_REMTIME = 25;
 	public static final int ACTION_REMTIME = 10;
@@ -83,8 +86,8 @@ public class HBFSAgent extends GameAgent {
 	public static final boolean RESPECT_AGENT_ORIENTATION = true; // true works better for brain man
 	public static final boolean REPSECT_AGENT_SPEED = false;
 	public static final int reportFrequency = 100;
-	public static final int MAX_TICKS = 1800;
-	public static final int MAX_TICKS_2nd_TIMEOUT = 1950;
+	public static final int MAX_TICKS = 1750;
+	public static final int MAX_TICKS_2nd_TIMEOUT = 1925;
 	
 	public static int NUM_ACTIONS;
 	public static Types.ACTIONS[] ACTIONS;
@@ -112,6 +115,7 @@ public class HBFSAgent extends GameAgent {
 	public int turnAroundSpeed = -1;
 	public int pipeEmptyEvents = 0;
 	public boolean hasTimedOut = false;
+	private static int currentGameTick;
 	
 
 	private void initializeHbfs(StateObservation so) {
@@ -211,8 +215,7 @@ public class HBFSAgent extends GameAgent {
 		if (pipe.isEmpty()) {
 			controllerState = STATE_OTHER;
 			if (Agent.isVerbose) {
-				System.out
-						.println("HBFS::performBfs was called on empty pipe. Changing to STATE_OTHER.");
+				System.out.println("HBFS::performHbfs was called on empty pipe. Changing to STATE_OTHER.");
 			}
 			return false;
 		}
@@ -266,8 +269,7 @@ public class HBFSAgent extends GameAgent {
 		if (pipe.isEmpty()) {
 			// Pipe is seeded with children of current and current itself 
 			if (Agent.isVerbose) {
-				System.out
-						.println("\nHBFS::#Pipe unexpectedly empty. Reseeding and clearing rejection set.");
+				System.out.println("\nHBFS::#Pipe unexpectedly empty. Reseeding and clearing rejection set.");
 			}
 			visited.clear();
 			for (Types.ACTIONS a : ACTIONS) {
@@ -284,7 +286,7 @@ public class HBFSAgent extends GameAgent {
 		}
 
 		if (Agent.isVerbose && HBFSAgent.IS_VERY_VERBOSE) {
-			current.displayActionSequence();
+			//current.displayActionSequence();
 			displayAgentState(current);
 		}
 		return false;
@@ -322,6 +324,16 @@ public class HBFSAgent extends GameAgent {
 	 *            Timer for the controller creation.
 	 */
 	public HBFSAgent(StateObservation so, ElapsedCpuTimer elapsedTimer) {
+		
+		
+		wLoad = 0; //-2; // -4
+		wPosition = 0;
+		wTileDiversity = -3; // -2
+		wEvents = -0.01;
+		wDepth = 1;
+		wTransforms = -2;
+		wGamescore = -0.01;
+		
 		// Get the actions in a static array.
 		if (Agent.isVerbose) {
 			System.out.println("HBFS::##Creating HBFSAgent...");
@@ -364,11 +376,11 @@ public class HBFSAgent extends GameAgent {
 		if (Agent.isVerbose) {
 			System.out.println();
 			System.out
-					.format("HBFS::Pipe:%5d|R.Set:%5d|Rejects:%6d|Depth:%3d|Events:%3d|E.Score:%3.2f|D.Score:%3.2f|L.Score:%3.2f|T.Score:%3.2f|Score:%3.2f|B.Delta:%3.2f|C.Score:%3.2f|Speed:%3d",
-							pipe.size(), visited.size(), stats_rejects,
+					.format("HBFS::Tick:%4d|Pipe:%5d|R.Set:%5d|Rejects:%6d|Depth:%3d|Events:%3d|E.Score:%3.2f|D.Score:%3.2f|G.Score:%3.2f|T.Score:%3.2f|Score:%3.2f|B.Delta:%3.2f|C.Score:%3.2f|Speed:%3d",
+							currentGameTick, pipe.size(), visited.size(), stats_rejects,
 							node.depth, node.so.getEventsHistory().size(),
 							node.getEventScore(), node.getTileDiversityScore(),
-							node.getLoadScore(), node.getTransformScore(), node.getScore(),
+							node.getGameScore(), node.getTransformScore(), node.getScore(),
 							HBFSAgent.maxScoreDifference,
 							HBFSAgent.correspondingScore, turnAroundSpeed);
 		}
@@ -393,7 +405,7 @@ public class HBFSAgent extends GameAgent {
 					if (HBFSAgent.IS_VERY_VERBOSE) {
 						HBFSNode.displayStateObservation(so);
 					}
-					System.out.println("HBFS::--Action Stack Empty.");
+					System.out.println("HBFS::Action Stack Empty.");
 				}
 				controllerState = STATE_IDLE;
 				cleanHbfs(); // free handles to allow the garbage collector to
@@ -402,18 +414,20 @@ public class HBFSAgent extends GameAgent {
 			}
 			if (Agent.isVerbose) {
 				if (HBFSAgent.IS_VERY_VERBOSE) {
-					HBFSNode.displayStateObservation(so);
+					//HBFSNode.displayStateObservation(so);
+					System.out.println("HBFS::Performing Action: "
+							+ actionSequence.peek());
 				}
-				System.out.println("HBFS::--Performing Action: "
-						+ actionSequence.peek());
 			}
 			return actionSequence.pop();
 
 		case STATE_PLANNING:
 
 			if (so.getGameTick() % reportFrequency == 1) {
+				currentGameTick = so.getGameTick();
 				displayAgentState();
 			}
+			
 			boolean hasTerminated = false;
 			turnAroundSpeed = 0;
 			while (!hasTerminated
@@ -437,9 +451,13 @@ public class HBFSAgent extends GameAgent {
 				actionSequence = hbfsSolution.getActionSequence();
 				if (Agent.isVerbose) {
 					System.out.println("\nHBFS::#Timeout! ACTING Phase...");
-					System.out.println("Timeout Sequence Length: "
+					System.out.println("HBFS::Timeout Sequence Length: "
 							+ actionSequence.size());
+					System.out.println("HBFS::Changing Heuristics....");
 				}
+				wLoad = 0; wPosition = 0; wTileDiversity = 0; wEvents = 0;
+				wDepth = 0; wTransforms = 0; wGamescore = -10;
+				
 				hasTimedOut = true;
 			}
 			if (pipeEmptyEvents > 1) {
