@@ -1,6 +1,7 @@
 package agents.mcts;
 
 import agents.GameAgent;
+import agents.misc.ObservationTools;
 import agents.misc.PersistentStorage;
 import core.game.Observation;
 import core.game.StateObservation;
@@ -45,7 +46,7 @@ public class MCTSAgent extends GameAgent {
 	public static int idOfGoal;
 	public static int GoalDrivenTreePolCounter;
 	public static int GoalDrivenTreePolCounter_Max = 10;
-	public static double chanceOfGoalDrivenPlanning = 0.05;
+	public static double chanceOfGoalDrivenPlanning = 0.20;
 
 	/**
 	 * Creates the MCTS player with a sampleRandom generator object.
@@ -140,15 +141,17 @@ public class MCTSAgent extends GameAgent {
 			GoalDrivenTreePolCounter--;
 			if(GoalDrivenTreePolCounter == 0){
 				treePolMode = 0;
+				idOfGoal = 0;
+				goalItype = 0;
 			}
 		}
 		//decide on a planning strategy
 		if(m_rnd.nextDouble() < chanceOfGoalDrivenPlanning && treePolMode == 0){
 			treePolMode = 1;
 			GoalDrivenTreePolCounter =  GoalDrivenTreePolCounter_Max;
-			chooseANewGoal();
+			chooseANewGoal(m_root.state);
 		}
-	
+	System.out.println(GoalDrivenTreePolCounter + "  "+ treePolMode + "   "+ idOfGoal+ "  "+   goalItype);
 		
 		// Do the search within the available time.
 		m_root.mctsSearch(elapsedTimer);
@@ -391,20 +394,166 @@ public class MCTSAgent extends GameAgent {
 
 	}
 	
-	public static void chooseANewGoal(){
-		int newGoalID = 0;
-		int newGoalItype = 0;
-		
+	public static void chooseANewGoal(StateObservation state){
+//		int newGoalID = 0;
+//		int newGoalItype = 0;
+//		
 		
 		// TODO: figgure out a way to make a list of all the itypes we could visit (excluding walls, and empty space)
 		// then set some attractivity for them based on distance / itypeAttractivity
 		// form a probability from that attractivity
 		// take one sample from that probability
 		
+		HashMap<Integer, Integer> ObsList = ObservationTools.getObsList(state);
+		// choose goal from the list of itypes. persist for n number of ticks
+		chooseGoalFromObsList(ObsList,state);
 		
-		idOfGoal = newGoalID;
-		goalItype =newGoalItype;
 		
+//		idOfGoal = newGoalID;
+//		goalItype =newGoalItype;
+		
+	}
+	
+	
+	public static void chooseGoalFromObsList(HashMap<Integer,Integer> ObsList, StateObservation currentState){
+		int goal = -1;
+		Vector2d pos = currentState.getAvatarPosition();
+		// to choose the object (goal) to pursue
+		// get up to 10 closest objects based on Euclidean distance
+		// get closest 3 npc s
+		
+		// get most attractive npc		
+		ArrayList<Observation>[] npcPositions = null;
+		npcPositions = currentState.getNPCPositions(pos);
+		int attractiveNPCitype = getMostAttractiveItype(npcPositions);
+		int attractiveNPCid = getIDofItpye(npcPositions,attractiveNPCitype);
+		
+		// get most attractive resource
+		ArrayList<Observation>[] resPositions = null;
+		resPositions = currentState.getResourcesPositions(pos);
+		int attractiveResitype = getMostAttractiveItype(resPositions);
+		int attractiveResid = getIDofItpye(resPositions,attractiveResitype);
+		
+		// get most attractive movable
+		ArrayList<Observation>[] movablePositions = null;
+		movablePositions = currentState.getMovablePositions(pos);
+		int attractiveMovableitype = getMostAttractiveItype(movablePositions);
+		int attractiveMovableid = getIDofItpye(movablePositions,attractiveMovableitype);
+		
+		// go towards the one with the highest attractivity out of the above (=goal)
+		// TODO pick one in random. May be, first take 2 of each type and pick one of 6 in random?
+		int randomInt = (int )(Math.random() * 3);
+		
+		switch (randomInt) {
+			case 0: 	idOfGoal = attractiveMovableid;
+						goalItype = attractiveMovableitype;
+			
+			case 1: 	idOfGoal = attractiveNPCid;
+						goalItype = attractiveNPCitype;
+			
+			default:	idOfGoal = attractiveResid;
+						goalItype = attractiveResitype;	
+		}
+		
+		System.out.println("goalItype  :" + goalItype + "   goalID"+ idOfGoal);
+//		return goal;
+	}
+	
+	public static int getMostAttractiveItype(ArrayList<Observation>[] obsPositions){
+		// return the id of the most attractive object in the given list of observations
+		int attractiveID = -1;
+		if (obsPositions==null){
+			return attractiveID;
+		}
+		double attractiveItype_val = - Double.MAX_VALUE;
+		int attractiveItype = -1;
+		// choose a random itype, Thus we dont chooe more often things with lots of different instances. 
+		for (ArrayList<Observation> npcs : obsPositions) {
+			if (npcs.size() > 0) {
+				
+				double npcAttractionValue = 0;
+				try {
+					npcAttractionValue = PersistentStorage.iTypeAttractivity
+							.get(npcs.get(0).itype);
+				} catch (java.lang.NullPointerException e) {
+					PersistentStorage.iTypeAttractivity
+					.putIfAbsent(npcs.get(0));
+					npcAttractionValue = PersistentStorage.iTypeAttractivity
+							.get(npcs.get(0).itype);
+				}
+				
+				if(npcAttractionValue == -2){
+					// dont try to go to the killing npc
+					
+				}
+				else{
+					double interestFact = Math.random();
+					if(interestFact > attractiveItype_val){
+						attractiveItype = npcs.get(0).itype;
+						attractiveItype_val = interestFact;
+					}
+				}
+					
+//				//				 for(int i = 0; i< npcs.size(); i++){
+//				// look at the most rewarding/punishing npc
+//				for(int i = 0; i<npcs.size(); i++){
+//
+//					double npcAttractionValue = 0;
+//					try {
+//						npcAttractionValue = PersistentStorage.iTypeAttractivity
+//								.get(npcs.get(i).itype);
+//					} catch (java.lang.NullPointerException e) {
+//						PersistentStorage.iTypeAttractivity
+//						.putIfAbsent(npcs.get(i));
+//						npcAttractionValue = PersistentStorage.iTypeAttractivity
+//								.get(npcs.get(i).itype);
+//					}
+//					
+//					// update best attration value
+//					if(npcAttractionValue > bestNpcAttractionValue){
+//						bestNpcAttractionValue = npcAttractionValue;
+//						attractiveID = i;
+//					}
+						
+//				}
+			}
+		}
+		
+		return attractiveItype;
+				
+//		// get the ID
+//		if(attractiveID  > 0){
+//			for (ArrayList<Observation> npcs : obsPositions) {
+//				if (npcs.size() > 0) {
+//					if(npcs.get(0).itype == attractiveID){
+//						int randID =  (int )(Math.random() * npcs.size() );
+//						attractiveID = npcs.get(randID).obsID;
+//					}
+//						
+//					
+//				}
+//				}
+//			
+//			
+		//		}
+		//		
+		//		return attractiveID;
+	}
+
+	public static int getIDofItpye(ArrayList<Observation>[] obsPositions , int attractiveItype){
+		// get the ID
+		int attractiveID = -1;
+		if(attractiveItype  > 0){
+			for (ArrayList<Observation> obs : obsPositions) {
+				if (obs.size() > 0) {
+					if(obs.get(0).itype == attractiveItype){
+						int randID =  (int )(Math.random() * obs.size() );
+						attractiveID = obs.get(randID).obsID;
+					}
+				}
+			}
+		}
+		return attractiveID;
 	}
 	
 	

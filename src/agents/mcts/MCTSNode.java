@@ -168,7 +168,9 @@ public class MCTSNode {
 		// get all itypes. ObsList = <Obs.ID,Obs.itype>=			
 		HashMap<Integer, Integer> ObsList = ObservationTools.getObsList(cur.state);
 		// choose goal from the list of itypes. persist for n number of ticks
-		int goalID = chooseGoalFromObsList(ObsList,cur.state);
+		//int goalID = chooseGoalFromObsList(ObsList,cur.state);
+		int goalID = MCTSAgent.idOfGoal;
+		
 		if(goalID < 0){
 			// go back to normal tree policy
 			return treePolicy();
@@ -179,8 +181,18 @@ public class MCTSNode {
 		goalIType = ObsList.get(goalID);
 		} catch (Exception e){
 			System.out.println(e.getMessage());
+			MCTSAgent.treePolMode=0;
+			MCTSAgent.idOfGoal = 0;
+			MCTSAgent.goalItype = 0;
 			return treePolicy();
 		}
+		if(goalIType != MCTSAgent.goalItype){
+			MCTSAgent.treePolMode=0;
+			MCTSAgent.idOfGoal = 0;
+			MCTSAgent.goalItype = 0;
+			return treePolicy();
+		}
+			
 		// create distance to this object
 		if(MCTSAgent.pathPlannerMaps.containsKey(goalID)){
 			// use this distance to expand the tree
@@ -305,6 +317,8 @@ public class MCTSNode {
 			double childValue = hvVal
 					/ (children[i].nVisits + MCTSNode.epsilon);
 			
+			//TODO: implement this selection rule a bit better, random and better combination of distance with the given values.
+			
 			double goalExploreValue = childValue
 					+ PersistentStorage.K
 					* Math.sqrt(Math.log(nVisits + 1)
@@ -343,7 +357,8 @@ public class MCTSNode {
 		}
 		return selectedNode;
 	}
-
+	
+/*
 	int chooseGoalFromObsList(HashMap<Integer,Integer> ObsList, StateObservation currentState){
 		int goal = -1;
 		Vector2d pos = currentState.getAvatarPosition();
@@ -378,6 +393,9 @@ public class MCTSNode {
 		
 		return goal;
 	}
+	*/
+	
+	
 	public MCTSNode expand() {
 
 		int bestAction = 0;
@@ -402,7 +420,7 @@ public class MCTSNode {
 	double goalRewardProbability(int actionID, double[] energies, double totEnergy){
 		// calculate the probability (based on the precalculated energy) of reaching the goal using this action
 		double rewardProb = 0;
-		
+		// TODO: the way the energies are defined doesnt fit with that rule. ALso we need to consider some other temperatur, otherwise it is almost flat. 
 		rewardProb = Math.exp(-1*energies[actionID]/totEnergy);
 		
 		return rewardProb;
@@ -491,6 +509,7 @@ public class MCTSNode {
 		return selected;
 	}
 	
+	/*
 	int getMostAttractiveID(ArrayList<Observation>[] obsPositions){
 		// return the id of the most attractive object in the given list of observations
 		int attractiveID = -1;
@@ -505,8 +524,6 @@ public class MCTSNode {
 				for(int i = 0; i<npcs.size(); i++){
 
 					double npcAttractionValue = 0;
-					
-
 					try {
 						npcAttractionValue = PersistentStorage.iTypeAttractivity
 								.get(npcs.get(i).itype);
@@ -526,10 +543,11 @@ public class MCTSNode {
 				}
 			}
 		}
-		
-		
 		return attractiveID;
 	}
+	*/
+	
+	
 
 	public double rollOut() {
 		StateObservation rollerState = state.copy();
